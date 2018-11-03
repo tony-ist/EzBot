@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://gitlab.com/JustMrPhoenix/ezbot/issues"
   },
-  "homepage": "https://gitlab.com/JustMrPhoenix/ezbot#README"
+  "homepage": "https://gitlab.com/JustMrPhoenix/ezbot#README",
+  "dependencies": {
+    "discord.js": "^11.4.2"
+  }
 }
