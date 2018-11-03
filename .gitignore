@@ -59,5 +59,4 @@ typings/
 
 .idea/
 .vscode/
-package-lock.json
 config.json
