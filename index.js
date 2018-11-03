@@ -1,7 +1,7 @@
 const Discord = require('discord.js')
 const config = require('./config')
 
-var argsRegexp = /[^\s"]+|"([^"]*)"/gi
+let argsRegexp = /[^\s"]+|"([^"]*)"/gi
 const client = new Discord.Client()
 
 client.on('ready', () => {
@@ -36,9 +36,10 @@ client.on('message', msg => {
     }
     let command = client.Commands[commandName]
     let argsStr = content.join(' ')
-    var args = []
+    let args = []
+    let match = null
     do {
-      var match = argsRegexp.exec(argsStr)
+      match = argsRegexp.exec(argsStr)
       if (match != null) {
         args.push(match[1] ? match[1] : match[0])
       }
