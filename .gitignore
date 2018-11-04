@@ -61,3 +61,4 @@ typings/
 .vscode/
 config.json
 temp.mp3
+tempOut.pcm

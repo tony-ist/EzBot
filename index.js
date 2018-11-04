@@ -1,4 +1,5 @@
 const Discord = require('discord.js')
+const fs = require('fs')
 const config = require('./config')
 const yandexSpeech = require('yandex-speech')
 
@@ -24,10 +25,11 @@ client.addCommand('game', msg => {
 })
 
 let GameChannels = {
-  'Visual Studio Code': '508227060938964992'
+  'Visual Studio Code': '508227060938964992',
+  'Mines': '508227060938964992'
 }
 
-client.on('presenceUpdate', (oldMember, newMember) => {
+function onPresenceUpdate (oldMember, newMember) {
   let presence = newMember.presence
   let userVoiceChannel = newMember.voiceChannel
   if (!presence || !presence.game || !userVoiceChannel) {
@@ -47,9 +49,6 @@ client.on('presenceUpdate', (oldMember, newMember) => {
         const dispatcher = connection.playFile('temp.mp3')
         dispatcher.on('end', () => {
           console.log(dispatcher.time)
-          setTimeout(() => {
-            userVoiceChannel.leave()
-          }, 2000)
         })
         dispatcher.on('debug', i => {
           console.log(i)
@@ -66,9 +65,31 @@ client.on('presenceUpdate', (oldMember, newMember) => {
         })
         dispatcher.setVolume(1)
         console.log('done')
+
+        const receiver = connection.createReceiver()
+
+        connection.on('speaking', (user, speaking) => {
+          if (speaking) {
+            console.log(`I'm listening to ${user}`)
+            // this creates a 16-bit signed PCM, stereo 48KHz PCM stream.
+            const audioStream = receiver.createPCMStream(user)
+            // create an output stream so we can dump our data in a file
+            const outputStream = fs.createWriteStream('tempOut.pcm')
+            // pipe our audio data into the file stream
+            audioStream.pipe(outputStream)
+            outputStream.on('data', console.log)
+            // when the stream ends (the user stopped talking) tell the user
+            audioStream.on('end', () => {
+              console.log('audioStream end')
+              userVoiceChannel.leave()
+            })
+          }
+        })
       })
     }).catch(console.error)
-})
+}
+
+client.on('presenceUpdate', onPresenceUpdate)
 
 client.on('message', msg => {
   if (msg.content.indexOf('!') !== 0) {
