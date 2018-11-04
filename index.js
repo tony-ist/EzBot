@@ -1,5 +1,6 @@
 const Discord = require('discord.js')
 const config = require('./config')
+const yandexSpeech = require('yandex-speech')
 
 let argsRegexp = /[^\s"]+|"([^"]*)"/gi
 const client = new Discord.Client()
@@ -18,8 +19,55 @@ client.addCommand('ping', msg => {
   msg.reply('Pong!')
 })
 
-client.addCommand('say', (msg, args) => {
-  msg.reply(args[0])
+client.addCommand('game', msg => {
+  msg.reply(msg.author.presence.game.name)
+})
+
+let GameChannels = {
+  'Visual Studio Code': '508227060938964992'
+}
+
+client.on('presenceUpdate', (oldMember, newMember) => {
+  let presence = newMember.presence
+  let userVoiceChannel = newMember.voiceChannel
+  if (!presence || !presence.game || !userVoiceChannel) {
+    return
+  }
+  let channelId = GameChannels[presence.game.name]
+  if (!channelId || channelId === userVoiceChannel.id) {
+    return
+  }
+  userVoiceChannel.join()
+  .then(connection => {
+    yandexSpeech.TTS({
+      developer_key: config.yandexApiKey,
+      text: 'Дарова чуваки! @ @ @ @',
+      file: 'temp.mp3'
+    }, () => {
+      const dispatcher = connection.playFile('temp.mp3')
+      dispatcher.on('end', () => {
+        console.log(dispatcher.time)
+        setTimeout(() => {
+          userVoiceChannel.leave()
+        }, 2000)
+      })
+      dispatcher.on('debug', i => {
+        console.log(i)
+      })
+      dispatcher.on('start', () => {
+        console.log('playing')
+      })
+      dispatcher.once('error', errWithFile => {
+        console.log('err with file: ' + errWithFile)
+        return ('err with file: ' + errWithFile)
+      })
+      dispatcher.on('error', e => {
+        console.log(e)
+      })
+      dispatcher.setVolume(1)
+      console.log('done')
+    })
+  }).catch(console.error)
 })
 
 client.on('message', msg => {

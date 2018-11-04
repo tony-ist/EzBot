@@ -23,7 +23,10 @@
   },
   "homepage": "https://gitlab.com/JustMrPhoenix/ezbot#README",
   "dependencies": {
-    "discord.js": "^11.4.2"
+    "discord.js": "^11.4.2",
+    "node-opus": "^0.3.1",
+    "opusscript": "0.0.6",
+    "yandex-speech": "0.0.14"
   },
   "devDependencies": {
     "eslint": "^5.8.0",

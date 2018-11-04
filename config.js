@@ -3,7 +3,8 @@ const fs = require('fs')
 const configPath = './config.json'
 const defaultConfig = {
   apiToken: '',
-  serverId: '158305694506942465'
+  serverId: '158305694506942465',
+  yandexApiKey: ''
 }
 
 if (!fs.existsSync(configPath)) {
