@@ -38,36 +38,36 @@ client.on('presenceUpdate', (oldMember, newMember) => {
     return
   }
   userVoiceChannel.join()
-  .then(connection => {
-    yandexSpeech.TTS({
-      developer_key: config.yandexApiKey,
-      text: 'Дарова чуваки! @ @ @ @',
-      file: 'temp.mp3'
-    }, () => {
-      const dispatcher = connection.playFile('temp.mp3')
-      dispatcher.on('end', () => {
-        console.log(dispatcher.time)
-        setTimeout(() => {
-          userVoiceChannel.leave()
-        }, 2000)
+    .then(connection => {
+      yandexSpeech.TTS({
+        developer_key: config.yandexApiKey,
+        text: 'Дарова чуваки! @ @ @ @',
+        file: 'temp.mp3'
+      }, () => {
+        const dispatcher = connection.playFile('temp.mp3')
+        dispatcher.on('end', () => {
+          console.log(dispatcher.time)
+          setTimeout(() => {
+            userVoiceChannel.leave()
+          }, 2000)
+        })
+        dispatcher.on('debug', i => {
+          console.log(i)
+        })
+        dispatcher.on('start', () => {
+          console.log('playing')
+        })
+        dispatcher.once('error', errWithFile => {
+          console.log('err with file: ' + errWithFile)
+          return ('err with file: ' + errWithFile)
+        })
+        dispatcher.on('error', e => {
+          console.log(e)
+        })
+        dispatcher.setVolume(1)
+        console.log('done')
       })
-      dispatcher.on('debug', i => {
-        console.log(i)
-      })
-      dispatcher.on('start', () => {
-        console.log('playing')
-      })
-      dispatcher.once('error', errWithFile => {
-        console.log('err with file: ' + errWithFile)
-        return ('err with file: ' + errWithFile)
-      })
-      dispatcher.on('error', e => {
-        console.log(e)
-      })
-      dispatcher.setVolume(1)
-      console.log('done')
-    })
-  }).catch(console.error)
+    }).catch(console.error)
 })
 
 client.on('message', msg => {
