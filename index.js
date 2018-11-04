@@ -41,7 +41,7 @@ client.on('presenceUpdate', (oldMember, newMember) => {
     .then(connection => {
       yandexSpeech.TTS({
         developer_key: config.yandexApiKey,
-        text: 'Дарова чуваки! @ @ @ @',
+        text: `Ей, ${newMember.user.username}`,
         file: 'temp.mp3'
       }, () => {
         const dispatcher = connection.playFile('temp.mp3')

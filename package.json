@@ -24,6 +24,7 @@
   "homepage": "https://gitlab.com/JustMrPhoenix/ezbot#README",
   "dependencies": {
     "discord.js": "^11.4.2",
+    "ffmpeg-binaries": "^4.0.0",
     "node-opus": "^0.3.1",
     "opusscript": "0.0.6",
     "yandex-speech": "0.0.14"
