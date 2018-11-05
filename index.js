@@ -1,14 +1,15 @@
 require('dotenv').config()
 const Discord = require('discord.js')
 const fs = require('fs')
-const speech = require('@google-cloud/speech')
 const yandexSpeech = require('yandex-speech')
 const config = require('./config')
 const convertTo1Channel = require('./convertTo1Channel')
+const parseString = require('xml2js').parseString
 
 let argsRegexp = /[^\s"]+|"([^"]*)"/gi
 const client = new Discord.Client()
-const speechClient = new speech.SpeechClient()
+const yesWords = ['да', 'хорошо', 'давай', 'ок', 'окей', 'подтверждаю', 'согласен', 'хочу']
+const noWords = [ 'не_надо', 'не подтверждаю', 'не_согласен', 'не_хочу', 'неверно', 'нет' ]
 
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`)
@@ -33,7 +34,7 @@ const GameChannels = {
   'Mines': '508227060938964992'
 }
 
-function onPresenceUpdate(oldMember, newMember) {
+client.on('presenceUpdate', (oldMember, newMember) => {
   let presence = newMember.presence
   let userVoiceChannel = newMember.voiceChannel
   if (!presence || !presence.game || !userVoiceChannel) {
@@ -51,12 +52,74 @@ function onPresenceUpdate(oldMember, newMember) {
 
       yandexSpeech.TTS({
         developer_key: config.yandexApiKey,
-        text: `Ей, ${newMember.user.username}`,
+        text: `Ей, ребята, вы седите не в том конале, хотите я вас перекину??`,
+        // text: `Ей, ${newMember.user.username}`,
         file: playFilePath
       }, () => {
         const dispatcher = connection.playFile(playFilePath)
         dispatcher.on('end', () => {
           console.log(dispatcher.time)
+          const receiver = connection.createReceiver()
+          connection.on('speaking', (user, speaking) => {
+            if (speaking) {
+              console.log(`I'm listening to ${user}`)
+              const tempOutPath = 'samples/tempOut.pcm'
+              // this creates a 16-bit signed PCM, stereo 48KHz PCM stream.
+              const audioStream = receiver.createPCMStream(user)
+              // create an output stream so we can dump our data in a file
+              const outputStream = fs.createWriteStream(tempOutPath)
+              // pipe our audio data into the file stream
+              audioStream.pipe(outputStream)
+              outputStream.on('data', console.log)
+              // when the stream ends (the user stopped talking) tell the user
+              audioStream.on('end', () => {
+                console.log('audioStream end')
+                convertTo1Channel(tempOutPath)
+                yandexSpeech.ASR({
+                  developer_key: config.yandexApiKey,
+                  file: 'samples/tempOut.pcm',
+                  topic: 'buying',
+                  lang: 'ru-RU',
+                  filetype: 'audio/x-pcm;bit=16;rate=48000'
+                }, function(err, httpResponse, xml) {
+                  if (err) {
+                    console.log(err)
+                  } else {
+                    if (httpResponse.statusCode !== 200) {
+                      userVoiceChannel.leave()
+                      return
+                    }
+                    parseString(xml, (err, result) => {
+                      if (err) {
+                        console.log(err)
+                        userVoiceChannel.leave()
+                      } else {
+                        if (result.recognitionResults['$'].success === '1') {
+                          let variants = result.recognitionResults.variant
+                          variants.forEach(function(val, key) {
+                            let word = val['_']
+                            if (yesWords.indexOf(word) > -1) {
+                              console.log(`Moving member ${newMember} to channel ${channelId}`)
+                              connection.channel.members.array().forEach((val, key) => {
+                                if (val.user.id !== client.user.id) {
+                                  val.setVoiceChannel(channelId)
+                                }
+                                userVoiceChannel.leave()
+                              })
+                              // newMember.setVoiceChannel(channelId)
+                            } else if (noWords.indexOf(word) > -1) {
+                              console.log(`Moving member ${newMember} to channel ${channelId}`)
+                              userVoiceChannel.leave()
+                            }
+                          })
+                        }
+                      }
+                    })
+                  }
+                })
+              })
+            }
+          })
         })
         dispatcher.on('debug', i => {
           console.log(i)
@@ -73,70 +136,9 @@ function onPresenceUpdate(oldMember, newMember) {
         })
         dispatcher.setVolume(1)
         console.log('done')
-
-        const receiver = connection.createReceiver()
-
-        connection.on('speaking', (user, speaking) => {
-          if (speaking) {
-            console.log(`I'm listening to ${user}`)
-
-            const tempOutPath = 'samples/tempOut.pcm'
-
-            // this creates a 16-bit signed PCM, stereo 48KHz PCM stream.
-            const audioStream = receiver.createPCMStream(user)
-            // create an output stream so we can dump our data in a file
-            const outputStream = fs.createWriteStream(tempOutPath)
-            // pipe our audio data into the file stream
-            audioStream.pipe(outputStream)
-            outputStream.on('data', console.log)
-            // when the stream ends (the user stopped talking) tell the user
-            audioStream.on('end', () => {
-              console.log('audioStream end')
-
-              convertTo1Channel(tempOutPath)
-
-              const file = fs.readFileSync(tempOutPath)
-              const audioBytes = file.toString('base64')
-              const audio = { content: audioBytes }
-              const config = {
-                encoding: 'LINEAR16',
-                sampleRateHertz: 48000,
-                languageCode: 'ru-RU'
-              }
-              const request = {
-                audio: audio,
-                config: config
-              }
-
-              speechClient
-                .recognize(request)
-                .then(data => {
-                  const response = data[0]
-                  const transcription = response.results
-                    .map(result => result.alternatives[0].transcript)
-                    .join('\n')
-                  console.log(`Transcription: ${transcription}`)
-
-                  const yesWords = ['да', 'хорошо']
-
-                  if (yesWords.indexOf(transcription) > -1) {
-                    console.log(`Moving member ${newMember} to channel ${channelId}`)
-                    newMember.setVoiceChannel(channelId)
-                  }
-
-                  userVoiceChannel.leave()
-                })
-                .catch(err => {
-                  console.error('ERROR:', err)
-                })
-            })
-          }
-        })
       })
     }).catch(console.error)
-}
-
-client.on('presenceUpdate', onPresenceUpdate)
+})
 
 client.on('message', msg => {
   if (msg.content.indexOf('!') !== 0) {
