@@ -6,5 +6,6 @@ module.exports = {
     "no-var": ERROR,
     "no-redeclare": ERROR,
     "space-before-function-paren": ["error", "never"],
+    "array-bracket-spacing": ["error", "never"]
   }
 };

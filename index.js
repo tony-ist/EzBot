@@ -10,7 +10,8 @@ const parseString = require('xml2js').parseString
 const argsRegexp = /[^\s"]+|"([^"]*)"/gi
 const discordClient = new Discord.Client()
 const yesWords = ['да', 'хорошо', 'давай', 'ок', 'окей', 'подтверждаю', 'согласен', 'хочу']
-const noWords = [ 'не_надо', 'не подтверждаю', 'не_согласен', 'не_хочу', 'неверно', 'нет' ]
+// eslint-disable-next-line
+const noWords = ['не_надо', 'не подтверждаю', 'не_согласен', 'не_хочу', 'неверно', 'нет']
 
 discordClient.on('ready', () => {
   console.log(`Logged in as ${discordClient.user.tag}!`)
@@ -68,26 +69,35 @@ MongoClient.connect(config.dbConnectionUrl, { useNewUrlParser: true }, (err, mon
 
           yandexSpeech.TTS({
             developer_key: config.yandexApiKey,
-            text: `Ей, ребята, вы седите не в том конале, хотите я вас перекину??`,
-            // text: `Ей, ${newMember.user.username}`,
+            // text: `Ей, ребята, вы седите не в том конале, хотите я вас перекину??`,
+            text: `Ей, ${newMember.user.username}`,
             file: playFilePath
           }, () => {
             const dispatcher = connection.playFile(playFilePath)
+
             dispatcher.on('end', () => {
               console.log(dispatcher.time)
+
               const receiver = connection.createReceiver()
+
               connection.on('speaking', (user, speaking) => {
                 if (speaking) {
                   console.log(`I'm listening to ${user}`)
+
                   const tempOutPath = 'samples/tempOut.pcm'
                   // this creates a 16-bit signed PCM, stereo 48KHz PCM stream.
                   const audioStream = receiver.createPCMStream(user)
                   const outputStream = fs.createWriteStream(tempOutPath)
+
                   audioStream.pipe(outputStream)
+
                   outputStream.on('data', console.log)
+
                   audioStream.on('end', () => {
                     console.log('audioStream end')
+
                     convertTo1Channel(tempOutPath)
+
                     yandexSpeech.ASR({
                       developer_key: config.yandexApiKey,
                       file: 'samples/tempOut.pcm',
@@ -121,20 +131,21 @@ MongoClient.connect(config.dbConnectionUrl, { useNewUrlParser: true }, (err, mon
 
                         variants.forEach(val => {
                           const word = val['_']
+
+                          console.log(`Variant: ${word}`)
+
                           if (yesWords.indexOf(word) > -1) {
                             console.log(`Moving member ${newMember} to channel ${channelId}`)
+
                             connection.channel.members.array().forEach(val => {
                               if (val.user.id !== discordClient.user.id) {
                                 val.setVoiceChannel(channelId)
                               }
-                              userVoiceChannel.leave()
                             })
-                            // newMember.setVoiceChannel(channelId)
-                          } else if (noWords.indexOf(word) > -1) {
-                            console.log(`Moving member ${newMember} to channel ${channelId}`)
-                            userVoiceChannel.leave()
                           }
                         })
+
+                        userVoiceChannel.leave()
                       })
                     })
                   })
@@ -148,11 +159,11 @@ MongoClient.connect(config.dbConnectionUrl, { useNewUrlParser: true }, (err, mon
               console.log('playing')
             })
             dispatcher.once('error', errWithFile => {
-              console.log('err with file: ' + errWithFile)
+              console.error('err with file: ' + errWithFile)
               return ('err with file: ' + errWithFile)
             })
             dispatcher.on('error', e => {
-              console.log(e)
+              console.error(e)
             })
             dispatcher.setVolume(1)
             console.log('done')
