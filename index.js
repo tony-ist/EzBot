@@ -86,12 +86,9 @@ MongoClient.connect(mongoConnectionUrl, { useNewUrlParser: true }, (err, mongoCl
                 const tempOutPath = 'samples/tempOut.pcm'
                 // this creates a 16-bit signed PCM, stereo 48KHz PCM stream.
                 const audioStream = receiver.createPCMStream(user)
-                // create an output stream so we can dump our data in a file
                 const outputStream = fs.createWriteStream(tempOutPath)
-                // pipe our audio data into the file stream
                 audioStream.pipe(outputStream)
                 outputStream.on('data', console.log)
-                // when the stream ends (the user stopped talking) tell the user
                 audioStream.on('end', () => {
                   console.log('audioStream end')
                   convertTo1Channel(tempOutPath)
