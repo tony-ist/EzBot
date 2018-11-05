@@ -4,7 +4,9 @@ const configPath = './config.json'
 const defaultConfig = {
   apiToken: '',
   serverId: '158305694506942465',
-  yandexApiKey: ''
+  yandexApiKey: '',
+  dbUser: 'root',
+  dbPassword: ''
 }
 
 if (!fs.existsSync(configPath)) {
