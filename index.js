@@ -117,25 +117,28 @@ MongoClient.connect(mongoConnectionUrl, { useNewUrlParser: true }, (err, mongoCl
                         return
                       }
 
-                      if (result.recognitionResults['$'].success === '1') {
-                        const variants = result.recognitionResults.variant
-                        variants.forEach(val => {
-                          const word = val['_']
-                          if (yesWords.indexOf(word) > -1) {
-                            console.log(`Moving member ${newMember} to channel ${channelId}`)
-                            connection.channel.members.array().forEach(val => {
-                              if (val.user.id !== discordClient.user.id) {
-                                val.setVoiceChannel(channelId)
-                              }
-                              userVoiceChannel.leave()
-                            })
-                            // newMember.setVoiceChannel(channelId)
-                          } else if (noWords.indexOf(word) > -1) {
-                            console.log(`Moving member ${newMember} to channel ${channelId}`)
-                            userVoiceChannel.leave()
-                          }
-                        })
+                      if (result.recognitionResults['$'].success !== '1') {
+                        return
                       }
+
+                      const variants = result.recognitionResults.variant
+
+                      variants.forEach(val => {
+                        const word = val['_']
+                        if (yesWords.indexOf(word) > -1) {
+                          console.log(`Moving member ${newMember} to channel ${channelId}`)
+                          connection.channel.members.array().forEach(val => {
+                            if (val.user.id !== discordClient.user.id) {
+                              val.setVoiceChannel(channelId)
+                            }
+                            userVoiceChannel.leave()
+                          })
+                          // newMember.setVoiceChannel(channelId)
+                        } else if (noWords.indexOf(word) > -1) {
+                          console.log(`Moving member ${newMember} to channel ${channelId}`)
+                          userVoiceChannel.leave()
+                        }
+                      })
                     })
                   })
                 })
