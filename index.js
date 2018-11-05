@@ -69,8 +69,8 @@ MongoClient.connect(config.dbConnectionUrl, { useNewUrlParser: true }, (err, mon
 
           yandexSpeech.TTS({
             developer_key: config.yandexApiKey,
-            // text: `Ей, ребята, вы седите не в том конале, хотите я вас перекину??`,
-            text: `Ей, ${newMember.user.username}`,
+            text: `Ей, ребята, вы седите не в том конале, хотите я вас перекину??`,
+            // text: `Ей, ${newMember.user.username}`,
             file: playFilePath
           }, () => {
             const dispatcher = connection.playFile(playFilePath)
