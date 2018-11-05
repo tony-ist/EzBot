@@ -59,6 +59,7 @@ typings/
 
 .idea/
 .vscode/
+samples/
+credentials/
 config.json
-temp.mp3
-tempOut.pcm
+.env
