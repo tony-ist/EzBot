@@ -5,8 +5,8 @@ const defaultConfig = {
   apiToken: '',
   serverId: '158305694506942465',
   yandexApiKey: '',
-  dbUser: 'root',
-  dbPassword: ''
+  dbConnectionUrl: 'mongodb://user:password@localhost:27017/database',
+  dbName: 'ezbot'
 }
 
 if (!fs.existsSync(configPath)) {
