@@ -20,7 +20,7 @@ discordClient.on('ready', () => {
 
 discordClient.Commands = {}
 
-discordClient.addCommand = function(name, callback, description) {
+discordClient.addCommand = (name, callback, description) => {
   discordClient.Commands[name] = { name, callback, description }
 }
 
@@ -37,7 +37,7 @@ const GameChannels = {
   'Mines': '508227060938964992'
 }
 
-MongoClient.connect(mongoConnectionUrl, { useNewUrlParser: true }, function(err, mongoClient) {
+MongoClient.connect(mongoConnectionUrl, { useNewUrlParser: true }, (err, mongoClient) => {
   if (err) {
     console.error(err)
     return
@@ -122,11 +122,11 @@ MongoClient.connect(mongoConnectionUrl, { useNewUrlParser: true }, function(err,
 
                       if (result.recognitionResults['$'].success === '1') {
                         const variants = result.recognitionResults.variant
-                        variants.forEach(function(val, key) {
+                        variants.forEach(val => {
                           const word = val['_']
                           if (yesWords.indexOf(word) > -1) {
                             console.log(`Moving member ${newMember} to channel ${channelId}`)
-                            connection.channel.members.array().forEach((val, key) => {
+                            connection.channel.members.array().forEach(val => {
                               if (val.user.id !== discordClient.user.id) {
                                 val.setVoiceChannel(channelId)
                               }
