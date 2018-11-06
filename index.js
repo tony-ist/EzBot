@@ -11,6 +11,7 @@ const discordClient = new Discord.Client()
 const googleSpeechClient = new googleSpeech.SpeechClient()
 const yesWords = ['да', 'хорошо', 'давай', 'ок', 'окей', 'подтверждаю', 'согласен', 'хочу', 'ага']
 const noWords = ['не надо', 'не подтверждаю', 'не согласен', 'не хочу', 'неверно', 'нет', 'не']
+const meTooWords = ['меня', 'и меня', 'меня тоже']
 
 discordClient.on('ready', () => {
   console.log(`Logged in as ${discordClient.user.tag}!`)
@@ -68,6 +69,9 @@ async function start() {
       console.log(dispatcher.time)
 
       const receiver = connection.createReceiver()
+      setTimeout(() => {
+        userVoiceChannel.leave()
+      }, 15000)
 
       connection.on('speaking', (user, speaking) => {
         if (!speaking) {
@@ -120,6 +124,11 @@ async function start() {
             })
           } else if (noWords.indexOf(transcription) > -1) {
             userVoiceChannel.leave()
+          } else if (transcription === 'только меня') {
+            newMember.guild.member(user).setVoiceChannel(channelId)
+            userVoiceChannel.leave()
+          } else if (meTooWords.indexOf(transcription) > -1) {
+            newMember.guild.member(user).setVoiceChannel(channelId)
           }
         })
       })
