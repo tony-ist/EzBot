@@ -10,7 +10,6 @@ const parseString = require('xml2js').parseString
 const argsRegexp = /[^\s"]+|"([^"]*)"/gi
 const discordClient = new Discord.Client()
 const yesWords = ['да', 'хорошо', 'давай', 'ок', 'окей', 'подтверждаю', 'согласен', 'хочу']
-// eslint-disable-next-line
 const noWords = ['не_надо', 'не подтверждаю', 'не_согласен', 'не_хочу', 'неверно', 'нет']
 
 discordClient.on('ready', () => {
@@ -65,109 +64,101 @@ MongoClient.connect(config.dbConnectionUrl, { useNewUrlParser: true }, (err, mon
         .then(connection => {
           console.log('Joined voice channel')
 
-          const playFilePath = 'samples/temp.mp3'
+          const playFilePath = 'audio/wrongChannel.mp3'
+          const dispatcher = connection.playFile(playFilePath)
 
-          yandexSpeech.TTS({
-            developer_key: config.yandexApiKey,
-            text: `Ей, ребята, вы седите не в том конале, хотите я вас перекину??`,
-            // text: `Ей, ${newMember.user.username}`,
-            file: playFilePath
-          }, () => {
-            const dispatcher = connection.playFile(playFilePath)
+          dispatcher.on('end', () => {
+            console.log(dispatcher.time)
 
-            dispatcher.on('end', () => {
-              console.log(dispatcher.time)
+            const receiver = connection.createReceiver()
 
-              const receiver = connection.createReceiver()
+            connection.on('speaking', (user, speaking) => {
+              if (speaking) {
+                console.log(`I'm listening to ${user}`)
 
-              connection.on('speaking', (user, speaking) => {
-                if (speaking) {
-                  console.log(`I'm listening to ${user}`)
+                const tempOutPath = 'samples/tempOut.pcm'
+                // this creates a 16-bit signed PCM, stereo 48KHz PCM stream.
+                const audioStream = receiver.createPCMStream(user)
+                const outputStream = fs.createWriteStream(tempOutPath)
 
-                  const tempOutPath = 'samples/tempOut.pcm'
-                  // this creates a 16-bit signed PCM, stereo 48KHz PCM stream.
-                  const audioStream = receiver.createPCMStream(user)
-                  const outputStream = fs.createWriteStream(tempOutPath)
+                audioStream.pipe(outputStream)
 
-                  audioStream.pipe(outputStream)
+                outputStream.on('data', console.log)
 
-                  outputStream.on('data', console.log)
+                audioStream.on('end', () => {
+                  console.log('audioStream end')
 
-                  audioStream.on('end', () => {
-                    console.log('audioStream end')
+                  convertTo1Channel(tempOutPath)
 
-                    convertTo1Channel(tempOutPath)
+                  yandexSpeech.ASR({
+                    developer_key: config.yandexApiKey,
+                    file: 'samples/tempOut.pcm',
+                    topic: 'buying',
+                    lang: 'ru-RU',
+                    filetype: 'audio/x-pcm;bit=16;rate=48000'
+                  }, (err, httpResponse, xml) => {
+                    if (err) {
+                      userVoiceChannel.leave()
+                      console.log(err)
+                      return
+                    }
 
-                    yandexSpeech.ASR({
-                      developer_key: config.yandexApiKey,
-                      file: 'samples/tempOut.pcm',
-                      topic: 'buying',
-                      lang: 'ru-RU',
-                      filetype: 'audio/x-pcm;bit=16;rate=48000'
-                    }, (err, httpResponse, xml) => {
+                    if (httpResponse.statusCode !== 200) {
+                      userVoiceChannel.leave()
+                      return
+                    }
+
+                    parseString(xml, (err, result) => {
                       if (err) {
-                        userVoiceChannel.leave()
                         console.log(err)
-                        return
-                      }
-
-                      if (httpResponse.statusCode !== 200) {
                         userVoiceChannel.leave()
                         return
                       }
 
-                      parseString(xml, (err, result) => {
-                        if (err) {
-                          console.log(err)
+                      if (result.recognitionResults['$'].success !== '1') {
+                        return
+                      }
+
+                      const variants = result.recognitionResults.variant
+
+                      variants.forEach(val => {
+                        const word = val['_']
+
+                        console.log(`Variant: ${word}`)
+
+                        if (yesWords.indexOf(word) > -1) {
+                          console.log(`Moving member ${newMember} to channel ${channelId}`)
+
+                          connection.channel.members.array().forEach(val => {
+                            if (val.user.id !== discordClient.user.id) {
+                              val.setVoiceChannel(channelId)
+                            }
+                          })
+                        } else if (noWords.indexOf(word) > -1) {
                           userVoiceChannel.leave()
-                          return
                         }
-
-                        if (result.recognitionResults['$'].success !== '1') {
-                          return
-                        }
-
-                        const variants = result.recognitionResults.variant
-
-                        variants.forEach(val => {
-                          const word = val['_']
-
-                          console.log(`Variant: ${word}`)
-
-                          if (yesWords.indexOf(word) > -1) {
-                            console.log(`Moving member ${newMember} to channel ${channelId}`)
-
-                            connection.channel.members.array().forEach(val => {
-                              if (val.user.id !== discordClient.user.id) {
-                                val.setVoiceChannel(channelId)
-                              }
-                            })
-                          }
-                        })
-
-                        userVoiceChannel.leave()
                       })
                     })
                   })
-                }
-              })
+                })
+              }
             })
-            dispatcher.on('debug', i => {
-              console.log(i)
-            })
-            dispatcher.on('start', () => {
-              console.log('playing')
-            })
-            dispatcher.once('error', errWithFile => {
-              console.error('err with file: ' + errWithFile)
-              return ('err with file: ' + errWithFile)
-            })
-            dispatcher.on('error', e => {
-              console.error(e)
-            })
-            dispatcher.setVolume(1)
-            console.log('done')
           })
+          dispatcher.on('debug', i => {
+            console.log(i)
+          })
+          dispatcher.on('start', () => {
+            console.log('playing')
+          })
+          dispatcher.once('error', errWithFile => {
+            console.error('err with file: ' + errWithFile)
+            return ('err with file: ' + errWithFile)
+          })
+          dispatcher.on('error', e => {
+            console.error(e)
+          })
+          dispatcher.setVolume(1)
+          console.log('done')
         }).catch(console.error)
     })
   })
