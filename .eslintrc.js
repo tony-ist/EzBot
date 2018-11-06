@@ -5,7 +5,11 @@ module.exports = {
   "rules": {
     "no-var": ERROR,
     "no-redeclare": ERROR,
-    "space-before-function-paren": ["error", "never"],
+    "space-before-function-paren": ["error", {
+      "anonymous": "never",
+      "named": "never",
+      "asyncArrow": "always"
+    }],
     "array-bracket-spacing": ["error", "never"]
   }
 };

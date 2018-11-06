@@ -9,8 +9,8 @@ const convertTo1Channel = require('./convertTo1Channel')
 const argsRegexp = /[^\s"]+|"([^"]*)"/gi
 const discordClient = new Discord.Client()
 const googleSpeechClient = new googleSpeech.SpeechClient()
-const yesWords = ['да', 'хорошо', 'давай', 'ок', 'окей', 'подтверждаю', 'согласен', 'хочу']
-const noWords = ['не надо', 'не подтверждаю', 'не согласен', 'не хочу', 'неверно', 'нет']
+const yesWords = ['да', 'хорошо', 'давай', 'ок', 'окей', 'подтверждаю', 'согласен', 'хочу', 'ага']
+const noWords = ['не надо', 'не подтверждаю', 'не согласен', 'не хочу', 'неверно', 'нет', 'не']
 
 discordClient.on('ready', () => {
   console.log(`Logged in as ${discordClient.user.tag}!`)
@@ -30,126 +30,121 @@ discordClient.addCommand('game', msg => {
   msg.reply(msg.author.presence.game.name)
 })
 
-MongoClient.connect(config.dbConnectionUrl, { useNewUrlParser: true }, (err, mongoClient) => {
-  if (err) {
-    console.error(err)
-    return
-  }
+async function start() {
+  const mongoClient = await MongoClient.connect(config.dbConnectionUrl, { useNewUrlParser: true })
 
   console.log('Connected successfully to mongodb server')
 
   const db = mongoClient.db(config.dbName)
 
-  db.collection('GamesAndChannels').findOne({}, (err, GameChannels) => {
-    if (err) {
-      console.error(err)
+  const GamesAndChannels = await db.collection('GamesAndChannels').findOne({})
+
+  console.log(GamesAndChannels)
+
+  discordClient.on('presenceUpdate', async (oldMember, newMember) => {
+    const presence = newMember.presence
+    const userVoiceChannel = newMember.voiceChannel
+
+    if (!presence || !presence.game || !userVoiceChannel) {
       return
     }
 
-    discordClient.on('presenceUpdate', (oldMember, newMember) => {
-      const presence = newMember.presence
-      const userVoiceChannel = newMember.voiceChannel
+    const channelId = GamesAndChannels[presence.game.name]
 
-      if (!presence || !presence.game || !userVoiceChannel) {
-        return
-      }
+    if (!channelId || channelId === userVoiceChannel.id) {
+      return
+    }
 
-      const channelId = GameChannels[presence.game.name]
+    const connection = await userVoiceChannel.join()
 
-      if (!channelId || channelId === userVoiceChannel.id) {
-        return
-      }
+    console.log('Joined voice channel')
 
-      userVoiceChannel.join()
-        .then(connection => {
-          console.log('Joined voice channel')
+    const playFilePath = 'audio/wrongChannel.mp3'
+    const dispatcher = connection.playFile(playFilePath)
 
-          const playFilePath = 'audio/wrongChannel.mp3'
-          const dispatcher = connection.playFile(playFilePath)
+    dispatcher.on('end', () => {
+      console.log(dispatcher.time)
 
-          dispatcher.on('end', () => {
-            console.log(dispatcher.time)
+      const receiver = connection.createReceiver()
 
-            const receiver = connection.createReceiver()
+      connection.on('speaking', (user, speaking) => {
+        if (!speaking) {
+          return
+        }
 
-            connection.on('speaking', (user, speaking) => {
-              if (speaking) {
-                console.log(`I'm listening to ${user}`)
+        console.log(`I'm listening to ${user}`)
 
-                const tempOutPath = 'samples/tempOut.pcm'
-                // this creates a 16-bit signed PCM, stereo 48KHz PCM stream.
-                const audioStream = receiver.createPCMStream(user)
-                const outputStream = fs.createWriteStream(tempOutPath)
+        const tempOutPath = 'samples/tempOut.pcm'
+        // this creates a 16-bit signed PCM, stereo 48KHz PCM stream.
+        const audioStream = receiver.createPCMStream(user)
+        const outputStream = fs.createWriteStream(tempOutPath)
 
-                audioStream.pipe(outputStream)
+        audioStream.pipe(outputStream)
 
-                outputStream.on('data', console.log)
+        outputStream.on('data', console.log)
 
-                audioStream.on('end', () => {
-                  console.log('audioStream end')
+        audioStream.on('end', async () => {
+          console.log('audioStream end')
 
-                  convertTo1Channel(tempOutPath)
+          convertTo1Channel(tempOutPath)
 
-                  const file = fs.readFileSync(tempOutPath)
-                  const audioBytes = file.toString('base64')
-                  const audio = { content: audioBytes }
-                  const config = {
-                    encoding: 'LINEAR16',
-                    sampleRateHertz: 48000,
-                    languageCode: 'ru-RU'
-                  }
-                  const request = {
-                    audio: audio,
-                    config: config
-                  }
+          const file = fs.readFileSync(tempOutPath)
+          const audioBytes = file.toString('base64')
+          const audio = { content: audioBytes }
+          const config = {
+            encoding: 'LINEAR16',
+            sampleRateHertz: 48000,
+            languageCode: 'ru-RU'
+          }
+          const request = {
+            audio: audio,
+            config: config
+          }
 
-                  googleSpeechClient
-                    .recognize(request)
-                    .then(data => {
-                      const response = data[0]
-                      const transcription = response.results
-                        .map(result => result.alternatives[0].transcript)
-                        .join('\n')
-                      console.log(`Transcription: ${transcription}`)
+          const data = await googleSpeechClient.recognize(request)
+          const response = data[0]
+          const transcription = response.results
+            .map(result => result.alternatives[0].transcript)
+            .join('\n')
+          console.log(`Transcription: ${transcription}`)
 
-                      if (yesWords.indexOf(transcription) > -1) {
-                        connection.channel.members.array().forEach(member => {
-                          if (member.user.id !== discordClient.user.id) {
-                            console.log(`Moving member ${member} to channel ${channelId}`)
-                            member.setVoiceChannel(channelId)
-                            userVoiceChannel.leave()
-                          }
-                        })
-                      } else if (noWords.indexOf(transcription) > -1) {
-                        userVoiceChannel.leave()
-                      }
-                    })
-                    .catch(err => {
-                      console.error('ERROR:', err)
-                    })
-                })
+          if (yesWords.indexOf(transcription) > -1) {
+            connection.channel.members.array().forEach(member => {
+              if (member.user.id !== discordClient.user.id) {
+                console.log(`Moving member ${member.displayName} to channel ${channelId}`)
+                member.setVoiceChannel(channelId)
+                userVoiceChannel.leave()
               }
             })
-          })
-          dispatcher.on('debug', i => {
-            console.log(i)
-          })
-          dispatcher.on('start', () => {
-            console.log('playing')
-          })
-          dispatcher.once('error', errWithFile => {
-            console.error('err with file: ' + errWithFile)
-            return ('err with file: ' + errWithFile)
-          })
-          dispatcher.on('error', e => {
-            console.error(e)
-          })
-          dispatcher.setVolume(1)
-          console.log('done')
-        }).catch(console.error)
+          } else if (noWords.indexOf(transcription) > -1) {
+            userVoiceChannel.leave()
+          }
+        })
+      })
     })
+
+    dispatcher.on('debug', i => {
+      console.log(i)
+    })
+
+    dispatcher.on('start', () => {
+      console.log('playing')
+    })
+
+    dispatcher.once('error', errWithFile => {
+      console.error('err with file: ' + errWithFile)
+      return ('err with file: ' + errWithFile)
+    })
+
+    dispatcher.on('error', e => {
+      console.error(e)
+    })
+
+    dispatcher.setVolume(1)
+
+    console.log('done')
   })
-})
+}
 
 discordClient.on('message', msg => {
   if (msg.content.indexOf('!') !== 0) {
@@ -181,3 +176,8 @@ discordClient.on('message', msg => {
 })
 
 discordClient.login(config.apiToken)
+
+start().catch(err => {
+  console.error(err)
+  process.exit(1)
+})
