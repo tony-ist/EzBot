@@ -2,15 +2,15 @@ require('dotenv').config()
 const Discord = require('discord.js')
 const fs = require('fs')
 const MongoClient = require('mongodb').MongoClient
-const yandexSpeech = require('yandex-speech')
+const googleSpeech = require('@google-cloud/speech')
 const config = require('./config')
 const convertTo1Channel = require('./convertTo1Channel')
-const parseString = require('xml2js').parseString
 
 const argsRegexp = /[^\s"]+|"([^"]*)"/gi
 const discordClient = new Discord.Client()
+const googleSpeechClient = new googleSpeech.SpeechClient()
 const yesWords = ['да', 'хорошо', 'давай', 'ок', 'окей', 'подтверждаю', 'согласен', 'хочу']
-const noWords = ['не_надо', 'не подтверждаю', 'не_согласен', 'не_хочу', 'неверно', 'нет']
+const noWords = ['не надо', 'не подтверждаю', 'не согласен', 'не хочу', 'неверно', 'нет']
 
 discordClient.on('ready', () => {
   console.log(`Logged in as ${discordClient.user.tag}!`)
@@ -90,56 +90,43 @@ MongoClient.connect(config.dbConnectionUrl, { useNewUrlParser: true }, (err, mon
 
                   convertTo1Channel(tempOutPath)
 
-                  yandexSpeech.ASR({
-                    developer_key: config.yandexApiKey,
-                    file: 'samples/tempOut.pcm',
-                    topic: 'buying',
-                    lang: 'ru-RU',
-                    filetype: 'audio/x-pcm;bit=16;rate=48000'
-                  }, (err, httpResponse, xml) => {
-                    if (err) {
-                      userVoiceChannel.leave()
-                      console.log(err)
-                      return
-                    }
+                  const file = fs.readFileSync(tempOutPath)
+                  const audioBytes = file.toString('base64')
+                  const audio = { content: audioBytes }
+                  const config = {
+                    encoding: 'LINEAR16',
+                    sampleRateHertz: 48000,
+                    languageCode: 'ru-RU'
+                  }
+                  const request = {
+                    audio: audio,
+                    config: config
+                  }
 
-                    if (httpResponse.statusCode !== 200) {
-                      userVoiceChannel.leave()
-                      return
-                    }
+                  googleSpeechClient
+                    .recognize(request)
+                    .then(data => {
+                      const response = data[0]
+                      const transcription = response.results
+                        .map(result => result.alternatives[0].transcript)
+                        .join('\n')
+                      console.log(`Transcription: ${transcription}`)
 
-                    parseString(xml, (err, result) => {
-                      if (err) {
-                        console.log(err)
+                      if (yesWords.indexOf(transcription) > -1) {
+                        connection.channel.members.array().forEach(member => {
+                          if (member.user.id !== discordClient.user.id) {
+                            console.log(`Moving member ${member} to channel ${channelId}`)
+                            member.setVoiceChannel(channelId)
+                            userVoiceChannel.leave()
+                          }
+                        })
+                      } else if (noWords.indexOf(transcription) > -1) {
                         userVoiceChannel.leave()
-                        return
                       }
-
-                      if (result.recognitionResults['$'].success !== '1') {
-                        return
-                      }
-
-                      const variants = result.recognitionResults.variant
-
-                      variants.forEach(val => {
-                        const word = val['_']
-
-                        console.log(`Variant: ${word}`)
-
-                        if (yesWords.indexOf(word) > -1) {
-                          console.log(`Moving member ${newMember} to channel ${channelId}`)
-
-                          connection.channel.members.array().forEach(val => {
-                            if (val.user.id !== discordClient.user.id) {
-                              val.setVoiceChannel(channelId)
-                            }
-                          })
-                        } else if (noWords.indexOf(word) > -1) {
-                          userVoiceChannel.leave()
-                        }
-                      })
                     })
-                  })
+                    .catch(err => {
+                      console.error('ERROR:', err)
+                    })
                 })
               }
             })
