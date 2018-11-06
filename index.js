@@ -30,7 +30,7 @@ discordClient.addCommand('game', msg => {
   if (msg.author.presence.game) {
     msg.reply(msg.author.presence.game.name)
   } else {
-    msg.reply('You are not playing any game')
+    msg.reply('Ты не играешь ни в какую игру')
   }
 })
 
