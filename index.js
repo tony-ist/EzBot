@@ -9,8 +9,8 @@ const convertTo1Channel = require('./convertTo1Channel')
 const argsRegexp = /[^\s"]+|"([^"]*)"/gi
 const discordClient = new Discord.Client()
 const googleSpeechClient = new googleSpeech.SpeechClient()
-const yesWords = ['да', 'хорошо', 'давай', 'ок', 'окей', 'подтверждаю', 'согласен', 'хочу', 'ага']
-const noWords = ['не надо', 'не подтверждаю', 'не согласен', 'не хочу', 'неверно', 'нет', 'не']
+const yesWords = ['да', 'хорошо', 'давай', 'ок', 'окей', 'подтверждаю', 'согласен', 'хочу', 'ага', 'ответ положительный', 'перекинь']
+const noWords = ['не надо', 'не подтверждаю', 'не согласен', 'не хочу', 'неверно', 'нет', 'не', 'отвали', 'ответ отрицательный', 'не хотим']
 
 discordClient.on('ready', () => {
   console.log(`Logged in as ${discordClient.user.tag}!`)
