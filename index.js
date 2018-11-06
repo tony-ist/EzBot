@@ -27,7 +27,7 @@ discordClient.addCommand('ping', msg => {
 })
 
 discordClient.addCommand('game', msg => {
-  if (msg.author.presence.game) {
+  if (msg.author.presence && msg.author.presence.game) {
     msg.reply(msg.author.presence.game.name)
   } else {
     msg.reply('Ты не играешь ни в какую игру')
