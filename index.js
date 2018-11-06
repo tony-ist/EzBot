@@ -39,8 +39,6 @@ async function start() {
 
   const GamesAndChannels = await db.collection('GamesAndChannels').findOne({})
 
-  console.log(GamesAndChannels)
-
   discordClient.on('presenceUpdate', async (oldMember, newMember) => {
     const presence = newMember.presence
     const userVoiceChannel = newMember.voiceChannel
