@@ -27,7 +27,11 @@ discordClient.addCommand('ping', msg => {
 })
 
 discordClient.addCommand('game', msg => {
-  msg.reply(msg.author.presence.game.name)
+  if (msg.author.presence.game) {
+    msg.reply(msg.author.presence.game.name)
+  } else {
+    msg.reply('You are not playing any game')
+  }
 })
 
 async function start() {
