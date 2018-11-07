@@ -51,8 +51,8 @@ async function start() {
       return
     }
 
-    const gameAndChannel = await db.collection('GamesAndChannels').findOne({ Game: presence.game.name })
-    const channelId = gameAndChannel.Channel
+    const gameAndChannel = await db.collection('GamesAndChannels').findOne({ game: presence.game.name })
+    const channelId = gameAndChannel.channel
 
     if (!channelId || channelId === userVoiceChannel.id) {
       return
@@ -70,7 +70,7 @@ async function start() {
       const receiver = connection.createReceiver()
       setTimeout(() => {
         userVoiceChannel.leave()
-      }, 15000)
+      }, 30000)
 
       connection.on('speaking', (user, speaking) => {
         if (!speaking) {
