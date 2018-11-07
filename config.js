@@ -2,7 +2,8 @@ const fs = require('fs')
 
 const configPath = './config.json'
 const defaultConfig = {
-  apiToken: '',
+  wrongChannelAudioPath: 'audio/wrongChannel.mp3',
+  discordApiToken: '',
   serverId: '158305694506942465',
   yandexApiKey: '',
   dbConnectionUrl: 'mongodb://user:password@localhost:27017/database',

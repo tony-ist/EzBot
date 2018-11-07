@@ -43,8 +43,6 @@ async function start() {
 
   const db = mongoClient.db(config.dbName)
 
-  const GamesAndChannels = await db.collection('GamesAndChannels').findOne({})
-
   discordClient.on('presenceUpdate', async (oldMember, newMember) => {
     const presence = newMember.presence
     const userVoiceChannel = newMember.voiceChannel
@@ -53,7 +51,8 @@ async function start() {
       return
     }
 
-    const channelId = GamesAndChannels[presence.game.name]
+    const gameAndChannel = await db.collection('GamesAndChannels').findOne({ Game: presence.game.name })
+    const channelId = gameAndChannel.Channel
 
     if (!channelId || channelId === userVoiceChannel.id) {
       return
@@ -63,8 +62,7 @@ async function start() {
 
     console.log('Joined voice channel')
 
-    const playFilePath = 'audio/wrongChannel.mp3'
-    const dispatcher = connection.playFile(playFilePath)
+    const dispatcher = connection.playFile(config.wrongChannelAudioPath)
 
     dispatcher.on('end', () => {
       console.log(dispatcher.time)
@@ -187,7 +185,7 @@ discordClient.on('message', msg => {
   command.callback(msg, args)
 })
 
-discordClient.login(config.apiToken)
+discordClient.login(config.discordApiToken)
 
 start().catch(err => {
   console.error(err)
