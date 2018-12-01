@@ -2,14 +2,19 @@ const fs = require('fs')
 
 function convertTo1Channel(filePath, convertedFilePath = filePath) {
   const file = fs.readFileSync(filePath)
-  const convertedFile = Buffer.alloc(file.length / 2)
 
-  for (let i = 0; i < convertedFile.length / 2; i++) {
-    const uint16 = file.readUInt16LE(i * 4)
-    convertedFile.writeUInt16LE(uint16, i * 2)
-  }
-
-  fs.writeFileSync(convertedFilePath, convertedFile)
+  fs.writeFileSync(convertedFilePath, convertBufferTo1Channel(file))
 }
 
-module.exports = convertTo1Channel
+function convertBufferTo1Channel(buffer) {
+  const convertedBuffer = Buffer.alloc(buffer.length / 2)
+
+  for (let i = 0; i < convertedBuffer.length / 2; i++) {
+    const uint16 = buffer.readUInt16LE(i * 4)
+    convertedBuffer.writeUInt16LE(uint16, i * 2)
+  }
+
+  return convertedBuffer
+}
+
+module.exports = { convertTo1Channel, convertBufferTo1Channel }

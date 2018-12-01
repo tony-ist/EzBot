@@ -1,10 +1,9 @@
 require('dotenv').config()
 const Discord = require('discord.js')
-const fs = require('fs')
 const MongoClient = require('mongodb').MongoClient
 const googleSpeech = require('@google-cloud/speech')
 const config = require('./config')
-const convertTo1Channel = require('./convertTo1Channel')
+const ConvertTo1ChannelStream = require('./convertTo1ChannelStream')
 
 const argsRegexp = /[^\s"]+|"([^"]*)"/gi
 const discordClient = new Discord.Client()
@@ -77,64 +76,53 @@ async function start() {
           return
         }
 
-        console.log(`I'm listening to ${user}`)
+        console.log(`I'm listening to ${user.username}`)
 
-        const tempOutPath = 'samples/tempOut.pcm'
         // this creates a 16-bit signed PCM, stereo 48KHz PCM stream.
         const audioStream = receiver.createPCMStream(user)
-        const outputStream = fs.createWriteStream(tempOutPath)
+        const config = {
+          encoding: 'LINEAR16',
+          sampleRateHertz: 48000,
+          languageCode: 'ru-RU'
+        }
+        const request = {
+          config: config
+        }
+        const recognizeStream = googleSpeechClient
+          .streamingRecognize(request)
+          .on('error', console.error)
+          .on('data', response => {
+            const transcription = response.results
+              .map(result => result.alternatives[0].transcript)
+              .join('\n')
+            console.log(`Transcription: ${transcription}`)
 
-        audioStream.pipe(outputStream)
+            if (yesWords.indexOf(transcription) > -1) {
+              connection.channel.members.array().forEach(member => {
+                if (member.user.id !== discordClient.user.id) {
+                  console.log(`Moving member ${member.displayName} to channel ${channelId}`)
+                  member.setVoiceChannel(channelId)
+                  userVoiceChannel.leave()
+                }
+              })
+            } else if (noWords.indexOf(transcription) > -1) {
+              userVoiceChannel.leave()
+            } else if (transcription === 'только меня') {
+              newMember.guild.member(user).setVoiceChannel(channelId)
+              userVoiceChannel.leave()
+            } else if (meTooWords.indexOf(transcription) > -1) {
+              newMember.guild.member(user).setVoiceChannel(channelId)
+            }
+          })
 
-        outputStream.on('data', console.log)
+        const convertTo1ChannelStream = new ConvertTo1ChannelStream()
+
+        audioStream.pipe(convertTo1ChannelStream).pipe(recognizeStream)
 
         audioStream.on('end', async () => {
           console.log('audioStream end')
-
-          convertTo1Channel(tempOutPath)
-
-          const file = fs.readFileSync(tempOutPath)
-          const audioBytes = file.toString('base64')
-          const audio = { content: audioBytes }
-          const config = {
-            encoding: 'LINEAR16',
-            sampleRateHertz: 48000,
-            languageCode: 'ru-RU'
-          }
-          const request = {
-            audio: audio,
-            config: config
-          }
-
-          const data = await googleSpeechClient.recognize(request)
-          const response = data[0]
-          const transcription = response.results
-            .map(result => result.alternatives[0].transcript)
-            .join('\n')
-          console.log(`Transcription: ${transcription}`)
-
-          if (yesWords.indexOf(transcription) > -1) {
-            connection.channel.members.array().forEach(member => {
-              if (member.user.id !== discordClient.user.id) {
-                console.log(`Moving member ${member.displayName} to channel ${channelId}`)
-                member.setVoiceChannel(channelId)
-                userVoiceChannel.leave()
-              }
-            })
-          } else if (noWords.indexOf(transcription) > -1) {
-            userVoiceChannel.leave()
-          } else if (transcription === 'только меня') {
-            newMember.guild.member(user).setVoiceChannel(channelId)
-            userVoiceChannel.leave()
-          } else if (meTooWords.indexOf(transcription) > -1) {
-            newMember.guild.member(user).setVoiceChannel(channelId)
-          }
         })
       })
-    })
-
-    dispatcher.on('debug', i => {
-      console.log(i)
     })
 
     dispatcher.on('start', () => {
@@ -151,8 +139,6 @@ async function start() {
     })
 
     dispatcher.setVolume(1)
-
-    console.log('done')
   })
 }
 
