@@ -65,8 +65,6 @@ async function start() {
     const dispatcher = connection.playFile(config.wrongChannelAudioPath)
 
     dispatcher.on('end', () => {
-      console.log(dispatcher.time)
-
       const receiver = connection.createReceiver()
       setTimeout(() => {
         isInVoiceChannel = false
