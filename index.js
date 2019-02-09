@@ -205,7 +205,7 @@ discordClient.on('message', msg => {
   command.callback(msg, args)
 })
 
-discordClient.on('error', err => console.log(`Discord client error: ${err}`))
+discordClient.on('error', err => console.log(`Discord client error: ${JSON.stringify(err, null, 2)}`))
 
 discordClient.login(config.discordApiToken)
 
