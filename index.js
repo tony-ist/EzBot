@@ -1,4 +1,5 @@
 require('dotenv').config()
+const DbManagement = require('./commands/DbManagement')
 const Discord = require('discord.js')
 const MongoClient = require('mongodb').MongoClient
 const googleSpeech = require('@google-cloud/speech')
@@ -43,12 +44,14 @@ async function start() {
 
   const db = mongoClient.db(config.dbName)
 
+  DbManagement.addCommands(discordClient, db)
+
   discordClient.on('raw', async event => {
     if (event.t !== 'MESSAGE_REACTION_ADD' && event.t !== 'MESSAGE_REACTION_REMOVE') {
       return
     }
 
-    const cursor = await db.collection('ReactionMessages').find({})
+    const cursor = await db.collection('ReactionMessages').find()
 
     if (await cursor.count() !== 1) {
       throw new Error('ReactionMessages should contain only single document')
@@ -168,9 +171,7 @@ async function start() {
       return ('err with file: ' + errWithFile)
     })
 
-    dispatcher.on('error', e => {
-      console.error(e)
-    })
+    dispatcher.on('error', console.error)
 
     dispatcher.setVolume(1)
   })
@@ -183,8 +184,6 @@ discordClient.on('message', msg => {
 
   const content = msg.content.split(' ')
   const commandName = content.shift().substring(1)
-
-  console.log(commandName)
 
   if (!(commandName in discordClient.Commands)) {
     return
@@ -202,10 +201,12 @@ discordClient.on('message', msg => {
     }
   } while (match != null)
 
+  console.log(commandName, args)
+
   command.callback(msg, args)
 })
 
-discordClient.on('error', err => console.log(`Discord client error: ${JSON.stringify(err, null, 2)}`))
+discordClient.on('error', err => console.error(`Discord client error: ${JSON.stringify(err, null, 2)}`))
 
 discordClient.login(config.discordApiToken)
 
