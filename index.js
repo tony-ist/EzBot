@@ -13,7 +13,7 @@ const googleSpeechClient = new googleSpeech.SpeechClient()
 const yesWords = ['да', 'хорошо', 'давай', 'ок', 'окей', 'подтверждаю', 'согласен', 'хочу', 'ага', 'ответ положительный', 'перекинь']
 const noWords = ['не надо', 'не подтверждаю', 'не согласен', 'не хочу', 'неверно', 'нет', 'не', 'отвали', 'ответ отрицательный', 'не хотим']
 const meTooWords = ['меня', 'и меня', 'меня тоже']
-let isInVoiceChannel = false
+let isBotInVoiceChannel = false
 
 discordClient.on('ready', () => {
   console.log(`Logged in as ${discordClient.user.tag}!`)
@@ -90,8 +90,9 @@ async function start() {
   discordClient.on('presenceUpdate', async (oldMember, newMember) => {
     const presence = newMember.presence
     const userVoiceChannel = newMember.voiceChannel
+    const isUserAfk = userVoiceChannel.id === newMember.guild.afkChannelID
 
-    if (!presence || !presence.game || !userVoiceChannel || isInVoiceChannel) {
+    if (!presence || !presence.game || !userVoiceChannel || isBotInVoiceChannel || isUserAfk) {
       return
     }
 
@@ -103,7 +104,7 @@ async function start() {
     }
 
     const connection = await userVoiceChannel.join()
-    isInVoiceChannel = true
+    isBotInVoiceChannel = true
     console.log('Joined voice channel')
 
     const dispatcher = connection.playFile(config.wrongChannelAudioPath)
@@ -111,7 +112,7 @@ async function start() {
     dispatcher.on('end', () => {
       const receiver = connection.createReceiver()
       setTimeout(() => {
-        isInVoiceChannel = false
+        isBotInVoiceChannel = false
         userVoiceChannel.leave()
       }, 30000)
 
@@ -146,16 +147,16 @@ async function start() {
                 if (member.user.id !== discordClient.user.id) {
                   console.log(`Moving member ${member.displayName} to channel ${channelId}`)
                   member.setVoiceChannel(channelId)
-                  isInVoiceChannel = false
+                  isBotInVoiceChannel = false
                   userVoiceChannel.leave()
                 }
               })
             } else if (noWords.indexOf(transcription) > -1) {
-              isInVoiceChannel = false
+              isBotInVoiceChannel = false
               userVoiceChannel.leave()
             } else if (transcription === 'только меня') {
               newMember.guild.member(user).setVoiceChannel(channelId)
-              isInVoiceChannel = false
+              isBotInVoiceChannel = false
               userVoiceChannel.leave()
             } else if (meTooWords.indexOf(transcription) > -1) {
               newMember.guild.member(user).setVoiceChannel(channelId)
