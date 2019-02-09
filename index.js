@@ -25,17 +25,27 @@ discordClient.addCommand = (name, callback, description) => {
   discordClient.Commands[name] = { name, callback, description }
 }
 
-discordClient.addCommand('ping', msg => {
-  msg.reply('Pong!')
-})
+discordClient.addCommand('ping', message => {
+  message.reply('Pong!')
+}, 'Бот отвечает Pong!')
 
-discordClient.addCommand('game', msg => {
-  if (msg.author.presence && msg.author.presence.game) {
-    msg.reply(msg.author.presence.game.name)
+discordClient.addCommand('game', message => {
+  if (message.author.presence && message.author.presence.game) {
+    message.reply(message.author.presence.game.name)
   } else {
-    msg.reply('Ты не играешь ни в какую игру')
+    message.reply('Ты не играешь ни в какую игру')
   }
-})
+}, 'Отображает название игры, в которую ты играешь.')
+
+discordClient.addCommand('help', message => {
+  let reply = 'Помощь по командам бота:\n'
+
+  for (const name in discordClient.Commands) {
+    reply += `\`!${name}\`: ${discordClient.Commands[name].description || ''}\n`
+  }
+
+  message.reply(reply)
+}, 'Отображает помощь по командам.')
 
 async function start() {
   const mongoClient = await MongoClient.connect(config.dbConnectionUrl, { useNewUrlParser: true })
@@ -177,12 +187,12 @@ async function start() {
   })
 }
 
-discordClient.on('message', msg => {
-  if (msg.content.indexOf('!') !== 0) {
+discordClient.on('message', message => {
+  if (message.content.indexOf('!') !== 0) {
     return
   }
 
-  const content = msg.content.split(' ')
+  const content = message.content.split(' ')
   const commandName = content.shift().substring(1)
 
   if (!(commandName in discordClient.Commands)) {
@@ -203,7 +213,7 @@ discordClient.on('message', msg => {
 
   console.log(commandName, args)
 
-  command.callback(msg, args)
+  command.callback(message, args)
 })
 
 discordClient.on('error', err => console.error(`Discord client error: ${JSON.stringify(err, null, 2)}`))
