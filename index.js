@@ -43,6 +43,37 @@ async function start() {
 
   const db = mongoClient.db(config.dbName)
 
+  discordClient.on('raw', async event => {
+    if (event.t !== 'MESSAGE_REACTION_ADD' && event.t !== 'MESSAGE_REACTION_REMOVE') {
+      return
+    }
+
+    const cursor = await db.collection('ReactionMessages').find({})
+
+    if (await cursor.count() !== 1) {
+      throw new Error('ReactionMessages should contain only single document')
+    }
+
+    const reactionMessage = await cursor.next()
+
+    const channel = discordClient.channels.get(event.d.channel_id)
+    const message = await channel.fetchMessage(event.d.message_id)
+
+    if (message.id !== reactionMessage.id) {
+      return
+    }
+
+    const emoteAndRole = await db.collection('EmotesAndRoles').findOne({ emote: event.d.emoji.name })
+    const role = message.guild.roles.find(r => r.name === emoteAndRole.role)
+    const user = message.guild.members.get(event.d.user_id)
+
+    if (event.t === 'MESSAGE_REACTION_ADD') {
+      user.addRole(role)
+    } else {
+      user.removeRole(role)
+    }
+  })
+
   discordClient.on('presenceUpdate', async (oldMember, newMember) => {
     const presence = newMember.presence
     const userVoiceChannel = newMember.voiceChannel
@@ -178,7 +209,4 @@ discordClient.on('error', err => console.log(`Discord client error: ${err}`))
 
 discordClient.login(config.discordApiToken)
 
-start().catch(err => {
-  console.error(err)
-  process.exit(1)
-})
+start().catch(console.error)
