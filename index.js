@@ -47,6 +47,106 @@ discordClient.addCommand('help', message => {
   message.reply(reply)
 }, 'Отображает помощь по командам.')
 
+async function summon(db, member) {
+  const presence = member.presence
+  const userVoiceChannel = member.voiceChannel
+  const isUserAfk = userVoiceChannel && userVoiceChannel.id === member.guild.afkChannelID
+
+  if (!presence || !presence.game || !userVoiceChannel || isBotInVoiceChannel || isUserAfk) {
+    return
+  }
+
+  const gameAndChannel = await db.collection('GamesAndChannels').findOne({ game: presence.game.name })
+  const channelId = gameAndChannel.channel
+
+  if (!channelId || channelId === userVoiceChannel.id) {
+    return
+  }
+
+  const connection = await userVoiceChannel.join()
+  isBotInVoiceChannel = true
+  console.log('Joined voice channel')
+
+  const dispatcher = connection.playFile(config.wrongChannelAudioPath)
+
+  dispatcher.on('end', () => {
+    const receiver = connection.createReceiver()
+    setTimeout(() => {
+      isBotInVoiceChannel = false
+      userVoiceChannel.leave()
+    }, 30000)
+
+    connection.on('speaking', (user, speaking) => {
+      if (!speaking) {
+        return
+      }
+
+      console.log(`I'm listening to ${user.username}`)
+
+      // this creates a 16-bit signed PCM, stereo 48KHz PCM stream.
+      const audioStream = receiver.createPCMStream(user)
+      const config = {
+        encoding: 'LINEAR16',
+        sampleRateHertz: 48000,
+        languageCode: 'ru-RU'
+      }
+      const request = {
+        config: config
+      }
+      const recognizeStream = googleSpeechClient
+        .streamingRecognize(request)
+        .on('error', console.error)
+        .on('data', response => {
+          const transcription = response.results
+            .map(result => result.alternatives[0].transcript)
+            .join('\n')
+          console.log(`Transcription: ${transcription}`)
+
+          if (yesWords.indexOf(transcription) > -1) {
+            connection.channel.members.array().forEach(member => {
+              if (member.user.id !== discordClient.user.id) {
+                console.log(`Moving member ${member.displayName} to channel ${channelId}`)
+                member.setVoiceChannel(channelId)
+                isBotInVoiceChannel = false
+                userVoiceChannel.leave()
+              }
+            })
+          } else if (noWords.indexOf(transcription) > -1) {
+            isBotInVoiceChannel = false
+            userVoiceChannel.leave()
+          } else if (transcription === 'только меня') {
+            member.guild.member(user).setVoiceChannel(channelId)
+            isBotInVoiceChannel = false
+            userVoiceChannel.leave()
+          } else if (meTooWords.indexOf(transcription) > -1) {
+            member.guild.member(user).setVoiceChannel(channelId)
+          }
+        })
+
+      const convertTo1ChannelStream = new ConvertTo1ChannelStream()
+
+      audioStream.pipe(convertTo1ChannelStream).pipe(recognizeStream)
+
+      audioStream.on('end', async () => {
+        console.log('audioStream end')
+      })
+    })
+  })
+
+  dispatcher.on('start', () => {
+    console.log('playing')
+  })
+
+  dispatcher.once('error', errWithFile => {
+    console.error('err with file: ' + errWithFile)
+    return ('err with file: ' + errWithFile)
+  })
+
+  dispatcher.on('error', console.error)
+
+  dispatcher.setVolume(1)
+}
+
 async function start() {
   const mongoClient = await MongoClient.connect(config.dbConnectionUrl, { useNewUrlParser: true })
 
@@ -87,113 +187,13 @@ async function start() {
     }
   })
 
-  async function summon(member) {
-    const presence = member.presence
-    const userVoiceChannel = member.voiceChannel
-    const isUserAfk = userVoiceChannel && userVoiceChannel.id === member.guild.afkChannelID
-
-    if (!presence || !presence.game || !userVoiceChannel || isBotInVoiceChannel || isUserAfk) {
-      return
-    }
-
-    const gameAndChannel = await db.collection('GamesAndChannels').findOne({ game: presence.game.name })
-    const channelId = gameAndChannel.channel
-
-    if (!channelId || channelId === userVoiceChannel.id) {
-      return
-    }
-
-    const connection = await userVoiceChannel.join()
-    isBotInVoiceChannel = true
-    console.log('Joined voice channel')
-
-    const dispatcher = connection.playFile(config.wrongChannelAudioPath)
-
-    dispatcher.on('end', () => {
-      const receiver = connection.createReceiver()
-      setTimeout(() => {
-        isBotInVoiceChannel = false
-        userVoiceChannel.leave()
-      }, 30000)
-
-      connection.on('speaking', (user, speaking) => {
-        if (!speaking) {
-          return
-        }
-
-        console.log(`I'm listening to ${user.username}`)
-
-        // this creates a 16-bit signed PCM, stereo 48KHz PCM stream.
-        const audioStream = receiver.createPCMStream(user)
-        const config = {
-          encoding: 'LINEAR16',
-          sampleRateHertz: 48000,
-          languageCode: 'ru-RU'
-        }
-        const request = {
-          config: config
-        }
-        const recognizeStream = googleSpeechClient
-          .streamingRecognize(request)
-          .on('error', console.error)
-          .on('data', response => {
-            const transcription = response.results
-              .map(result => result.alternatives[0].transcript)
-              .join('\n')
-            console.log(`Transcription: ${transcription}`)
-
-            if (yesWords.indexOf(transcription) > -1) {
-              connection.channel.members.array().forEach(member => {
-                if (member.user.id !== discordClient.user.id) {
-                  console.log(`Moving member ${member.displayName} to channel ${channelId}`)
-                  member.setVoiceChannel(channelId)
-                  isBotInVoiceChannel = false
-                  userVoiceChannel.leave()
-                }
-              })
-            } else if (noWords.indexOf(transcription) > -1) {
-              isBotInVoiceChannel = false
-              userVoiceChannel.leave()
-            } else if (transcription === 'только меня') {
-              member.guild.member(user).setVoiceChannel(channelId)
-              isBotInVoiceChannel = false
-              userVoiceChannel.leave()
-            } else if (meTooWords.indexOf(transcription) > -1) {
-              member.guild.member(user).setVoiceChannel(channelId)
-            }
-          })
-
-        const convertTo1ChannelStream = new ConvertTo1ChannelStream()
-
-        audioStream.pipe(convertTo1ChannelStream).pipe(recognizeStream)
-
-        audioStream.on('end', async () => {
-          console.log('audioStream end')
-        })
-      })
-    })
-
-    dispatcher.on('start', () => {
-      console.log('playing')
-    })
-
-    dispatcher.once('error', errWithFile => {
-      console.error('err with file: ' + errWithFile)
-      return ('err with file: ' + errWithFile)
-    })
-
-    dispatcher.on('error', console.error)
-
-    dispatcher.setVolume(1)
-  }
-
-  discordClient.addCommand('summon', message => {
-    console.log(message)
-    summon(message.member).catch(console.error)
+  discordClient.addCommand('summon', async message => {
+    await message.reply('Призыв услышан')
+    await summon(db, message.member)
   }, 'Призывает бота в голосовой канал, в котором ты находишься.')
 
-  discordClient.on('presenceUpdate', async (oldMember, newMember) => {
-    summon(newMember).catch(console.error)
+  discordClient.on('presenceUpdate', (oldMember, newMember) => {
+    summon(db, newMember).catch(console.error)
   })
 }
 
