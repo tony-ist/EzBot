@@ -87,10 +87,10 @@ async function start() {
     }
   })
 
-  discordClient.on('presenceUpdate', async (oldMember, newMember) => {
-    const presence = newMember.presence
-    const userVoiceChannel = newMember.voiceChannel
-    const isUserAfk = userVoiceChannel.id === newMember.guild.afkChannelID
+  async function summon(member) {
+    const presence = member.presence
+    const userVoiceChannel = member.voiceChannel
+    const isUserAfk = userVoiceChannel && userVoiceChannel.id === member.guild.afkChannelID
 
     if (!presence || !presence.game || !userVoiceChannel || isBotInVoiceChannel || isUserAfk) {
       return
@@ -155,11 +155,11 @@ async function start() {
               isBotInVoiceChannel = false
               userVoiceChannel.leave()
             } else if (transcription === 'только меня') {
-              newMember.guild.member(user).setVoiceChannel(channelId)
+              member.guild.member(user).setVoiceChannel(channelId)
               isBotInVoiceChannel = false
               userVoiceChannel.leave()
             } else if (meTooWords.indexOf(transcription) > -1) {
-              newMember.guild.member(user).setVoiceChannel(channelId)
+              member.guild.member(user).setVoiceChannel(channelId)
             }
           })
 
@@ -185,6 +185,15 @@ async function start() {
     dispatcher.on('error', console.error)
 
     dispatcher.setVolume(1)
+  }
+
+  discordClient.addCommand('summon', message => {
+    console.log(message)
+    summon(message.member).catch(console.error)
+  }, 'Призывает бота в голосовой канал, в котором ты находишься.')
+
+  discordClient.on('presenceUpdate', async (oldMember, newMember) => {
+    summon(newMember).catch(console.error)
   })
 }
 
