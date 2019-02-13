@@ -91,13 +91,13 @@ async function summon(db, member) {
 
     // this creates a 16-bit signed PCM, stereo 48KHz PCM stream.
     const audioStream = receiver.createPCMStream(user)
-    const config = {
+    const requestConfig = {
       encoding: 'LINEAR16',
       sampleRateHertz: 48000,
       languageCode: 'ru-RU'
     }
     const request = {
-      config: config
+      config: requestConfig
     }
     const recognizeStream = googleSpeechClient
       .streamingRecognize(request)
