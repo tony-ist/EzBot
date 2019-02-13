@@ -58,6 +58,11 @@ async function summon(db, member) {
   }
 
   const gameAndChannel = await db.collection('GamesAndChannels').findOne({ game: presence.game.name })
+
+  if (!gameAndChannel) {
+    return
+  }
+
   const channelId = gameAndChannel.channel
 
   if (!channelId || channelId === userVoiceChannel.id) {
