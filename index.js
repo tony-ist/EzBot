@@ -7,6 +7,7 @@ const config = require('./config')
 const ConvertTo1ChannelStream = require('./convertTo1ChannelStream')
 const Dispatcher = require('./promised/Dispatcher')
 const i18n = require('i18n')
+const locale = require(`./locales/${config.locale}.json`)
 
 i18n.configure({
   locales: ['en', 'ru'],
@@ -17,11 +18,7 @@ const argsRegexp = /[^\s"]+|"([^"]*)"/gi
 const discordClient = new Discord.Client()
 const googleSpeechClient = new googleSpeech.SpeechClient()
 
-const yesWords = ['да', 'хорошо', 'давай', 'ок', 'окей', 'подтверждаю', 'согласен', 'хочу', 'ага', 'ответ положительный', 'перекинь']
-const noWords = ['не надо', 'не подтверждаю', 'не согласен', 'не хочу', 'неверно', 'нет', 'не', 'отвали', 'ответ отрицательный', 'не хотим']
-const meTooWords = ['меня', 'и меня', 'меня тоже']
 let isBotInVoiceChannel = false
-
 
 console.log(i18n.__('Hello'))
 
@@ -37,25 +34,27 @@ discordClient.addCommand = (name, callback, description) => {
 
 discordClient.addCommand('ping', message => {
   message.reply('Pong!')
-}, 'Бот отвечает Pong!')
+}, i18n.__('PingHelp'))
 
 discordClient.addCommand('game', message => {
   if (message.author.presence && message.author.presence.game) {
     message.reply(message.author.presence.game.name)
   } else {
-    message.reply('Ты не играешь ни в какую игру')
+    message.reply(i18n.__('NoGame'))
   }
-}, 'Отображает название игры, в которую ты играешь.')
+}, i18n.__('GameHelp'))
 
 discordClient.addCommand('help', message => {
-  let reply = 'Помощь по командам бота:\n'
+  let reply = `${i18n.__('HelpDescription')}\n`
 
   for (const name in discordClient.Commands) {
     reply += `\`!${name}\`: ${discordClient.Commands[name].description || ''}\n`
   }
 
+  reply += i18n.__('HelpAppendix')
+
   message.reply(reply)
-}, 'Отображает помощь по командам.')
+}, i18n.__('HelpHelp'))
 
 async function summon(db, member) {
   const presence = member.presence
@@ -103,7 +102,7 @@ async function summon(db, member) {
     const requestConfig = {
       encoding: 'LINEAR16',
       sampleRateHertz: 48000,
-      languageCode: 'ru-RU'
+      languageCode: config.languageCode
     }
     const request = {
       config: requestConfig
@@ -115,9 +114,10 @@ async function summon(db, member) {
         const transcription = response.results
           .map(result => result.alternatives[0].transcript)
           .join('\n')
+          .toLowerCase()
         console.log(`Transcription: ${transcription}`)
 
-        if (yesWords.indexOf(transcription) > -1) {
+        if (locale.YesWords.indexOf(transcription) > -1) {
           connection.channel.members.array().forEach(member => {
             if (member.user.id !== discordClient.user.id) {
               console.log(`Moving member ${member.displayName} to channel ${channelId}`)
@@ -126,14 +126,14 @@ async function summon(db, member) {
               userVoiceChannel.leave()
             }
           })
-        } else if (noWords.indexOf(transcription) > -1) {
+        } else if (locale.NoWords.indexOf(transcription) > -1) {
           isBotInVoiceChannel = false
           userVoiceChannel.leave()
-        } else if (transcription === 'только меня') {
+        } else if (locale.OnlyMeWords.indexOf(transcription) > -1) {
           member.guild.member(user).setVoiceChannel(channelId)
           isBotInVoiceChannel = false
           userVoiceChannel.leave()
-        } else if (meTooWords.indexOf(transcription) > -1) {
+        } else if (locale.MeTooWords.indexOf(transcription) > -1) {
           member.guild.member(user).setVoiceChannel(channelId)
         }
       })
@@ -191,7 +191,7 @@ async function start() {
   discordClient.addCommand('summon', async message => {
     await message.reply('Призыв услышан')
     await summon(db, message.member)
-  }, 'Призывает бота в голосовой канал, в котором ты находишься.')
+  }, i18n.__('SummonHelp'))
 
   discordClient.on('presenceUpdate', (oldMember, newMember) => {
     summon(db, newMember).catch(console.error)

@@ -1,3 +1,5 @@
+const i18n = require('i18n')
+
 function addCommands(discordClient, db) {
   discordClient.addCommand('listGamesAndChannels', async message => {
     if (!message.member.permissions.has('ADMINISTRATOR')) {
@@ -13,7 +15,7 @@ function addCommands(discordClient, db) {
     }
 
     await message.reply(reply)
-  }, 'Отображает список связок между играми и голосовыми каналами. (Только для администраторов)')
+  }, i18n.__('ListGamesAndChannelsHelp'))
 
   discordClient.addCommand('addGameAndChannel', async (message, args) => {
     if (!message.member.permissions.has('ADMINISTRATOR')) {
@@ -33,7 +35,7 @@ function addCommands(discordClient, db) {
     })
 
     await message.reply(`Добавлена игра ${args[0]} в соответствии каналу ${args[1]}`)
-  }, 'Аргумент 1 - название игры, аргумент 2 - id голосового канала. Добавляет связку между игрой и каналом. (Только для администраторов)')
+  }, i18n.__('AddGameAndChannelHelp'))
 
   discordClient.addCommand('deleteGameAndChannel', async (message, args) => {
     if (!message.member.permissions.has('ADMINISTRATOR')) {
@@ -50,7 +52,7 @@ function addCommands(discordClient, db) {
     await db.collection('GamesAndChannels').deleteOne({ game: args[0] })
 
     await message.reply(`Удалено соответствие игры ${gameAndChannel.game} каналу ${gameAndChannel.channel}`)
-  }, 'Аргумент - название игры. Удаляет связку между данной игрой и голосовым каналом. (Только для администраторов)')
+  }, i18n.__('DeleteGameAndChannelHelp'))
 
   discordClient.addCommand('listEmotesAndRoles', async message => {
     if (!message.member.permissions.has('ADMINISTRATOR')) {
@@ -66,7 +68,7 @@ function addCommands(discordClient, db) {
     }
 
     await message.reply(reply)
-  }, 'Отображает список связок между эмоциями и ролями. (Только для администраторов)')
+  }, i18n.__('ListEmotesAndRolesHelp'))
 
   discordClient.addCommand('addEmoteAndRole', async (message, args) => {
     if (!message.member.permissions.has('ADMINISTRATOR')) {
@@ -86,7 +88,7 @@ function addCommands(discordClient, db) {
     })
 
     await message.reply(`Добавлена эмоция ${args[0]} в соответствии роли ${args[1]}`)
-  }, 'Аргумент 1 - название эмоции, аргумент 2 - название роли. Добавляет связку между эмоцией и ролью. (Только для администраторов)')
+  }, i18n.__('AddEmoteAndRoleHelp'))
 
   discordClient.addCommand('deleteEmoteAndRole', async (message, args) => {
     if (!message.member.permissions.has('ADMINISTRATOR')) {
@@ -103,7 +105,7 @@ function addCommands(discordClient, db) {
     await db.collection('EmotesAndRoles').deleteOne({ emote: args[0] })
 
     await message.reply(`Удалено соответствие эмоции ${emoteAndRole.emote} роли ${emoteAndRole.role}`)
-  }, 'Аргумент - название эмоции. Удаляет связку между данной эмоцией и ролью. (Только для администраторов)')
+  }, i18n.__('DeleteEmoteAndRoleHelp'))
 }
 
 module.exports = { addCommands }
