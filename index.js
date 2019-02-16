@@ -6,7 +6,13 @@ const googleSpeech = require('@google-cloud/speech')
 const config = require('./config')
 const ConvertTo1ChannelStream = require('./convertTo1ChannelStream')
 const Dispatcher = require('./promised/Dispatcher')
+const i18n = require('i18n')
 
+i18n.configure({
+  locales: ['en', 'ru'],
+  directory: `${__dirname}/locales`
+})
+i18n.setLocale(config.locale)
 const argsRegexp = /[^\s"]+|"([^"]*)"/gi
 const discordClient = new Discord.Client()
 const googleSpeechClient = new googleSpeech.SpeechClient()
@@ -15,6 +21,9 @@ const yesWords = ['да', 'хорошо', 'давай', 'ок', 'окей', 'п�
 const noWords = ['не надо', 'не подтверждаю', 'не согласен', 'не хочу', 'неверно', 'нет', 'не', 'отвали', 'ответ отрицательный', 'не хотим']
 const meTooWords = ['меня', 'и меня', 'меня тоже']
 let isBotInVoiceChannel = false
+
+
+console.log(i18n.__('Hello'))
 
 discordClient.on('ready', () => {
   console.log(`Logged in as ${discordClient.user.tag}!`)
