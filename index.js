@@ -20,7 +20,7 @@ const googleSpeechClient = new googleSpeech.SpeechClient()
 
 let isBotInVoiceChannel = false
 
-console.log(i18n.__('Hello'))
+console.log(`Locale is: ${config.locale}`)
 
 discordClient.on('ready', () => {
   console.log(`Logged in as ${discordClient.user.tag}!`)
@@ -189,7 +189,7 @@ async function start() {
   })
 
   discordClient.addCommand('summon', async message => {
-    await message.reply('Призыв услышан')
+    await message.reply(i18n.__('SummonHeard'))
     await summon(db, message.member)
   }, i18n.__('SummonHelp'))
 
