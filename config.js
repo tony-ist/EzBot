@@ -5,7 +5,6 @@ const defaultConfig = {
   wrongChannelAudioPath: 'audio/wrongChannelEn.mp3',
   discordApiToken: '',
   serverId: '158305694506942465',
-  yandexApiKey: '',
   dbConnectionUrl: 'mongodb://user:password@localhost:27017/database',
   dbName: 'ezbot',
   languageCode: 'en-US',

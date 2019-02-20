@@ -1,0 +1,21 @@
+# Requirements
+
+* Node version 8.10.0
+* MongoDB
+
+# Setup
+
+1. Copy your Google API credentials into credentials folder.
+1. Add `GOOGLE_APPLICATION_CREDENTIALS="credentials/your-credentials.json"` to `.env` file.
+1. Create database and user in mongodb
+1. Configure your server id, Discord API token, dbConnectionUrl and dbName in config.json. (You can `npm start` and then stop app to create config.json)
+1. `npm install`
+1. `npm start`
+
+# Usage
+
+Type `!help` in discord chat to get bot commands help.
+
+You can associate channels and games using bot commands. When bot detects a player starting a game when he is not in the correct channel, bot will join that channel and ask all players in that channel if they want to get moved to correct channel.
+
+Also you can create a message which players can use to assign roles to themselves. When player places emote on the message he gets the role associated with that emote. Currently you need to manually create collection ReactionMessages with a single document with a single field `id: your_message_id`.
