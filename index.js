@@ -227,6 +227,7 @@ discordClient.on('message', message => {
   command.callback(message, args)
 })
 
+// TODO: Stringify throws error circular JSON on some errors
 discordClient.on('error', err => console.error(`Discord client error: ${JSON.stringify(err, null, 2)}`))
 
 discordClient.login(config.discordApiToken)
