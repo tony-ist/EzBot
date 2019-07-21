@@ -1,7 +1,8 @@
 # Requirements
 
-* Node version 8.10.0
-* MongoDB
+* [Node version 8.10.0](https://github.com/nvm-sh/nvm)
+* [MongoDB](https://docs.mongodb.com/manual/installation/#mongodb-community-edition-installation-tutorials)
+* [FFmpeg](https://www.johnvansickle.com/ffmpeg/)
 
 # Setup
 
