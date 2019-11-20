@@ -174,22 +174,22 @@ async function start() {
     }
 
     const reactionMessage = await cursor.next()
-
     const channel = discordClient.channels.get(event.d.channel_id)
-    const message = await channel.fetchMessage(event.d.message_id)
+    const messageId = event.d.message_id
+    const guild = channel.guild
 
-    if (message.id !== reactionMessage.id) {
+    if (messageId !== reactionMessage.id) {
       return
     }
 
     const emoteAndRole = await db.collection('EmotesAndRoles').findOne({ emote: event.d.emoji.name })
-    const role = message.guild.roles.find(r => r.name === emoteAndRole.role)
-    const user = message.guild.members.get(event.d.user_id)
+    const role = guild.roles.find(r => r.name === emoteAndRole.role)
+    const user = guild.members.get(event.d.user_id)
 
     if (event.t === 'MESSAGE_REACTION_ADD') {
-      user.addRole(role)
+      user.roles.add(role)
     } else {
-      user.removeRole(role)
+      user.roles.remove(role)
     }
   })
 
