@@ -58,14 +58,16 @@ discordClient.addCommand('help', message => {
 
 async function summon(db, member) {
   const presence = member.presence
-  const userVoiceChannel = member.voiceChannel
+  const userVoiceChannel = member.voice.channel
   const isUserAfk = userVoiceChannel && userVoiceChannel.id === member.guild.afkChannelID
 
-  if (!presence || !presence.game || !userVoiceChannel || isBotInVoiceChannel || isUserAfk) {
+  if (!presence || !presence.activity || !presence.activity.name || !userVoiceChannel || isBotInVoiceChannel || isUserAfk) {
+    console.log('returning')
     return
   }
+  const activityName = presence.activity.name
 
-  const gameAndChannel = await db.collection('GamesAndChannels').findOne({ game: presence.game.name })
+  const gameAndChannel = await db.collection('GamesAndChannels').findOne({ game: activityName })
 
   if (!gameAndChannel) {
     return
@@ -83,12 +85,14 @@ async function summon(db, member) {
 
   await Dispatcher.playFile(connection, config.wrongChannelAudioPath)
 
+  console.log('I am ready to listen...')
+
   setTimeout(() => {
     isBotInVoiceChannel = false
     userVoiceChannel.leave()
-  }, 30000)
+  }, config.botTimeout)
 
-  const receiver = connection.createReceiver()
+  const receiver = connection.receiver
 
   connection.on('speaking', (user, speaking) => {
     if (!speaking) {
@@ -98,7 +102,7 @@ async function summon(db, member) {
     console.log(`I'm listening to ${user.username}`)
 
     // this creates a 16-bit signed PCM, stereo 48KHz PCM stream.
-    const audioStream = receiver.createPCMStream(user)
+    const audioStream = receiver.createStream(user, { mode: 'pcm' })
     const requestConfig = {
       encoding: 'LINEAR16',
       sampleRateHertz: 48000,
@@ -121,7 +125,7 @@ async function summon(db, member) {
           connection.channel.members.array().forEach(member => {
             if (member.user.id !== discordClient.user.id) {
               console.log(`Moving member ${member.displayName} to channel ${channelId}`)
-              member.setVoiceChannel(channelId)
+              member.edit({ channel: channelId }).catch(console.error)
               isBotInVoiceChannel = false
               userVoiceChannel.leave()
             }
@@ -130,17 +134,21 @@ async function summon(db, member) {
           isBotInVoiceChannel = false
           userVoiceChannel.leave()
         } else if (locale.OnlyMeWords.indexOf(transcription) > -1) {
-          member.guild.member(user).setVoiceChannel(channelId)
+          member.edit({ channel: channelId }).catch(console.error)
           isBotInVoiceChannel = false
           userVoiceChannel.leave()
         } else if (locale.MeTooWords.indexOf(transcription) > -1) {
-          member.guild.member(user).setVoiceChannel(channelId)
+          member.edit({ channel: channelId }).catch(console.error)
         }
+
+        recognizeStream.destroy()
       })
 
     const convertTo1ChannelStream = new ConvertTo1ChannelStream()
 
     audioStream.pipe(convertTo1ChannelStream).pipe(recognizeStream)
+
+    audioStream.on('error', console.error)
 
     audioStream.on('end', async () => {
       console.log('audioStream end')
@@ -193,8 +201,8 @@ async function start() {
     await summon(db, message.member)
   }, i18n.__('SummonHelp'))
 
-  discordClient.on('presenceUpdate', (oldMember, newMember) => {
-    summon(db, newMember).catch(console.error)
+  discordClient.on('presenceUpdate', (oldPresence, newPresence) => {
+    summon(db, newPresence.member).catch(console.error)
   })
 }
 

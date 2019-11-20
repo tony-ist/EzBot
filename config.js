@@ -8,7 +8,8 @@ const defaultConfig = {
   dbConnectionUrl: 'mongodb://user:password@localhost:27017/database',
   dbName: 'ezbot',
   languageCode: 'en-US',
-  locale: 'en'
+  locale: 'en',
+  botTimeout: '40000'
 }
 
 if (!fs.existsSync(configPath)) {

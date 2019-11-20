@@ -1,6 +1,6 @@
 async function playFile(connection, filePath) {
   return new Promise((resolve, reject) => {
-    const dispatcher = connection.playFile(filePath)
+    const dispatcher = connection.play(filePath)
     dispatcher.setVolume(1)
     dispatcher.on('start', () => {
       console.log('Playing')
