@@ -90,7 +90,7 @@ async function summon(db, member) {
   setTimeout(() => {
     isBotInVoiceChannel = false
     userVoiceChannel.leave()
-  }, config.botTimeout)
+  }, config.botTimeout || 40000)
 
   const receiver = connection.receiver
 
