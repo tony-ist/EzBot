@@ -62,7 +62,6 @@ async function summon(db, member) {
   const isUserAfk = userVoiceChannel && userVoiceChannel.id === member.guild.afkChannelID
 
   if (!presence || !presence.activity || !presence.activity.name || !userVoiceChannel || isBotInVoiceChannel || isUserAfk) {
-    console.log('returning')
     return
   }
   const activityName = presence.activity.name
@@ -140,8 +139,6 @@ async function summon(db, member) {
         } else if (locale.MeTooWords.indexOf(transcription) > -1) {
           member.edit({ channel: channelId }).catch(console.error)
         }
-
-        recognizeStream.destroy()
       })
 
     const convertTo1ChannelStream = new ConvertTo1ChannelStream()
