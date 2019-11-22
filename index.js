@@ -1,13 +1,15 @@
+
 require('dotenv').config()
 const DbManagement = require('./commands/DbManagement')
 const Discord = require('discord.js')
 const MongoClient = require('mongodb').MongoClient
 const googleSpeech = require('@google-cloud/speech')
 const config = require('./config')
-const ConvertTo1ChannelStream = require('./convertTo1ChannelStream')
+const ConvertTo1ChannelStream = require('./util/convertTo1ChannelStream')
 const Dispatcher = require('./promised/Dispatcher')
 const i18n = require('i18n')
 const locale = require(`./locales/${config.locale}.json`)
+const StringUtil = require('./util/stringUtil')
 
 i18n.configure({
   locales: ['en', 'ru'],
@@ -121,7 +123,7 @@ async function summon(db, member) {
           .toLowerCase()
         console.log(`Transcription: ${transcription}`)
 
-        if (locale.YesWords.indexOf(transcription) > -1) {
+        if (StringUtil.isAnySubstring(locale.YesWords, transcription)) {
           connection.channel.members.array().forEach(member => {
             if (member.user.id !== discordClient.user.id) {
               console.log(`Moving member ${member.displayName} to channel ${channelId}`)
@@ -130,14 +132,14 @@ async function summon(db, member) {
               userVoiceChannel.leave()
             }
           })
-        } else if (locale.NoWords.indexOf(transcription) > -1) {
+        } else if (StringUtil.isAnySubstring(locale.NoWords, transcription)) {
           isBotInVoiceChannel = false
           userVoiceChannel.leave()
-        } else if (locale.OnlyMeWords.indexOf(transcription) > -1) {
+        } else if (StringUtil.isAnySubstring(locale.OnlyMeWords, transcription)) {
           member.edit({ channel: channelId }).catch(console.error)
           isBotInVoiceChannel = false
           userVoiceChannel.leave()
-        } else if (locale.MeTooWords.indexOf(transcription) > -1) {
+        } else if (StringUtil.isAnySubstring(locale.MeTooWords, transcription)) {
           member.edit({ channel: channelId }).catch(console.error)
         }
       })
