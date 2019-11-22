@@ -1,0 +1,11 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+      - name: Build, Tag, Publish Docker
+        uses: HurricanKai/Publish-Docker-Github-Action@1.12.1
