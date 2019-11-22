@@ -130,15 +130,18 @@ async function summon(db, member) {
               member.edit({ channel: channelId }).catch(console.error)
               isBotInVoiceChannel = false
               userVoiceChannel.leave()
+              recognizeStream.destroy()
             }
           })
         } else if (StringUtil.isAnySubstring(locale.NoWords, transcription)) {
           isBotInVoiceChannel = false
           userVoiceChannel.leave()
+          recognizeStream.destroy()
         } else if (StringUtil.isAnySubstring(locale.OnlyMeWords, transcription)) {
           member.edit({ channel: channelId }).catch(console.error)
           isBotInVoiceChannel = false
           userVoiceChannel.leave()
+          recognizeStream.destroy()
         } else if (StringUtil.isAnySubstring(locale.MeTooWords, transcription)) {
           member.edit({ channel: channelId }).catch(console.error)
         }
