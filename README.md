@@ -24,3 +24,7 @@ Also you can create a message which players can use to assign roles to themselve
 # Help
 
 You can find very detailed guide on how to write your own bot with voice recoginition on https://refruity.xyz/writing-discord-bot/
+
+# DockerHub
+
+https://hub.docker.com/repository/docker/refruity/ezbot
