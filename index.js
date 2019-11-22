@@ -108,7 +108,8 @@ async function summon(db, member) {
       languageCode: config.languageCode
     }
     const request = {
-      config: requestConfig
+      config: requestConfig,
+      interimResults: true
     }
     const recognizeStream = googleSpeechClient
       .streamingRecognize(request)
