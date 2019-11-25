@@ -150,7 +150,7 @@ async function summon(db, activityName, member) {
 }
 
 async function start() {
-  const mongoClient = await MongoClient.connect(config.dbConnectionUrl, { useNewUrlParser: true })
+  const mongoClient = await MongoClient.connect(config.dbConnectionUrl, { useNewUrlParser: true, useUnifiedTopology: true })
 
   console.log('Connected successfully to mongodb server')
 
