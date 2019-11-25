@@ -5,7 +5,7 @@
   "HelpHelp": "Displays bot commands help.",
   "PingHelp": "Bot responds with Pong!",
   "GameHelp": "Displays the name of the game you're playing.",
-  "SummonHelp": "Summons bot to the voice channel you're in.",
+  "SummonHelp": "Summons bot to the voice channel you're in. Argument 1 (Optional) - Game name in which voice channel you want to transfer people. If no specified then transfers to the voice channel corresponding to the game you're playing.",
   "ListGamesAndChannelsHelp": "Displays the correspondence between games and channels. (Administrator only)",
   "AddGameAndChannelHelp": "Argument 1 - game name, argument 2 - voice channel id. Adds a correspondence between the game and the channel. (Administrator only)",
   "DeleteGameAndChannelHelp": "Argument - game name. Deletes a correspondence between the game and a channel. (Administrator only)",

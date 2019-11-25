@@ -203,7 +203,7 @@ async function start() {
     const voiceChannel = member.voice.channel
     const isUserAfk = voiceChannel && voiceChannel.id === member.guild.afkChannelID
 
-    if (!presence || !activityName || !voiceChannel || isBotInVoiceChannel || isUserAfk) {
+    if (!presence || !activityName || !voiceChannel || isBotInVoiceChannel || isUserAfk || activityName === presence.activity.name) {
       await message.reply(i18n.__('CannotSummon'))
       return
     }
