@@ -1,5 +1,5 @@
 module.exports = {
-  isAnySubstring: (substrings, string) => {
-    return substrings.some(substr => string.indexOf(substr) > -1)
+  isTranscriptionContains: (transcription, words) => {
+    return words.indexOf(transcription) > -1
   }
 }

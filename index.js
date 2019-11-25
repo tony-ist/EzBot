@@ -1,4 +1,3 @@
-
 require('dotenv').config()
 const DbManagement = require('./commands/DbManagement')
 const Discord = require('discord.js')
@@ -96,7 +95,7 @@ async function summon(db, member) {
   const receiver = connection.receiver
 
   connection.on('speaking', (user, speaking) => {
-    if (!speaking) {
+    if (!speaking.has(1)) {
       return
     }
 
@@ -110,8 +109,7 @@ async function summon(db, member) {
       languageCode: config.languageCode
     }
     const request = {
-      config: requestConfig,
-      interimResults: true
+      config: requestConfig
     }
     const recognizeStream = googleSpeechClient
       .streamingRecognize(request)
@@ -121,9 +119,9 @@ async function summon(db, member) {
           .map(result => result.alternatives[0].transcript)
           .join('\n')
           .toLowerCase()
-        console.log(`Transcription: ${transcription}`)
+        console.log(`Transcription for user ${user.username}: ${transcription}`)
 
-        if (StringUtil.isAnySubstring(locale.YesWords, transcription)) {
+        if (StringUtil.isTranscriptionContains(transcription, locale.YesWords)) {
           connection.channel.members.array().forEach(member => {
             if (member.user.id !== discordClient.user.id) {
               console.log(`Moving member ${member.displayName} to channel ${channelId}`)
@@ -133,16 +131,16 @@ async function summon(db, member) {
               recognizeStream.destroy()
             }
           })
-        } else if (StringUtil.isAnySubstring(locale.NoWords, transcription)) {
+        } else if (StringUtil.isTranscriptionContains(transcription, locale.NoWords)) {
           isBotInVoiceChannel = false
           userVoiceChannel.leave()
           recognizeStream.destroy()
-        } else if (StringUtil.isAnySubstring(locale.OnlyMeWords, transcription)) {
+        } else if (StringUtil.isTranscriptionContains(transcription, locale.OnlyMeWords)) {
           member.edit({ channel: channelId }).catch(console.error)
           isBotInVoiceChannel = false
           userVoiceChannel.leave()
           recognizeStream.destroy()
-        } else if (StringUtil.isAnySubstring(locale.MeTooWords, transcription)) {
+        } else if (StringUtil.isTranscriptionContains(transcription, locale.MeTooWords)) {
           member.edit({ channel: channelId }).catch(console.error)
         }
       })
