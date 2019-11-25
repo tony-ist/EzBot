@@ -26,6 +26,7 @@
     "@google-cloud/speech": "^2.1.1",
     "discord.js": "https://github.com/sillyfrog/discord.js.git#bada4ff0af82208481ba48a0d58c9e12235f7f10",
     "dotenv": "^6.1.0",
+    "ffmpeg-static": "^2.7.0",
     "i18n": "^0.8.3",
     "libsodium-wrappers": "^0.7.6",
     "mongodb": "^3.1.8",

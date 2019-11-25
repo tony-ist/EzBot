@@ -38,8 +38,8 @@ discordClient.addCommand('ping', message => {
 }, i18n.__('PingHelp'))
 
 discordClient.addCommand('game', message => {
-  if (message.author.presence && message.author.presence.game) {
-    message.reply(message.author.presence.game.name)
+  if (message.author.presence && message.author.presence.activity) {
+    message.reply(message.author.presence.activity.name)
   } else {
     message.reply(i18n.__('NoGame'))
   }
@@ -203,7 +203,7 @@ async function start() {
     const voiceChannel = member.voice.channel
     const isUserAfk = voiceChannel && voiceChannel.id === member.guild.afkChannelID
 
-    if (!presence || !activityName || !voiceChannel || isBotInVoiceChannel || isUserAfk || activityName === presence.activity.name) {
+    if (!presence || !activityName || !voiceChannel || isBotInVoiceChannel || isUserAfk) {
       await message.reply(i18n.__('CannotSummon'))
       return
     }
@@ -214,7 +214,7 @@ async function start() {
 
   discordClient.on('presenceUpdate', (oldPresence, newPresence) => {
     if (oldPresence && oldPresence.activity && newPresence && newPresence.activity) {
-      if (oldPresence.activity.name !== newPresence.activity.name) {
+      if (oldPresence.activity.name === newPresence.activity.name) {
         return
       }
     }
