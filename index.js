@@ -213,7 +213,7 @@ async function start() {
   }, i18n.__('SummonHelp'))
 
   discordClient.on('presenceUpdate', (oldPresence, newPresence) => {
-    if (oldPresence.activity && newPresence.activity) {
+    if (oldPresence && oldPresence.activity && newPresence && newPresence.activity) {
       if (oldPresence.activity.name !== newPresence.activity.name) {
         return
       }
