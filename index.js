@@ -116,7 +116,7 @@ async function summon(db, activityName, member) {
         if (StringUtil.isTranscriptionContains(transcription, locale.YesWords)) {
           connection.channel.members.array().forEach(member => {
             if (member.user.id !== discordClient.user.id) {
-              console.log(`Moving member ${member.displayName} to channel ${channelId}`)
+              console.log(`Moving member ${member.displayName} to channel ${connection.channel.name}`)
               member.edit({ channel: channelId }).catch(console.error)
               isBotInVoiceChannel = false
               voiceChannel.leave()
@@ -203,7 +203,10 @@ async function start() {
     const voiceChannel = member.voice.channel
     const isUserAfk = voiceChannel && voiceChannel.id === member.guild.afkChannelID
 
-    if (!presence || !activityName || !voiceChannel || isBotInVoiceChannel || isUserAfk) {
+    const gameAndChannel = await db.collection('GamesAndChannels').findOne({ channel: voiceChannel.id })
+    const game = gameAndChannel && gameAndChannel.game
+
+    if (!presence || !activityName || !voiceChannel || isBotInVoiceChannel || isUserAfk || game === activityName) {
       await message.reply(i18n.__('CannotSummon'))
       return
     }
@@ -224,7 +227,13 @@ async function start() {
     const voiceChannel = member.voice.channel
     const isUserAfk = voiceChannel && voiceChannel.id === member.guild.afkChannelID
 
-    if (!presence || !presence.activity || !presence.activity.name || !voiceChannel || isBotInVoiceChannel || isUserAfk) {
+    if (!presence ||
+      !presence.activity ||
+      !presence.activity.name ||
+      !voiceChannel ||
+      isBotInVoiceChannel ||
+      isUserAfk
+    ) {
       return
     }
 
