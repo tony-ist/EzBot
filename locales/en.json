@@ -14,6 +14,7 @@
   "DeleteEmoteAndRoleHelp": "Argument - emote name. Deletes a correspondence between the emote and a role. (Administrator only)",
   "HelpAppendix": "P.S. Names with spaces must be in quotation marks. E.g. \"Starcraft II\"",
   "SummonHeard": "I hear your summon",
+  "CannotSummion": "I cannot be summoned right now",
   "ListGameAndChannelsLine": "Game: {game}, Channel: {channel}",
   "AddGameAndChannelAlreadyExist": "The game {game} already corresponds to the channel {channel}",
   "AddGameAndChannelAdded": "Added the game {game} in correspondence to the channel {channel}",

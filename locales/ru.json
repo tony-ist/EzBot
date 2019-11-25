@@ -14,6 +14,7 @@
 	"DeleteEmoteAndRoleHelp": "Аргумент - название эмоции. Удаляет связку между данной эмоцией и ролью. (Только для администраторов)",
 	"HelpAppendix": "P.S. Имена с пробелами должны быть заключены в кавычки. Например, \"Starcraft II\"",
 	"SummonHeard": "Призыв услышан",
+	"CannotSummon": "Сейчас меня нельзя призвать",
 	"ListGameAndChannelsLine": "Игра: {game}, Канал: {channel}",
 	"AddGameAndChannelAlreadyExist": "Игра {game} уже соответствует каналу {channel}",
 	"AddGameAndChannelAdded": "Добавлена игра {game} в соответствии каналу {channel}",

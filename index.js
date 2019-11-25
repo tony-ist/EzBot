@@ -57,16 +57,8 @@ discordClient.addCommand('help', message => {
   message.reply(reply)
 }, i18n.__('HelpHelp'))
 
-async function summon(db, member) {
-  const presence = member.presence
-  const userVoiceChannel = member.voice.channel
-  const isUserAfk = userVoiceChannel && userVoiceChannel.id === member.guild.afkChannelID
-
-  if (!presence || !presence.activity || !presence.activity.name || !userVoiceChannel || isBotInVoiceChannel || isUserAfk) {
-    return
-  }
-  const activityName = presence.activity.name
-
+async function summon(db, activityName, member) {
+  const voiceChannel = member.voice.channel
   const gameAndChannel = await db.collection('GamesAndChannels').findOne({ game: activityName })
 
   if (!gameAndChannel) {
@@ -75,13 +67,13 @@ async function summon(db, member) {
 
   const channelId = gameAndChannel.channel
 
-  if (!channelId || channelId === userVoiceChannel.id) {
+  if (!channelId || channelId === voiceChannel.id) {
     return
   }
 
-  const connection = await userVoiceChannel.join()
+  const connection = await voiceChannel.join()
   isBotInVoiceChannel = true
-  console.log(`Joined voice channel ${userVoiceChannel.name}`)
+  console.log(`Joined voice channel ${voiceChannel.name}`)
 
   await Dispatcher.playFile(connection, config.wrongChannelAudioPath)
 
@@ -89,7 +81,7 @@ async function summon(db, member) {
 
   setTimeout(() => {
     isBotInVoiceChannel = false
-    userVoiceChannel.leave()
+    voiceChannel.leave()
   }, config.botTimeout || 40000)
 
   const receiver = connection.receiver
@@ -127,18 +119,18 @@ async function summon(db, member) {
               console.log(`Moving member ${member.displayName} to channel ${channelId}`)
               member.edit({ channel: channelId }).catch(console.error)
               isBotInVoiceChannel = false
-              userVoiceChannel.leave()
+              voiceChannel.leave()
               recognizeStream.destroy()
             }
           })
         } else if (StringUtil.isTranscriptionContains(transcription, locale.NoWords)) {
           isBotInVoiceChannel = false
-          userVoiceChannel.leave()
+          voiceChannel.leave()
           recognizeStream.destroy()
         } else if (StringUtil.isTranscriptionContains(transcription, locale.OnlyMeWords)) {
           member.edit({ channel: channelId }).catch(console.error)
           isBotInVoiceChannel = false
-          userVoiceChannel.leave()
+          voiceChannel.leave()
           recognizeStream.destroy()
         } else if (StringUtil.isTranscriptionContains(transcription, locale.MeTooWords)) {
           member.edit({ channel: channelId }).catch(console.error)
@@ -197,9 +189,27 @@ async function start() {
     }
   })
 
-  discordClient.addCommand('summon', async message => {
+  discordClient.addCommand('summon', async (message, args) => {
+    const member = message.member
+    let activityName
+
+    if (args[0]) {
+      activityName = args[0]
+    } else {
+      activityName = member.presence && member.presence.activity && member.presence.activity.name
+    }
+
+    const presence = member.presence
+    const voiceChannel = member.voice.channel
+    const isUserAfk = voiceChannel && voiceChannel.id === member.guild.afkChannelID
+
+    if (!presence || !activityName || !voiceChannel || isBotInVoiceChannel || isUserAfk) {
+      await message.reply(i18n.__('CannotSummon'))
+      return
+    }
+
     await message.reply(i18n.__('SummonHeard'))
-    await summon(db, message.member)
+    summon(db, activityName, member).catch(console.error)
   }, i18n.__('SummonHelp'))
 
   discordClient.on('presenceUpdate', (oldPresence, newPresence) => {
@@ -208,7 +218,17 @@ async function start() {
         return
       }
     }
-    summon(db, newPresence.member).catch(console.error)
+
+    const presence = newPresence
+    const member = newPresence.member
+    const voiceChannel = member.voice.channel
+    const isUserAfk = voiceChannel && voiceChannel.id === member.guild.afkChannelID
+
+    if (!presence || !presence.activity || !presence.activity.name || !voiceChannel || isBotInVoiceChannel || isUserAfk) {
+      return
+    }
+
+    summon(db, presence.activity.name, member).catch(console.error)
   })
 }
 
