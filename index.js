@@ -1,4 +1,5 @@
 require('dotenv').config()
+const packageJson = require('./package')
 const DbManagement = require('./commands/DbManagement')
 const Discord = require('discord.js')
 const MongoClient = require('mongodb').MongoClient
@@ -44,6 +45,22 @@ discordClient.addCommand('game', message => {
     message.reply(i18n.__('NoGame'))
   }
 }, i18n.__('GameHelp'))
+
+discordClient.addCommand('welcomeAll', (message) => {
+  if (!message.member.permissions.has('ADMINISTRATOR')) {
+    return
+  }
+
+  for (let record of message.channel.members) {
+    const member = record[1]
+    console.log(`Sending welcome message to user ${member.nickname}.`)
+    member
+      .send(i18n.__('WelcomeMessage'))
+      .catch(console.error)
+  }
+
+  message.reply(i18n.__('SendingWelcomeMessages'))
+}, i18n.__('WelcomeAllHelp'))
 
 discordClient.addCommand('help', message => {
   let reply = `${i18n.__('HelpDescription')}\n`
@@ -116,7 +133,7 @@ async function summon(db, activityName, member) {
         if (StringUtil.isTranscriptionContains(transcription, locale.YesWords)) {
           connection.channel.members.array().forEach(member => {
             if (member.user.id !== discordClient.user.id) {
-              console.log(`Moving member ${member.displayName} to channel ${connection.channel.name}`)
+              console.log(`Moving member ${member.displayName} to channel ${channelId}`)
               member.edit({ channel: channelId }).catch(console.error)
               isBotInVoiceChannel = false
               voiceChannel.leave()
@@ -150,6 +167,8 @@ async function summon(db, activityName, member) {
 }
 
 async function start() {
+  console.log(`EzBot version ${packageJson.version}`)
+
   const mongoClient = await MongoClient.connect(config.dbConnectionUrl, { useNewUrlParser: true, useUnifiedTopology: true })
 
   console.log('Connected successfully to mongodb server')
@@ -240,6 +259,11 @@ async function start() {
     summon(db, presence.activity.name, member).catch(console.error)
   })
 }
+
+discordClient.on('guildMemberAdd', member => {
+  console.log(`Sending welcome message to user ${member.nickname}`)
+  member.send(i18n.__('WelcomeMessage'))
+})
 
 discordClient.on('message', message => {
   if (message.content.indexOf('!') !== 0) {

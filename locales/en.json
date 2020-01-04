@@ -12,6 +12,7 @@
   "ListEmotesAndRolesHelp": "Displays the correspondence between emotes and roles. (Administrator only)",
   "AddEmoteAndRoleHelp": "Argument 1 - emote name, argument 2 - role name. Adds a correspondence between the emote and the role. (Administrator only)",
   "DeleteEmoteAndRoleHelp": "Argument - emote name. Deletes a correspondence between the emote and a role. (Administrator only)",
+  "WelcomeAllHelp": "Sends welcome messages to all users on the server. (Administrator only)",
   "HelpAppendix": "P.S. Names with spaces must be in quotation marks. E.g. \"Starcraft II\"",
   "SummonHeard": "I hear your summon",
   "CannotSummion": "I cannot be summoned right now",
@@ -28,5 +29,7 @@
   "YesWords": ["yes", "yeah", "affirmative", "we want"],
   "NoWords": ["no", "nope", "negative", "we don't want", "don't want"],
   "MeTooWords": ["me", "and me", "me too"],
-  "OnlyMeWords": ["only me"]
+  "OnlyMeWords": ["only me"],
+  "SendingWelcomeMessages": "Sending welcome messages to all people on the server.",
+  "WelcomeMessage": "Welcome to the server! On the server there are roles and notifications. Open the dashboard chat and click the emojis of the games you play, you will get the roles. To call people to play a game, just mention your game\"'s role, for example @SC2, in general chat."
 }
