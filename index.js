@@ -70,6 +70,7 @@ discordClient.addCommand('help', message => {
   }
 
   reply += i18n.__('HelpAppendix')
+  reply += `EzBot version ${packageJson.version}`
 
   message.reply(reply)
 }, i18n.__('HelpHelp'))
