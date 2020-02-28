@@ -106,6 +106,56 @@ function addCommands(discordClient, db) {
 
     await message.reply(i18n.__mf('DeleteEmoteAndRoleDeleted', { emote: emoteAndRole.emote, role: emoteAndRole.role }))
   }, i18n.__('DeleteEmoteAndRoleHelp'))
+
+  discordClient.addCommand('ignoreChannel', async (message, args) => {
+    if (!message.member.permissions.has('ADMINISTRATOR')) {
+      return
+    }
+
+    const ignoredChannel = await db.collection('IgnoreChannels').findOne({ id: args[0] })
+
+    if (ignoredChannel) {
+      await message.reply(i18n.__mf('IgnoreChannelAlreadyExist', { id: ignoredChannel.id }))
+      return
+    }
+
+    await db.collection('IgnoreChannels').insertOne({ id: args[0] })
+
+    await message.reply(i18n.__mf('IgnoreChannelAdded', { id: args[0] }))
+  }, i18n.__('IgnoreChannelHelp'))
+
+  discordClient.addCommand('listIgnoredChannels', async message => {
+    if (!message.member.permissions.has('ADMINISTRATOR')) {
+      return
+    }
+
+    const cursor = await db.collection('IgnoreChannels').find()
+    let reply = '\n'
+
+    while (await cursor.hasNext()) {
+      const next = await cursor.next()
+      reply += `${i18n.__mf('ListIgnoredChannelsLine', { id: next.id })}\n`
+    }
+
+    await message.reply(reply)
+  }, i18n.__('ListIgnoredChannelsHelp'))
+
+  discordClient.addCommand('unignoreChannel', async (message, args) => {
+    if (!message.member.permissions.has('ADMINISTRATOR')) {
+      return
+    }
+
+    const ignoredChannel = await db.collection('IgnoreChannels').findOne({ id: args[0] })
+
+    if (!ignoredChannel) {
+      await message.reply(i18n.__mf('UnignoreChannelNotExist', { id: args[0] }))
+      return
+    }
+
+    await db.collection('IgnoreChannels').deleteOne({ id: args[0] })
+
+    await message.reply(i18n.__mf('UnignoreChannelDone', { id: ignoredChannel.id }))
+  }, i18n.__('UnignoreChannelHelp'))
 }
 
 module.exports = { addCommands }

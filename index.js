@@ -235,7 +235,7 @@ async function start() {
     summon(db, activityName, member).catch(console.error)
   }, i18n.__('SummonHelp'))
 
-  discordClient.on('presenceUpdate', (oldPresence, newPresence) => {
+  discordClient.on('presenceUpdate', async (oldPresence, newPresence) => {
     if (oldPresence && oldPresence.activity && newPresence && newPresence.activity) {
       if (oldPresence.activity.name === newPresence.activity.name) {
         return
@@ -246,13 +246,15 @@ async function start() {
     const member = newPresence.member
     const voiceChannel = member.voice.channel
     const isUserAfk = voiceChannel && voiceChannel.id === member.guild.afkChannelID
+    const ignoredChannel = voiceChannel && await db.collection('IgnoreChannels').findOne({ id: voiceChannel.id })
 
     if (!presence ||
       !presence.activity ||
       !presence.activity.name ||
       !voiceChannel ||
       isBotInVoiceChannel ||
-      isUserAfk
+      isUserAfk ||
+      ignoredChannel
     ) {
       return
     }
