@@ -6,7 +6,6 @@ const MongoClient = require('mongodb').MongoClient
 const googleSpeech = require('@google-cloud/speech')
 const config = require('./config')
 const ConvertTo1ChannelStream = require('./util/convertTo1ChannelStream')
-const Dispatcher = require('./promised/Dispatcher')
 const i18n = require('i18n')
 const locale = require(`./locales/${config.locale}.json`)
 const StringUtil = require('./util/stringUtil')
@@ -39,8 +38,8 @@ discordClient.addCommand('ping', message => {
 }, i18n.__('PingHelp'))
 
 discordClient.addCommand('game', message => {
-  if (message.author.presence && message.author.presence.activity) {
-    message.reply(message.author.presence.activity.name)
+  if (message.author.presence && message.author.presence.activities.length > 0) {
+    message.reply(message.author.presence.activities[0].name)
   } else {
     message.reply(i18n.__('NoGame'))
   }
@@ -93,7 +92,7 @@ async function summon(db, activityName, member) {
   isBotInVoiceChannel = true
   console.log(`Joined voice channel ${voiceChannel.name}`)
 
-  await Dispatcher.playFile(connection, config.wrongChannelAudioPath)
+  connection.play(config.wrongChannelAudioPath)
 
   console.log('I am ready to listen...')
 
@@ -216,7 +215,7 @@ async function start() {
     if (args[0]) {
       activityName = args[0]
     } else {
-      activityName = member.presence && member.presence.activity && member.presence.activity.name
+      activityName = member.presence && member.presence.activities.length > 0 && member.presence.activities[0].name
     }
 
     const presence = member.presence
@@ -236,8 +235,8 @@ async function start() {
   }, i18n.__('SummonHelp'))
 
   discordClient.on('presenceUpdate', async (oldPresence, newPresence) => {
-    if (oldPresence && oldPresence.activity && newPresence && newPresence.activity) {
-      if (oldPresence.activity.name === newPresence.activity.name) {
+    if (oldPresence && oldPresence.activities.length > 0 && newPresence && newPresence.activities.length > 0) {
+      if (oldPresence.activities[0].name === newPresence.activities[0].name) {
         return
       }
     }
@@ -249,8 +248,7 @@ async function start() {
     const ignoredChannel = voiceChannel && await db.collection('IgnoreChannels').findOne({ id: voiceChannel.id })
 
     if (!presence ||
-      !presence.activity ||
-      !presence.activity.name ||
+      presence.activities.length === 0 ||
       !voiceChannel ||
       isBotInVoiceChannel ||
       isUserAfk ||
@@ -259,7 +257,9 @@ async function start() {
       return
     }
 
-    summon(db, presence.activity.name, member).catch(console.error)
+    const activityName = newPresence.activities[0].name
+
+    summon(db, activityName, member).catch(console.error)
   })
 }
 
