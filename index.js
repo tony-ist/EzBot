@@ -189,7 +189,7 @@ async function start() {
     }
 
     const reactionMessage = await cursor.next()
-    const channel = discordClient.channels.get(event.d.channel_id)
+    const channel = await discordClient.channels.fetch(event.d.channel_id)
     const messageId = event.d.message_id
     const guild = channel.guild
 
@@ -198,8 +198,10 @@ async function start() {
     }
 
     const emoteAndRole = await db.collection('EmotesAndRoles').findOne({ emote: event.d.emoji.name })
-    const role = guild.roles.find(r => r.name === emoteAndRole.role)
-    const user = guild.members.get(event.d.user_id)
+    const roleManager = await guild.roles.fetch()
+    const roles = roleManager.cache.array()
+    const role = roles.find(r => r.name === emoteAndRole.role)
+    const user = await guild.members.fetch(event.d.user_id)
 
     if (event.t === 'MESSAGE_REACTION_ADD') {
       user.roles.add(role)
