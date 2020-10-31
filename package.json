@@ -14,14 +14,14 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@gitlab.com/JustMrPhoenix/ezbot.git"
+    "url": "git+ssh://git@github.com:ReFruity/EzBot.git"
   },
-  "author": "justmrphoenix",
+  "author": "ReFruity",
   "license": "ISC",
   "bugs": {
-    "url": "https://gitlab.com/JustMrPhoenix/ezbot/issues"
+    "url": "https://github.com/ReFruity/EzBot/issues"
   },
-  "homepage": "https://gitlab.com/JustMrPhoenix/ezbot#README",
+  "homepage": "https://github.com/ReFruity/EzBot/blob/master/README.md",
   "dependencies": {
     "@google-cloud/speech": "^2.1.1",
     "discord.js": "12.1.1",
