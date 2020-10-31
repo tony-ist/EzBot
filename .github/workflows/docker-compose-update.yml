@@ -1,0 +1,20 @@
+# This is a workflow that will update a running instance of ezbot on a self-hosted mashine
+
+name: dc-update
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  dc_pull:
+    runs-on: self-hosted
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - name: Docker-compose pull
+        run: docker-compose pull
+        working-directory: /srv/docker/ezbot
+      - name: Docker-compose up
+        run: docker-compose up -d ezbot
+        working-directory: /srv/docker/ezbot
