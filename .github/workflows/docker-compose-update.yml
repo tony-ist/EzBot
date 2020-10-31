@@ -3,8 +3,8 @@
 name: dc-update
 
 on:
-  push:
-    branches: [ master ]
+  repository_dispatch:
+    types: [dockerhub-push-finished]
 
 jobs:
   dc_pull:
