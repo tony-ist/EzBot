@@ -1,4 +1,4 @@
 node_modules/
-git/
+.git/
 samples/
 config.json
