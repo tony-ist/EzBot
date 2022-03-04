@@ -1,6 +1,6 @@
 # Requirements
 
-* [Node v10.13.0](https://github.com/nvm-sh/nvm)
+* [Node v16.14.0](https://github.com/nvm-sh/nvm)
 * [MongoDB](https://docs.mongodb.com/manual/installation/#mongodb-community-edition-installation-tutorials)
 * [FFmpeg](https://www.johnvansickle.com/ffmpeg/)
 
