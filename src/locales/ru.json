@@ -1,0 +1,16 @@
+{
+	"PingHelp": "PingHelp",
+	"GameHelp": "GameHelp",
+	"WelcomeAllHelp": "WelcomeAllHelp",
+	"HelpHelp": "HelpHelp",
+	"ListGamesAndChannelsHelp": "ListGamesAndChannelsHelp",
+	"AddGameAndChannelHelp": "AddGameAndChannelHelp",
+	"DeleteGameAndChannelHelp": "DeleteGameAndChannelHelp",
+	"ListEmotesAndRolesHelp": "ListEmotesAndRolesHelp",
+	"AddEmoteAndRoleHelp": "AddEmoteAndRoleHelp",
+	"DeleteEmoteAndRoleHelp": "DeleteEmoteAndRoleHelp",
+	"IgnoreChannelHelp": "IgnoreChannelHelp",
+	"ListIgnoredChannelsHelp": "ListIgnoredChannelsHelp",
+	"UnignoreChannelHelp": "UnignoreChannelHelp",
+	"SummonHelp": "SummonHelp"
+}

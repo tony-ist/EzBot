@@ -1,14 +1,16 @@
 require('dotenv').config()
-const packageJson = require('./package')
+const packageJson = require('../package.json')
 const DbManagement = require('./commands/DbManagement')
 const Discord = require('discord.js')
-const MongoClient = require('mongodb').MongoClient
+const { MongoClient } = require('mongodb')
 const googleSpeech = require('@google-cloud/speech')
 const config = require('./config')
 const ConvertTo1ChannelStream = require('./util/convertTo1ChannelStream')
 const i18n = require('i18n')
-const locale = require(`./locales/${config.locale}.json`)
+const locale = require(`../locales/${config.locale}.json`)
 const StringUtil = require('./util/stringUtil')
+const { REST } = require('@discordjs/rest')
+const { Routes } = require('discord-api-types/v9')
 
 i18n.configure({
   locales: ['en', 'ru'],
@@ -16,12 +18,41 @@ i18n.configure({
 })
 i18n.setLocale(config.locale)
 const argsRegexp = /[^\s"]+|"([^"]*)"/gi
-const discordClient = new Discord.Client()
+const INTENTS = Discord.Intents.FLAGS
+const discordClient = new Discord.Client({ intents: [
+  INTENTS.DIRECT_MESSAGES,
+  INTENTS.GUILDS,
+  INTENTS.GUILD_MESSAGES,
+  INTENTS.GUILD_PRESENCES,
+  INTENTS.GUILD_MESSAGE_REACTIONS
+] })
 const googleSpeechClient = new googleSpeech.SpeechClient()
 
 let isBotInVoiceChannel = false
 
 console.log(`Locale is: ${config.locale}`)
+
+const commands = [{
+  name: 'ping',
+  description: 'Replies with Pong!'
+}]
+
+const rest = new REST({ version: '9' }).setToken(config.discordApiToken);
+
+(async () => {
+  try {
+    console.log('Started refreshing application (/) commands.')
+
+    await rest.put(
+      Routes.applicationGuildCommands(config.clientId, config.serverId),
+      { body: commands }
+    )
+
+    console.log('Successfully reloaded application (/) commands.')
+  } catch (error) {
+    console.error(error)
+  }
+})()
 
 discordClient.on('ready', () => {
   console.log(`Logged in as ${discordClient.user.tag}!`)
@@ -237,6 +268,8 @@ async function start() {
   }, i18n.__('SummonHelp'))
 
   discordClient.on('presenceUpdate', async (oldPresence, newPresence) => {
+    console.log('on presence update')
+
     if (oldPresence && oldPresence.activities.length > 0 && newPresence && newPresence.activities.length > 0) {
       if (oldPresence.activities[0].name === newPresence.activities[0].name) {
         return
@@ -271,6 +304,8 @@ discordClient.on('guildMemberAdd', member => {
 })
 
 discordClient.on('message', message => {
+  console.log('on message')
+
   if (message.content.indexOf('!') !== 0) {
     return
   }
@@ -301,7 +336,9 @@ discordClient.on('message', message => {
 
 // TODO: Stringify throws error circular JSON on some errors
 discordClient.on('error', err => console.error(`Discord client error: ${JSON.stringify(err, null, 2)}`))
-
+discordClient.on('messageCreate', (message) => {
+  console.log(message)
+})
 discordClient.login(config.discordApiToken)
 
 start().catch(console.error)
