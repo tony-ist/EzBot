@@ -31,7 +31,7 @@ function addCommands(discordClient, db) {
 
     await db.collection('GamesAndChannels').insertOne({
       game: args[0],
-      channel: args[1]
+      channel: args[1],
     })
 
     await message.reply(i18n.__mf('AddGameAndChannelAdded', { game: args[0], channel: args[1] }))
@@ -84,7 +84,7 @@ function addCommands(discordClient, db) {
 
     await db.collection('EmotesAndRoles').insertOne({
       emote: args[0],
-      role: args[1]
+      role: args[1],
     })
 
     await message.reply(i18n.__mf('AddEmoteAndRoleAdded', { emote: args[0], role: args[1] }))

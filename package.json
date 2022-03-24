@@ -5,6 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "start": "nodemon",
+    "deploy-commands": "node ./src/commands/deploy-commands.js",
     "lint": "./node_modules/.bin/eslint .",
     "lint-fix": "./node_modules/.bin/eslint . --fix",
     "test": "echo \"Error: no test specified\" && exit 1"
