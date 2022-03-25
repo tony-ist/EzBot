@@ -1,15 +1,14 @@
 {
   "compilerOptions": {
     "strict": true,
-    "target": "ES2019",
+    "target": "ES2021",
     "declaration": true,
     "sourceMap": true,
     "module": "commonjs",
     "moduleResolution": "node",
-    "jsx": "react",
-    "lib": ["dom", "es2018"],
-    "esModuleInterop": true,
+    "lib": ["ES2021"],
     "resolveJsonModule": true,
+    "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "importsNotUsedAsValues": "preserve",
     "skipLibCheck": true,
