@@ -1,6 +1,6 @@
 # Requirements
 
-* [Node v16.14.0](https://github.com/nvm-sh/nvm)
+* Node version from package.json `engines.node`
 * [MongoDB](https://docs.mongodb.com/manual/installation/#mongodb-community-edition-installation-tutorials)
 * [FFmpeg](https://www.johnvansickle.com/ffmpeg/)
 
@@ -9,7 +9,7 @@
 1. Copy your Google API credentials into credentials folder.
 2. Add `GOOGLE_APPLICATION_CREDENTIALS="credentials/your-credentials.json"` to `.env` file.
 3. Create database and user in mongodb
-4. Configure your guild (discord server) id, client (bot) id, Discord API token, dbConnectionUrl and dbName in config.json. (You can `npm start` and then stop app to create config.json)
+4. Configure your guild (discord server) id, client (bot) id`, Discord API token, dbConnectionUrl and dbName in config.json. (You can `npm start` and then stop app to create config.json)
 5. `npm install`
 6. `npm start`
 7. `npx simple-git-hooks` to set up .git/hooks
