@@ -1,5 +1,9 @@
 import { Activity, ActivityModel } from '../activity'
+// @ts-expect-error TS7016
 import mockingoose from 'mockingoose'
+
+mockingoose(ActivityModel)
+  .toReturn(mockedDocument, 'findOne')
 
 describe('activity', () => {
   it('should mock activity by mockingoose', async () => {
