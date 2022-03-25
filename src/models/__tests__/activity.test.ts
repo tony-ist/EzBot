@@ -1,9 +1,4 @@
 import { Activity, ActivityModel } from '../activity'
-// @ts-expect-error TS7016
-import mockingoose from 'mockingoose'
-
-mockingoose(ActivityModel)
-  .toReturn(mockedDocument, 'findOne')
 
 describe('activity', () => {
   it('should mock activity by mockingoose', async () => {
@@ -14,8 +9,7 @@ describe('activity', () => {
       presenceNames: ['Overwatch', 'Overwatch 2'],
     }
 
-    mockingoose(ActivityModel)
-      .toReturn(mockedDocument, 'findOne')
+    ActivityModel.findOne = jest.fn(async () => mockedDocument) as any
 
     const doc = await ActivityModel.findOne()
 
