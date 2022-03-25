@@ -6,11 +6,11 @@ export interface Activity {
    */
   name: string
   /**
-   * Emoji name that used for dashboard. Example value: ':red_alert:'
+   * Emoji name that is used for dashboard. Example value: ':red_alert:'
    */
   emojiName: string
   /**
-   * Discord role ID. When new Activity created role should be created to with activity name.
+   * Discord role ID. When new Activity is created, role should be created too with activity name.
    */
   roleId: string
   /**

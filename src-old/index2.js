@@ -1,3 +1,4 @@
+/* eslint-disable */
 require('dotenv').config()
 const packageJson = require('../package.json')
 const DbManagement = require('./commands/DbManagement')
@@ -31,28 +32,6 @@ const googleSpeechClient = new googleSpeech.SpeechClient()
 let isBotInVoiceChannel = false
 
 console.log(`Locale is: ${config.locale}`)
-
-const commands = [{
-  name: 'ping',
-  description: 'Replies with Pong!',
-}]
-
-const rest = new REST({ version: '9' }).setToken(config.discordApiToken);
-
-(async () => {
-  try {
-    console.log('Started refreshing application (/) commands.')
-
-    await rest.put(
-      Routes.applicationGuildCommands(config.clientId, config.serverId),
-      { body: commands }
-    )
-
-    console.log('Successfully reloaded application (/) commands.')
-  } catch (error) {
-    console.error(error)
-  }
-})()
 
 discordClient.on('ready', () => {
   console.log(`Logged in as ${discordClient.user.tag}!`)

@@ -37,13 +37,14 @@
     "discord.js": "^13.6.0",
     "dotenv": "^16.0.0",
     "ffmpeg-static": "^5.0.0",
-    "i18n": "^0.14.2",
+    "i18n": "^0.13.2",
     "mongodb": "^4.4.1",
     "mongoose": "^6.2.8",
     "opusscript": "^0.0.8",
     "ts-node": "^10.7.0"
   },
   "devDependencies": {
+    "@types/i18n": "^0.13.2",
     "@types/jest": "^27.4.1",
     "@typescript-eslint/eslint-plugin": "^4.33.0",
     "eslint": "^7.32.0",

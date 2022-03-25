@@ -17,6 +17,8 @@
 
 # Usage
 
+TODO: Rewrite this section
+
 Type `!help` in discord chat to get bot commands help.
 
 You can associate channels and games using bot commands. When bot detects a player starting a game when he is not in the correct channel, bot will join that channel and ask all players in that channel if they want to get moved to correct channel.
