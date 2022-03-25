@@ -1,0 +1,11 @@
+{
+  "wrongChannelAudioPath": "audio/wrongChannelEn.mp3",
+  "discordApiToken": "abc123.a-abc.abc123-abc213",
+  "guildId": "123456789012345678",
+  "clientId": "123456789012345678",
+  "dbConnectionUrl": "mongodb://user:password@localhost:27017/ezbot",
+  "dbName": "ezbot",
+  "languageCode": "en-US",
+  "locale": "en",
+  "botTimeout": 40000
+}

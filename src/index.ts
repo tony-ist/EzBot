@@ -1,0 +1,61 @@
+import Discord from 'discord.js'
+import config from './config'
+
+// const Discord = require('discord.js')
+// const config = require('./config')
+// const { commandStore } = require('./commands/command-list')
+//
+// const INTENTS = Discord.Intents.FLAGS
+// const discordClient = new Discord.Client({ intents: [
+//     INTENTS.DIRECT_MESSAGES,
+//     INTENTS.GUILDS,
+//     INTENTS.GUILD_MESSAGES,
+//     INTENTS.GUILD_PRESENCES,
+//     INTENTS.GUILD_MESSAGE_REACTIONS,
+//   ] })
+//
+// // const commands = [{
+// //   name: 'ping',
+// //   description: 'Replies with Pong!'
+// // }]
+// //
+// // const rest = new REST({ version: '9' }).setToken(config.discordApiToken);
+// //
+// // (async () => {
+// //   try {
+// //     console.log('Started refreshing application (/) commands.')
+// //
+// //     await rest.put(
+// //       Routes.applicationGuildCommands(config.clientId, config.serverId),
+// //       { body: commands }
+// //     )
+// //
+// //     console.log('Successfully reloaded application (/) commands.')
+// //   } catch (error) {
+// //     console.error(error)
+// //   }
+// // })()
+//
+// discordClient.on('interactionCreate', async interaction => {
+//   console.log(interaction.commandName)
+//   console.log(interaction.isCommand())
+//
+//   if (!interaction.isCommand()) return
+//
+//   const command = commandStore.get(interaction.commandName)
+//
+//   if (!command) return
+//
+//   try {
+//     await command.execute(interaction)
+//   } catch (error) {
+//     console.error(error)
+//     await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true })
+//   }
+// })
+//
+// discordClient.on('ready', () => {
+//   console.log(`Logged in as ${discordClient.user.tag}!`)
+// })
+//
+// discordClient.login(config.discordApiToken)
