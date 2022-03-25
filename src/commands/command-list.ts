@@ -5,4 +5,5 @@ import { Command } from '../types'
 export const commandList = [pingCommand]
 export const commandStore = new Collection<string, Command>()
 
+// TODO: Review if incorrect
 commandList.forEach(command => commandStore.set(command.builder.name, command))
