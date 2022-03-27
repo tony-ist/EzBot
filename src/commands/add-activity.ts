@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from '@discordjs/builders'
 import { Command } from '../types'
 import { ActivityModel } from '../models/activity'
-import { CL } from '../i18n'
+import { I18n } from '../i18n'
 import { CommandInteraction } from 'discord.js'
 import logger from '../logger'
 
@@ -13,7 +13,7 @@ export const addActivityCommand: Command<typeof COMMAND_NAME> = {
 
   builder: new SlashCommandBuilder()
     .setName(COMMAND_NAME)
-    .setDescription(CL.commands.addactivity.description()),
+    .setDescription(I18n.commands.addactivity.description()),
 
   async execute(commandInteraction: CommandInteraction) {
     const qwer = new ActivityModel({

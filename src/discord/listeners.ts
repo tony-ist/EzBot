@@ -3,7 +3,7 @@ import { commandStore } from '../commands/command-list'
 import { createAudioPlayer, createAudioResource, joinVoiceChannel } from '@discordjs/voice'
 import fs from 'fs'
 import logger from '../logger'
-import { CL } from '../i18n'
+import { I18n } from '../i18n'
 
 const log = logger('listeners')
 
@@ -42,6 +42,7 @@ async function onPresenceUpdate(oldPresence: Presence, newPresence: Presence): P
     adapterCreator: guild.voiceAdapterCreator,
   })
 
+  // TODO: Cache mp3 in RAM, not read it from disk every time
   const resource = createAudioResource(fs.createReadStream('./audio/wrongChannelRu.mp3'))
   const player = createAudioPlayer()
 
@@ -61,7 +62,7 @@ async function onInteractionCreate(interaction: Discord.Interaction): Promise<vo
   try {
     await command.execute(interaction)
   } catch (error) {
-    await interaction.reply({ content: CL.errorOnCommand(), ephemeral: true })
+    await interaction.reply({ content: I18n.errorOnCommand(), ephemeral: true })
     throw error
   }
 }
