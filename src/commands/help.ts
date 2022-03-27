@@ -1,28 +1,24 @@
 import { SlashCommandBuilder } from '@discordjs/builders'
+import { CommandInteraction } from 'discord.js'
 import { CL } from '../i18n'
 import { Command } from '../types'
 import { commandList } from './command-list'
 
-const commandName = 'help'
-type CommandWithDescription = keyof (typeof CL.commands)
+const COMMAND_NAME = 'help'
+export const helpCommand: Command<typeof COMMAND_NAME> = {
+  name: COMMAND_NAME,
 
-export const helpCommand: Command = {
   builder: new SlashCommandBuilder()
-    .setName(commandName)
+    .setName(COMMAND_NAME)
     .setDescription(CL.commands.help.description()),
 
-  async execute(interaction) {
+  async execute(commandInteraction: CommandInteraction) {
     const helps = commandList.map(command => {
-      const commandName = command.builder.name as CommandWithDescription
-      if (typeof CL.commands[commandName]?.description === 'function') {
-        const commandDescription = CL.commands[commandName].description()
-        const formattedCommandName = '`' + commandName + '`'
-        return `${formattedCommandName}: ${commandDescription}`
-      }
-      return ''
+      const commandDescription = CL.commands[command.name].description()
+      const formattedCommandName = '`' + command.name + '`'
+      return `${formattedCommandName}: ${commandDescription}`
     })
     const message = helps.join('\n')
-
-    await interaction.reply(message)
+    await commandInteraction.reply(message)
   },
 }

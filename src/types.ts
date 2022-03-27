@@ -1,7 +1,8 @@
 import { CommandInteraction } from 'discord.js'
 import { SlashCommandBuilder } from '@discordjs/builders'
 
-export interface Command {
+export interface Command<N extends (string extends N ? never : string)> {
+  name: N
   builder: SlashCommandBuilder
-  execute: (interaction: CommandInteraction) => Promise<any>
+  execute: (commandInteraction: CommandInteraction) => Promise<any>
 }

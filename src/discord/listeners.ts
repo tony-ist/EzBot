@@ -50,8 +50,8 @@ async function onPresenceUpdate(oldPresence: Presence, newPresence: Presence): P
 async function onInteractionCreate(interaction: Discord.Interaction): Promise<void> {
   if (!interaction.isCommand()) return
 
-  const command = commandStore.get(interaction.commandName)
-
+  // interaction.commandName isn't allowed string literal, just use any to avoid error
+  const command = commandStore.get(interaction.commandName as any)
   if (command === undefined || command === null) {
     return
   }
