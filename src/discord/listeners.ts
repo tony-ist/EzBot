@@ -1,4 +1,4 @@
-import Discord, { Presence } from 'discord.js'
+import Discord, { MessageReaction, Presence, User } from 'discord.js'
 import { commandStore } from '../commands/command-list'
 import { createAudioPlayer, createAudioResource, joinVoiceChannel } from '@discordjs/voice'
 import fs from 'fs'
@@ -10,12 +10,14 @@ function wrapErrorHandling(f: ListenerFunction): ListenerFunction {
     try {
       await f(...args)
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error(error)
     }
   }
 }
 
 async function onReady(discordClient: Discord.Client): Promise<void> {
+  // eslint-disable-next-line no-console
   console.log(`Logged in as ${discordClient.user?.tag ?? 'unknown user'}!`)
 }
 
@@ -63,8 +65,38 @@ async function onInteractionCreate(interaction: Discord.Interaction): Promise<vo
   }
 }
 
+async function onMessageReactionAdd(reaction: MessageReaction, user: User): Promise<void> {
+  if (reaction.message.id !== '957670983156785182') {
+    return
+  }
+
+  const roles = reaction.message.guild?.roles
+
+  if (roles === undefined) {
+    throw new Error('reaction.message.guild?.roles is undefined')
+  }
+
+  await roles.fetch()
+
+  const role = roles.cache.find((r) => r.name === 'dummy')
+
+  if (role === undefined) {
+    throw new Error('dummy role is undefined')
+  }
+
+  const members = reaction.message.guild?.members
+
+  if (members === undefined) {
+    throw new Error('reaction.message.guild?.members is undefined')
+  }
+
+  const member = await members.fetch(user)
+  await member.roles.add(role)
+}
+
 export function registerDiscordListeners(discordClient: Discord.Client): void {
   discordClient.on('ready', wrapErrorHandling(onReady))
   discordClient.on('presenceUpdate', wrapErrorHandling(onPresenceUpdate))
   discordClient.on('interactionCreate', wrapErrorHandling(onInteractionCreate))
+  discordClient.on('messageReactionAdd', wrapErrorHandling(onMessageReactionAdd))
 }

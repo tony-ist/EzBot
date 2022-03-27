@@ -31,9 +31,11 @@ const googleSpeechClient = new googleSpeech.SpeechClient()
 
 let isBotInVoiceChannel = false
 
+// eslint-disable-next-line no-console
 console.log(`Locale is: ${config.locale}`)
 
 discordClient.on('ready', () => {
+  // eslint-disable-next-line no-console
   console.log(`Logged in as ${discordClient.user.tag}!`)
 })
 
@@ -62,6 +64,7 @@ discordClient.addCommand('welcomeAll', (message) => {
 
   for (let record of message.channel.members) {
     const member = record[1]
+    // eslint-disable-next-line no-console
     console.log(`Sending welcome message to user ${member.nickname}.`)
     member
       .send(i18n.__('WelcomeMessage'))
@@ -100,10 +103,12 @@ async function summon(db, activityName, member) {
 
   const connection = await voiceChannel.join()
   isBotInVoiceChannel = true
+  // eslint-disable-next-line no-console
   console.log(`Joined voice channel ${voiceChannel.name}`)
 
   connection.play(config.wrongChannelAudioPath)
 
+  // eslint-disable-next-line no-console
   console.log('I am ready to listen...')
 
   setTimeout(() => {
@@ -118,6 +123,7 @@ async function summon(db, activityName, member) {
       return
     }
 
+    // eslint-disable-next-line no-console
     console.log(`I'm listening to ${user.username}`)
 
     // this creates a 16-bit signed PCM, stereo 48KHz PCM stream.
@@ -138,11 +144,13 @@ async function summon(db, activityName, member) {
           .map(result => result.alternatives[0].transcript)
           .join('\n')
           .toLowerCase()
+        // eslint-disable-next-line no-console
         console.log(`Transcription for user ${user.username}: ${transcription}`)
 
         if (StringUtil.isTranscriptionContains(transcription, locale.YesWords)) {
           connection.channel.members.array().forEach(member => {
             if (member.user.id !== discordClient.user.id) {
+              // eslint-disable-next-line no-console
               console.log(`Moving member ${member.displayName} to channel ${channelId}`)
               member.edit({ channel: channelId }).catch(console.error)
               isBotInVoiceChannel = false
@@ -171,16 +179,19 @@ async function summon(db, activityName, member) {
     audioStream.on('error', console.error)
 
     audioStream.on('end', async () => {
+      // eslint-disable-next-line no-console
       console.log('audioStream end')
     })
   })
 }
 
 async function start() {
+  // eslint-disable-next-line no-console
   console.log(`EzBot version ${packageJson.version}`)
 
   const mongoClient = await MongoClient.connect(config.dbConnectionUrl, { useNewUrlParser: true, useUnifiedTopology: true })
 
+  // eslint-disable-next-line no-console
   console.log('Connected successfully to mongodb server')
 
   const db = mongoClient.db(config.dbName)
@@ -247,6 +258,7 @@ async function start() {
   }, i18n.__('SummonHelp'))
 
   discordClient.on('presenceUpdate', async (oldPresence, newPresence) => {
+    // eslint-disable-next-line no-console
     console.log('on presence update')
 
     if (oldPresence && oldPresence.activities.length > 0 && newPresence && newPresence.activities.length > 0) {
@@ -278,13 +290,12 @@ async function start() {
 }
 
 discordClient.on('guildMemberAdd', member => {
+  // eslint-disable-next-line no-console
   console.log(`Sending welcome message to user ${member.nickname}`)
   member.send(i18n.__('WelcomeMessage'))
 })
 
 discordClient.on('message', message => {
-  console.log('on message')
-
   if (message.content.indexOf('!') !== 0) {
     return
   }
@@ -308,6 +319,7 @@ discordClient.on('message', message => {
     }
   } while (match != null)
 
+  // eslint-disable-next-line no-console
   console.log(commandName, args)
 
   command.callback(message, args)
@@ -316,6 +328,7 @@ discordClient.on('message', message => {
 // TODO: Stringify throws error circular JSON on some errors
 discordClient.on('error', err => console.error(`Discord client error: ${JSON.stringify(err, null, 2)}`))
 discordClient.on('messageCreate', (message) => {
+  // eslint-disable-next-line no-console
   console.log(message)
 })
 discordClient.login(config.discordApiToken)

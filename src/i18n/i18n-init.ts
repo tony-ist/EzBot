@@ -11,6 +11,7 @@ i18n.configure({
 })
 
 i18n.setLocale(config.locale)
+// eslint-disable-next-line no-console
 console.log(`Locale is: ${config.locale}`)
 
 export default i18n

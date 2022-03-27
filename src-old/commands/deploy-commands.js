@@ -6,5 +6,5 @@ const { commandList } = require('./command-list')
 const rest = new REST({ version: '10' }).setToken(discordApiToken)
 
 rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: commandList })
-  .then(() => console.log('Successfully registered application commands.'))
-  .catch(console.error)
+  .then(() => console.log('Successfully registered application commands.')) // eslint-disable-line no-console
+  .catch(console.error) // eslint-disable-line no-console

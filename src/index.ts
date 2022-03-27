@@ -6,6 +6,7 @@ import { registerDiscordListeners } from './discord/listeners'
 async function run(): Promise<void> {
   const INTENTS = Discord.Intents.FLAGS
   const discordClient = new Discord.Client({
+    partials: ['MESSAGE', 'CHANNEL', 'REACTION'],
     intents: [
       INTENTS.DIRECT_MESSAGES,
       INTENTS.GUILDS,
@@ -25,4 +26,5 @@ async function run(): Promise<void> {
   await discordClient.login(config.discordApiToken)
 }
 
+// eslint-disable-next-line no-console
 run().catch(console.error)

@@ -13,5 +13,6 @@ module.exports = {
       asyncArrow: 'always',
     }],
     'array-bracket-spacing': ['error', 'never'],
+    'no-console': 'error',
   },
 }
