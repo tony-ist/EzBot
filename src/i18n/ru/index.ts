@@ -3,10 +3,10 @@ import type { Translation } from '../i18n-types'
 const ru: Translation = {
   commands: {
     ping: {
-      description: 'Бот отвечает `pong!`',
+      description: 'Бот отвечает pong!',
     },
     help: {
-      description: 'Отображает помощь по командам',
+      description: 'Отображает помощь по командам.',
     },
   },
 }
