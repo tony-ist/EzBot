@@ -7,5 +7,6 @@
   "dbName": "ezbot",
   "languageCode": "en-US",
   "locale": "en",
-  "botTimeout": 40000
+  "botTimeout": 40000,
+  "shouldRegisterSlashCommandsOnStart": true
 }

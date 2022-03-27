@@ -10,7 +10,7 @@ interface Config {
   languageCode: 'en-US' | 'ru-RU'
   locale: 'en' | 'ru'
   botTimeout: number
+  shouldRegisterSlashCommandsOnStart: boolean
 }
 
 export default config as Config
-

@@ -12,10 +12,14 @@ async function run(): Promise<void> {
       INTENTS.GUILD_MESSAGES,
       INTENTS.GUILD_PRESENCES,
       INTENTS.GUILD_MESSAGE_REACTIONS,
+      INTENTS.GUILD_VOICE_STATES,
     ],
   })
 
-  await registerSlashCommands()
+  if (config.shouldRegisterSlashCommandsOnStart) {
+    await registerSlashCommands()
+  }
+
   registerDiscordListeners(discordClient)
 
   await discordClient.login(config.discordApiToken)
