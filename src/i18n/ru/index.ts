@@ -8,7 +8,11 @@ const ru: Translation = {
     help: {
       description: 'Отображает помощь по командам.',
     },
+    addactivity: {
+      description: 'Добавляет новую активность в базу данных.',
+    },
   },
+  errorOnCommand: 'При выполнении команды произошла ошибка!',
 }
 
 export default ru

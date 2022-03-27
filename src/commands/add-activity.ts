@@ -1,16 +1,21 @@
 import { SlashCommandBuilder } from '@discordjs/builders'
-import i18n from '../i18n/i18n-init'
 import { Command } from '../types'
 import { ActivityModel } from '../models/activity'
+import { CL } from '../i18n'
+import { CommandInteraction } from 'discord.js'
+import logger from '../logger'
 
-const commandName = 'addactivity'
+const COMMAND_NAME = 'addactivity'
+const log = logger('commands/add-activity')
 
-export const addActivityCommand: Command = {
+export const addActivityCommand: Command<typeof COMMAND_NAME> = {
+  name: COMMAND_NAME,
+
   builder: new SlashCommandBuilder()
-    .setName(commandName)
-    .setDescription(i18n.__('Add new activity')),
+    .setName(COMMAND_NAME)
+    .setDescription(CL.commands.addactivity.description()),
 
-  async execute(interaction) {
+  async execute(commandInteraction: CommandInteraction) {
     const qwer = new ActivityModel({
       name: 'qwer',
       emojiName: 'asdf',
@@ -21,8 +26,8 @@ export const addActivityCommand: Command = {
 
     const activity = await ActivityModel.findOne()
 
-    console.log(activity)
+    log.debug(JSON.stringify(activity, null, 2))
 
-    await interaction.reply('addActivity')
+    await commandInteraction.reply('addActivity')
   },
 }
