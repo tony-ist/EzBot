@@ -2,14 +2,17 @@ import Discord from 'discord.js'
 import config from './config'
 import logger from './logger'
 import { registerDiscordListeners } from './discord/listeners'
+import mongoose from 'mongoose'
 
 const log = logger('index')
 
 async function run(): Promise<void> {
-  log.info('Starting application...')
+  log.info('Connecting to mongodb...')
+  await mongoose.connect(config.dbConnectionUrl)
+  log.info('Successfully connected to mongodb!')
 
-  log.debug('Initialize discord client')
   const INTENTS = Discord.Intents.FLAGS
+  log.debug('Initializing discord client...')
   const discordClient = new Discord.Client({
     partials: ['MESSAGE', 'CHANNEL', 'REACTION'],
     intents: [
@@ -21,13 +24,11 @@ async function run(): Promise<void> {
       INTENTS.GUILD_VOICE_STATES,
     ],
   })
-  log.debug('Register discrod client listeners')
+  log.debug('Registering discord client listeners...')
   registerDiscordListeners(discordClient)
 
-  log.debug('Discord client login started')
   await discordClient.login(config.discordApiToken)
-
-  log.info('Application started')
+  log.debug('Discord client logged in')
 }
 
 run().catch((err) => log.error('Application init error', err))

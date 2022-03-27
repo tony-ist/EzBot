@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from '@discordjs/builders'
 import { CommandInteraction } from 'discord.js'
-import { CL } from '../i18n'
+import { I18n } from '../i18n'
 import { Command } from '../types'
 import { commandList } from './command-list'
 
@@ -10,12 +10,12 @@ export const helpCommand: Command<typeof COMMAND_NAME> = {
 
   builder: new SlashCommandBuilder()
     .setName(COMMAND_NAME)
-    .setDescription(CL.commands.help.description()),
+    .setDescription(I18n.commands.help.description()),
 
   async execute(commandInteraction: CommandInteraction) {
     const helps = commandList.map(command => {
-      const commandDescription = CL.commands[command.name].description()
-      const formattedCommandName = '`' + command.name + '`'
+      const commandDescription = I18n.commands[command.name].description()
+      const formattedCommandName = '`/' + command.name + '`'
       return `${formattedCommandName}: ${commandDescription}`
     })
     const message = helps.join('\n')

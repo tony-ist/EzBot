@@ -4,7 +4,7 @@ import { commandList } from '../src/commands/command-list'
 import config from '../src/config'
 import logger from '../src/logger'
 
-const log = logger('scritps/register-commands')
+const log = logger('scripts/register-commands')
 
 export async function registerSlashCommands(): Promise<void> {
   const rest = new REST({ version: '10' }).setToken(config.discordApiToken)

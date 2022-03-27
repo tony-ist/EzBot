@@ -3,6 +3,7 @@ import { commandStore } from '../commands/command-list'
 import { createAudioPlayer, createAudioResource, joinVoiceChannel } from '@discordjs/voice'
 import fs from 'fs'
 import logger from '../logger'
+import { I18n } from '../i18n'
 
 const log = logger('listeners')
 
@@ -19,7 +20,7 @@ function wrapErrorHandling(f: ListenerFunction): ListenerFunction {
 }
 
 async function onReady(discordClient: Discord.Client): Promise<void> {
-  log.debug(`Logged in as ${discordClient.user?.tag ?? 'unknown user'}!`)
+  log.info(`Logged in as ${discordClient.user?.tag ?? 'unknown user'}!`)
 }
 
 async function onPresenceUpdate(oldPresence: Presence, newPresence: Presence): Promise<void> {
@@ -28,7 +29,7 @@ async function onPresenceUpdate(oldPresence: Presence, newPresence: Presence): P
   const voiceChannel = member?.voice.channel
 
   if (voiceChannel?.id === undefined) {
-    throw new Error('Voice channel or its id is undefined')
+    return
   }
 
   if (guild === undefined || guild === null) {
@@ -41,6 +42,7 @@ async function onPresenceUpdate(oldPresence: Presence, newPresence: Presence): P
     adapterCreator: guild.voiceAdapterCreator,
   })
 
+  // TODO: Cache mp3 in RAM, not read it from disk every time
   const resource = createAudioResource(fs.createReadStream('./audio/wrongChannelRu.mp3'))
   const player = createAudioPlayer()
 
@@ -60,8 +62,7 @@ async function onInteractionCreate(interaction: Discord.Interaction): Promise<vo
   try {
     await command.execute(interaction)
   } catch (error) {
-    // TODO: I18n
-    await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true })
+    await interaction.reply({ content: I18n.errorOnCommand(), ephemeral: true })
     throw error
   }
 }
@@ -77,6 +78,7 @@ async function onMessageReactionAdd(reaction: MessageReaction, user: User): Prom
     throw new Error('reaction.message.guild?.roles is undefined')
   }
 
+  // TODO: Use fetch result, not cache
   await roles.fetch()
 
   const role = roles.cache.find((r) => r.name === 'dummy')

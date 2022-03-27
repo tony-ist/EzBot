@@ -1,14 +1,16 @@
 import { Collection } from 'discord.js'
 import { pingCommand } from './ping'
 import { helpCommand } from './help'
+import { addActivityCommand } from './add-activity'
 import { Command } from '../types'
 
-type AllCommands = typeof pingCommand | typeof helpCommand
+type AllCommands = typeof pingCommand | typeof helpCommand | typeof addActivityCommand
 type AllCommandNames = AllCommands['name']
 
 export const commandList = [
   pingCommand,
   helpCommand,
+  addActivityCommand,
 ]
 
 export const commandStore = new Collection<AllCommandNames, Command<AllCommandNames>>()

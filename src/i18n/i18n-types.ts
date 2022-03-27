@@ -17,34 +17,54 @@ type RootTranslation = {
 	commands: {
 		ping: {
 			/**
-			 * Bot responds with `pong`!
+			 * Bot responds with pong!
 			 */
 			description: string
 		}
 		help: {
 			/**
-			 * Displays help on bot commands
+			 * Displays help on bot commands.
+			 */
+			description: string
+		}
+		addactivity: {
+			/**
+			 * Add new activity to the database.
 			 */
 			description: string
 		}
 	}
+	/**
+	 * There was an error while executing this command!
+	 */
+	errorOnCommand: string
 }
 
 export type TranslationFunctions = {
 	commands: {
 		ping: {
 			/**
-			 * Bot responds with `pong`!
+			 * Bot responds with pong!
 			 */
 			description: () => LocalizedString
 		}
 		help: {
 			/**
-			 * Displays help on bot commands
+			 * Displays help on bot commands.
+			 */
+			description: () => LocalizedString
+		}
+		addactivity: {
+			/**
+			 * Add new activity to the database.
 			 */
 			description: () => LocalizedString
 		}
 	}
+	/**
+	 * There was an error while executing this command!
+	 */
+	errorOnCommand: () => LocalizedString
 }
 
 export type Formatters = {}
