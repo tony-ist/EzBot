@@ -6,7 +6,7 @@ const ru: Translation = {
       description: 'Бот отвечает `pong!`',
     },
     help: {
-      description: '',
+      description: 'Отображает помощь по командам',
     },
   },
 }
