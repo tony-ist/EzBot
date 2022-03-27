@@ -2,6 +2,9 @@ import Discord, { MessageReaction, Presence, User } from 'discord.js'
 import { commandStore } from '../commands/command-list'
 import { createAudioPlayer, createAudioResource, joinVoiceChannel } from '@discordjs/voice'
 import fs from 'fs'
+import logger from '../logger'
+
+const log = logger('listeners')
 
 type ListenerFunction = (...args: any[]) => Promise<void>
 
@@ -10,15 +13,13 @@ function wrapErrorHandling(f: ListenerFunction): ListenerFunction {
     try {
       await f(...args)
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error(error)
+      log.error('There was an error in the listener', error)
     }
   }
 }
 
 async function onReady(discordClient: Discord.Client): Promise<void> {
-  // eslint-disable-next-line no-console
-  console.log(`Logged in as ${discordClient.user?.tag ?? 'unknown user'}!`)
+  log.debug(`Logged in as ${discordClient.user?.tag ?? 'unknown user'}!`)
 }
 
 async function onPresenceUpdate(oldPresence: Presence, newPresence: Presence): Promise<void> {

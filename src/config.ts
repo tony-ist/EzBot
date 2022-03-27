@@ -1,5 +1,6 @@
 import path from 'path'
 import fs from 'fs'
+import { LogLevel } from './types'
 
 let configFileContent = '{}'
 try {
@@ -17,6 +18,7 @@ const configJson = JSON.parse(configFileContent)
 const config = configJson as Config
 
 interface Config {
+  logLevel: LogLevel
   wrongChannelAudioPath: string
   discordApiToken: string
   guildId: string
