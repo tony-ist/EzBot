@@ -28,7 +28,7 @@ async function onPresenceUpdate(oldPresence: Presence, newPresence: Presence): P
   const voiceChannel = member?.voice.channel
 
   if (voiceChannel?.id === undefined) {
-    throw new Error('Voice channel or its id is undefined')
+    return
   }
 
   if (guild === undefined || guild === null) {

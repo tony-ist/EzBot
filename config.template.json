@@ -5,7 +5,6 @@
   "guildId": "123456789012345678",
   "clientId": "123456789012345678",
   "dbConnectionUrl": "mongodb://user:password@localhost:27017/ezbot",
-  "dbName": "ezbot",
   "languageCode": "en-US",
   "locale": "en",
   "botTimeout": 40000

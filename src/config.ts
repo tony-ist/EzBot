@@ -24,7 +24,6 @@ interface Config {
   guildId: string
   clientId: string
   dbConnectionUrl: string
-  dbName: string
   languageCode: 'en-US' | 'ru-RU'
   locale: 'en' | 'ru'
   botTimeout: number
