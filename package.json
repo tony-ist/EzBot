@@ -9,6 +9,7 @@
   },
   "scripts": {
     "start": "nodemon",
+    "register-commands": "ts-node ./scripts/register-commands.ts",
     "lint": "./node_modules/.bin/eslint .",
     "lint-fix": "./node_modules/.bin/eslint . --fix",
     "test": "jest --no-cache",

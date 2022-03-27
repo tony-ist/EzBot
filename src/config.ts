@@ -7,6 +7,7 @@ try {
   configFileContent = fs.readFileSync(configPath).toString()
 } catch (e: any) {
   if (e?.code === 'ENOENT') {
+    // eslint-disable-next-line no-console
     console.error('There is no config.json file in project root. Please create it from config.template.json.')
   }
   throw e
@@ -25,7 +26,6 @@ interface Config {
   languageCode: 'en-US' | 'ru-RU'
   locale: 'en' | 'ru'
   botTimeout: number
-  shouldRegisterSlashCommandsOnStart: boolean
 }
 
 export default config

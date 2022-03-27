@@ -1,7 +1,7 @@
 import { Routes } from 'discord-api-types/v10'
-import config from '../config'
-import { commandList } from './command-list'
 import { REST } from '@discordjs/rest'
+import { commandList } from '../src/commands/command-list'
+import config from '../src/config'
 
 export async function registerSlashCommands(): Promise<void> {
   const rest = new REST({ version: '10' }).setToken(config.discordApiToken)
@@ -17,3 +17,6 @@ export async function registerSlashCommands(): Promise<void> {
   // eslint-disable-next-line no-console
   console.log('Successfully reloaded application (/) commands.')
 }
+
+// eslint-disable-next-line no-console
+registerSlashCommands().catch(console.error)

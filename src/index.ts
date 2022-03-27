@@ -1,6 +1,5 @@
 import Discord from 'discord.js'
 import config from './config'
-import { registerSlashCommands } from './commands/register'
 import { registerDiscordListeners } from './discord/listeners'
 
 async function run(): Promise<void> {
@@ -16,11 +15,6 @@ async function run(): Promise<void> {
       INTENTS.GUILD_VOICE_STATES,
     ],
   })
-
-  if (config.shouldRegisterSlashCommandsOnStart) {
-    await registerSlashCommands()
-  }
-
   registerDiscordListeners(discordClient)
 
   await discordClient.login(config.discordApiToken)
