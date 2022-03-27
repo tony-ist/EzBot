@@ -1,23 +1,24 @@
 import { SlashCommandBuilder } from '@discordjs/builders'
-import i18n from '../i18n/i18n-init'
+import { CommandInteraction } from 'discord.js'
+import { CL } from '../i18n'
 import { Command } from '../types'
 import { commandList } from './command-list'
 
-const commandName = 'help'
+const COMMAND_NAME = 'help'
+export const helpCommand: Command<typeof COMMAND_NAME> = {
+  name: COMMAND_NAME,
 
-export const helpCommand: Command = {
   builder: new SlashCommandBuilder()
-    .setName(commandName)
-    .setDescription(i18n.__(`help.${commandName}`)),
+    .setName(COMMAND_NAME)
+    .setDescription(CL.commands.help.description()),
 
-  async execute(interaction) {
+  async execute(commandInteraction: CommandInteraction) {
     const helps = commandList.map(command => {
-      const commandName = command.builder.name
-      const commandHelp = i18n.__(`help.${commandName}`)
-      return `\`/${commandName}\`: ${commandHelp}`
+      const commandDescription = CL.commands[command.name].description()
+      const formattedCommandName = '`' + command.name + '`'
+      return `${formattedCommandName}: ${commandDescription}`
     })
     const message = helps.join('\n')
-
-    await interaction.reply(message)
+    await commandInteraction.reply(message)
   },
 }

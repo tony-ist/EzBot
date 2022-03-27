@@ -1,7 +1,16 @@
 import { CommandInteraction } from 'discord.js'
 import { SlashCommandBuilder } from '@discordjs/builders'
 
-export interface Command {
+export enum LogLevel {
+  DEBUG = 'DEBUG',
+  INFO = 'INFO',
+  WARN = 'WARN',
+  ERROR = 'ERROR',
+  FATAL = 'FATAL'
+}
+
+export interface Command<N extends (string extends N ? never : string)> {
+  name: N
   builder: SlashCommandBuilder
-  execute: (interaction: CommandInteraction) => Promise<any>
+  execute: (commandInteraction: CommandInteraction) => Promise<any>
 }

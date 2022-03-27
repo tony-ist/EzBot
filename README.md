@@ -12,8 +12,9 @@
 4. `cp config.template.json config.json`
 5. Configure your guild (discord server) id, client (bot) id, Discord API token, DB Connection URL and DB Name in config.json.
 6. `npm install`
-7. `npm start`
-8. `npx simple-git-hooks` to set up .git/hooks
+7. `npm run register-commands`
+8. `npm start`
+9. `npx simple-git-hooks` to set up .git/hooks
 
 # Usage
 

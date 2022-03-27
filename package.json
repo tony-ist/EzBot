@@ -9,9 +9,11 @@
   },
   "scripts": {
     "start": "nodemon",
+    "register-commands": "ts-node ./scripts/register-commands.ts",
     "lint": "./node_modules/.bin/eslint .",
     "lint-fix": "./node_modules/.bin/eslint . --fix",
-    "test": "jest --no-cache"
+    "test": "jest --no-cache",
+    "i18n": "typesafe-i18n"
   },
   "nano-staged": {
     "*.{js,ts}": "eslint --fix"
@@ -38,12 +40,13 @@
     "discord.js": "^13.6.0",
     "dotenv": "^16.0.0",
     "ffmpeg-static": "^5.0.0",
-    "i18n": "^0.13.2",
     "libsodium-wrappers": "^0.7.10",
     "mongodb": "^4.4.1",
     "mongoose": "^6.2.8",
+    "nanocolors": "^0.2.13",
     "opusscript": "^0.0.8",
-    "ts-node": "^10.7.0"
+    "ts-node": "^10.7.0",
+    "typesafe-i18n": "^5.2.0"
   },
   "devDependencies": {
     "@types/i18n": "^0.13.2",
