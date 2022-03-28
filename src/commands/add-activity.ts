@@ -8,6 +8,7 @@ import logger from '../logger'
 const COMMAND_NAME = 'addactivity'
 const log = logger('commands/add-activity')
 
+// TODO: Rename to addactivityCommand in every place for consistency
 export const addActivityCommand: Command<typeof COMMAND_NAME> = {
   name: COMMAND_NAME,
 
