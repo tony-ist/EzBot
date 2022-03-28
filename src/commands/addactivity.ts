@@ -7,10 +7,9 @@ import logger from '../logger'
 import { tryExtractSingleDiscordEmoji } from '../utils/try-extract-single-discord-emoji'
 
 const COMMAND_NAME = 'addactivity'
-const log = logger('commands/add-activity')
+const log = logger('commands/addactivity')
 
-// TODO: Rename to addactivityCommand in every place for consistency
-export const addActivityCommand: Command<typeof COMMAND_NAME> = {
+export const addactivityCommand: Command<typeof COMMAND_NAME> = {
   name: COMMAND_NAME,
 
   build() {
