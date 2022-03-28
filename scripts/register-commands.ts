@@ -13,7 +13,7 @@ export async function registerSlashCommands(): Promise<void> {
 
   await rest.put(
     Routes.applicationGuildCommands(config.clientId, config.guildId),
-    { body: commandList.map(command => command.builder.toJSON()) },
+    { body: commandList.map(command => command.build().toJSON()) },
   )
 
   log.info('Successfully reloaded application (/) commands.')

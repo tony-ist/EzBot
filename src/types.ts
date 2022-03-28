@@ -11,6 +11,6 @@ export enum LogLevel {
 
 export interface Command<N extends (string extends N ? never : string)> {
   name: N
-  builder: SlashCommandBuilder
+  build: () => SlashCommandBuilder
   execute: (commandInteraction: CommandInteraction) => Promise<any>
 }

@@ -8,9 +8,11 @@ const COMMAND_NAME = 'help'
 export const helpCommand: Command<typeof COMMAND_NAME> = {
   name: COMMAND_NAME,
 
-  builder: new SlashCommandBuilder()
-    .setName(COMMAND_NAME)
-    .setDescription(I18n.commands.help.description()),
+  build() {
+    return new SlashCommandBuilder()
+      .setName(COMMAND_NAME)
+      .setDescription(I18n.commands.help.description())
+  },
 
   async execute(commandInteraction: CommandInteraction) {
     const helps = commandList.map(command => {
