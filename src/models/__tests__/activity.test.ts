@@ -4,7 +4,7 @@ describe('activity', () => {
   it('should mock activity findOne method', async () => {
     const mockedDocument: Activity = {
       name: 'Overwatch',
-      emojiName: ':ow:',
+      emoji: ':ow:',
       roleId: 'my-role-uuid',
       presenceNames: ['Overwatch', 'Overwatch 2'],
     }

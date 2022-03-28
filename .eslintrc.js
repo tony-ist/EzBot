@@ -13,7 +13,8 @@ module.exports = {
       asyncArrow: 'always',
     }],
     'array-bracket-spacing': ['error', 'never'],
-    '@typescript-eslint/explicit-function-return-type': 0,
+    '@typescript-eslint/explicit-function-return-type': 'off',
+    '@typescript-eslint/restrict-template-expressions': 'off',
     'no-console': 'error',
   },
 }

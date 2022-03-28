@@ -6,9 +6,12 @@ export interface Activity {
    */
   name: string
   /**
-   * Emoji name that is used for dashboard. Example value: ':red_alert:'
+   * Emoji name that is used for dashboard. Discord or unicode emoji can be specified.
+   * For discord emoji you should extract id from emoji string <:red_alert:123000>
+   * Example value: 123000, ☭, 😄
+   * @See https://discordjs.guide/popular-topics/reactions.html#custom-emojis
    */
-  emojiName: string
+  emoji: string
   /**
    * Discord role ID. When new Activity is created, role should be created too with activity name.
    */
@@ -25,7 +28,7 @@ export interface Activity {
 
 const ActivitySchema = new Schema<Activity>({
   name: { type: String, required: true },
-  emojiName: { type: String, required: true },
+  emoji: { type: String, required: true },
   roleId: { type: String, required: true },
   channelId: { type: String },
   presenceNames: { type: [String], required: true, default: [] },
