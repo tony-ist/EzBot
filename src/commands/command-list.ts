@@ -14,5 +14,5 @@ export const commandList = [
 ]
 
 export const commandStore = new Collection<AllCommandNames, Command<AllCommandNames>>()
-// TODO: Review if incorrect to call forEach after exports
+
 commandList.forEach(command => commandStore.set(command.name, command))

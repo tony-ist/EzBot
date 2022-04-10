@@ -1,9 +1,11 @@
-import Discord, { MessageReaction, Presence, User } from 'discord.js'
+import Discord, { GuildMember, MessageReaction, Presence, Role, User } from 'discord.js'
 import { commandStore } from '../commands/command-list'
 import { createAudioPlayer, createAudioResource, joinVoiceChannel } from '@discordjs/voice'
 import fs from 'fs'
 import logger from '../logger'
 import { I18n } from '../i18n'
+import { ActivityModel } from '../models/activity'
+import { ReactionMessageModel } from '../models/reaction-message'
 
 const log = logger('listeners')
 
@@ -67,34 +69,71 @@ async function onInteractionCreate(interaction: Discord.Interaction): Promise<vo
   }
 }
 
-async function onMessageReactionAdd(reaction: MessageReaction, user: User): Promise<void> {
-  if (reaction.message.id !== '957670983156785182') {
-    return
-  }
+async function getRoleByReaction(reaction: MessageReaction): Promise<Role> {
+  const roleManager = reaction.message.guild?.roles
 
-  const roles = reaction.message.guild?.roles
-
-  if (roles === undefined) {
+  if (roleManager === undefined) {
     throw new Error('reaction.message.guild?.roles is undefined')
   }
 
-  // TODO: Use fetch result, not cache
-  await roles.fetch()
-
-  const role = roles.cache.find((r) => r.name === 'dummy')
-
-  if (role === undefined) {
-    throw new Error('dummy role is undefined')
+  if (reaction.emoji.id === null) {
+    throw new Error('reaction.emoji.id is undefined, only custom emoji are supported')
   }
 
-  const members = reaction.message.guild?.members
+  const activity = await ActivityModel.findOne({ where: { emoji: reaction.emoji.id } })
 
-  if (members === undefined) {
+  if (activity === null) {
+    throw new Error(`Activity for emoji with id "${reaction.emoji.id}" and name "${reaction.emoji.name}" was not found`)
+  }
+
+  const roles = await roleManager.fetch()
+
+  const role = roles.find((r) => r.id === activity.roleId)
+
+  if (role === undefined) {
+    throw new Error(`Role for activity with name "${activity.name}" was not found`)
+  }
+
+  return role
+}
+
+async function getMemberByUser(reaction: MessageReaction, user: User): Promise<GuildMember> {
+  const guildMemberManager = reaction.message.guild?.members
+
+  if (guildMemberManager === undefined) {
     throw new Error('reaction.message.guild?.members is undefined')
   }
 
-  const member = await members.fetch(user)
+  return await guildMemberManager.fetch(user)
+}
+
+async function isReactionOnReactionMessage(reaction: MessageReaction): Promise<boolean> {
+  const reactionMessage = await ReactionMessageModel.findOne({ where: { id: reaction.message.id } })
+  return reactionMessage !== null
+}
+
+export async function onMessageReactionAdd(reaction: MessageReaction, user: User): Promise<void> {
+  if (!await isReactionOnReactionMessage(reaction)) {
+    return
+  }
+
+  const role = await getRoleByReaction(reaction)
+  const member = await getMemberByUser(reaction, user)
   await member.roles.add(role)
+
+  log.debug(`Added role "${role.name}" to user "${user.username}"`)
+}
+
+export async function onMessageReactionRemove(reaction: MessageReaction, user: User): Promise<void> {
+  if (!await isReactionOnReactionMessage(reaction)) {
+    return
+  }
+
+  const role = await getRoleByReaction(reaction)
+  const member = await getMemberByUser(reaction, user)
+  await member.roles.remove(role)
+
+  log.debug(`Removed role "${role.name}" from user "${user.username}"`)
 }
 
 export function registerDiscordListeners(discordClient: Discord.Client): void {
@@ -102,4 +141,5 @@ export function registerDiscordListeners(discordClient: Discord.Client): void {
   discordClient.on('presenceUpdate', wrapErrorHandling(onPresenceUpdate))
   discordClient.on('interactionCreate', wrapErrorHandling(onInteractionCreate))
   discordClient.on('messageReactionAdd', wrapErrorHandling(onMessageReactionAdd))
+  discordClient.on('messageReactionRemove', wrapErrorHandling(onMessageReactionRemove))
 }
