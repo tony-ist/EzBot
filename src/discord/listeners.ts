@@ -80,7 +80,7 @@ async function getRoleByReaction(reaction: MessageReaction): Promise<Role> {
     throw new Error('reaction.emoji.id is undefined, only custom emoji are supported')
   }
 
-  const activity = await ActivityModel.findOne({ where: { emoji: reaction.emoji.id } })
+  const activity = await ActivityModel.findOne({ emoji: reaction.emoji.id })
 
   if (activity === null) {
     throw new Error(`Activity for emoji with id "${reaction.emoji.id}" and name "${reaction.emoji.name}" was not found`)
@@ -108,7 +108,7 @@ async function getMemberByUser(reaction: MessageReaction, user: User): Promise<G
 }
 
 async function isReactionOnReactionMessage(reaction: MessageReaction): Promise<boolean> {
-  const reactionMessage = await ReactionMessageModel.findOne({ where: { id: reaction.message.id } })
+  const reactionMessage = await ReactionMessageModel.findOne({ id: reaction.message.id })
   return reactionMessage !== null
 }
 
