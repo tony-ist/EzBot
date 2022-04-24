@@ -2,16 +2,30 @@
   "name": "ezbot",
   "version": "1.2.0",
   "description": "Discord bot",
-  "main": "index.js",
-  "scripts": {
-    "start": "node index.js",
-    "lint": "./node_modules/.bin/eslint .",
-    "lint-fix": "./node_modules/.bin/eslint . --fix",
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "main": "src/index.ts",
+  "engines": {
+    "node": "16.14.2",
+    "npm": "8.5.0"
   },
-  "pre-commit": [
-    "lint"
-  ],
+  "scripts": {
+    "start": "nodemon",
+    "start:production": "node dist/src/index.js",
+    "build": "tsc",
+    "register-commands": "ts-node ./scripts/register-commands.ts",
+    "register-commands:production": "node dist/scripts/register-commands.js",
+    "migrate-db:production": "node dist/scripts/migrate-db.js",
+    "lint": "eslint .",
+    "lint-fix": "eslint . --fix",
+    "test": "jest --no-cache",
+    "i18n": "typesafe-i18n"
+  },
+  "nano-staged": {
+    "*.{js,ts}": "eslint --fix"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "npx nano-staged",
+    "preserveUnused": true
+  },
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com:ReFruity/EzBot.git"
@@ -23,25 +37,36 @@
   },
   "homepage": "https://github.com/ReFruity/EzBot/blob/master/README.md",
   "dependencies": {
-    "@google-cloud/speech": "^2.1.1",
-    "discord.js": "12.1.1",
-    "dotenv": "^6.1.0",
-    "ffmpeg-static": "^2.7.0",
-    "i18n": "^0.8.3",
-    "libsodium-wrappers": "^0.7.6",
-    "mongodb": "^3.3.4",
-    "node-opus": "^0.3.1",
-    "opusscript": "0.0.6",
-    "uws": "^100.0.1",
-    "zucc": "^0.1.2"
+    "@discordjs/rest": "^0.3.0",
+    "@discordjs/voice": "^0.8.0",
+    "@google-cloud/speech": "^4.10.0",
+    "discord-api-types": "^0.30.0",
+    "discord.js": "^13.6.0",
+    "dotenv": "^16.0.0",
+    "ffmpeg-static": "^5.0.0",
+    "libsodium-wrappers": "^0.7.10",
+    "mongodb": "^4.4.1",
+    "mongoose": "^6.2.8",
+    "nanocolors": "^0.2.13",
+    "opusscript": "^0.0.8",
+    "ts-node": "^10.7.0",
+    "typesafe-i18n": "^5.2.0"
   },
   "devDependencies": {
-    "eslint": "^5.8.0",
-    "eslint-config-standard": "^12.0.0",
-    "eslint-plugin-import": "^2.14.0",
-    "eslint-plugin-node": "^8.0.0",
-    "eslint-plugin-promise": "^4.0.1",
-    "eslint-plugin-standard": "^4.0.0",
-    "pre-commit": "^1.2.2"
+    "@types/i18n": "^0.13.2",
+    "@types/jest": "^27.4.1",
+    "@typescript-eslint/eslint-plugin": "^4.33.0",
+    "eslint": "^7.32.0",
+    "eslint-config-standard-with-typescript": "^21.0.1",
+    "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^5.2.0",
+    "jest": "^27.5.1",
+    "mongodb-memory-server": "^8.4.1",
+    "nano-staged": "^0.6.0",
+    "nodemon": "^2.0.15",
+    "simple-git-hooks": "^2.7.0",
+    "ts-jest": "^27.1.4",
+    "typescript": "^4.6.3"
   }
 }

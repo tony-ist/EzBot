@@ -1,19 +1,24 @@
 # Requirements
 
-* [Node v10.13.0](https://github.com/nvm-sh/nvm)
+* Node version from package.json `engines.node`
 * [MongoDB](https://docs.mongodb.com/manual/installation/#mongodb-community-edition-installation-tutorials)
 * [FFmpeg](https://www.johnvansickle.com/ffmpeg/)
 
 # Setup
 
 1. Copy your Google API credentials into credentials folder.
-1. Add `GOOGLE_APPLICATION_CREDENTIALS="credentials/your-credentials.json"` to `.env` file.
-1. Create database and user in mongodb
-1. Configure your server id, Discord API token, dbConnectionUrl and dbName in config.json. (You can `npm start` and then stop app to create config.json)
-1. `npm install`
-1. `npm start`
+2. Add `GOOGLE_APPLICATION_CREDENTIALS="credentials/your-credentials.json"` to `.env` file.
+3. Create database and user in mongodb
+4. `cp config.template.json config.json`
+5. Configure your guild (discord server) id, client (bot) id, Discord API token, DB Connection URL and DB Name in config.json.
+6. `npm install`
+7. `npm run register-commands`
+8. `npm start`
+9. `npx simple-git-hooks` to set up .git/hooks
 
 # Usage
+
+TODO: Rewrite this section
 
 Type `!help` in discord chat to get bot commands help.
 
