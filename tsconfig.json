@@ -15,6 +15,8 @@
     "typeRoots": [
       "./typings/",
       "node_modules/@types"
-    ]
-  }
+    ],
+    "outDir": "dist"
+  },
+  "exclude": ["src/**/__tests__/**/*.ts"],
 }

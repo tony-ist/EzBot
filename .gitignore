@@ -58,5 +58,6 @@ jspm_packages/
 .vscode/
 samples/
 credentials/
+dist/
 config.json
 .env
