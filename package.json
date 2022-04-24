@@ -13,6 +13,7 @@
     "build": "tsc",
     "register-commands": "ts-node ./scripts/register-commands.ts",
     "register-commands:production": "node dist/scripts/register-commands.js",
+    "migrate-db:production": "node dist/scripts/migrate-db.js",
     "lint": "eslint .",
     "lint-fix": "eslint . --fix",
     "test": "jest --no-cache",
