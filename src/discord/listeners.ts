@@ -138,7 +138,7 @@ export async function onMessageReactionRemove(reaction: MessageReaction, user: U
 
 export function registerDiscordListeners(discordClient: Discord.Client): void {
   discordClient.on('ready', wrapErrorHandling(onReady))
-  discordClient.on('presenceUpdate', wrapErrorHandling(onPresenceUpdate))
+  // discordClient.on('presenceUpdate', wrapErrorHandling(onPresenceUpdate))
   discordClient.on('interactionCreate', wrapErrorHandling(onInteractionCreate))
   discordClient.on('messageReactionAdd', wrapErrorHandling(onMessageReactionAdd))
   discordClient.on('messageReactionRemove', wrapErrorHandling(onMessageReactionRemove))
