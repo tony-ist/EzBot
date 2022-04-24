@@ -13,8 +13,8 @@
     "build": "tsc",
     "register-commands": "ts-node ./scripts/register-commands.ts",
     "register-commands:production": "node dist/scripts/register-commands.js",
-    "lint": "./node_modules/.bin/eslint .",
-    "lint-fix": "./node_modules/.bin/eslint . --fix",
+    "lint": "eslint .",
+    "lint-fix": "eslint . --fix",
     "test": "jest --no-cache",
     "i18n": "typesafe-i18n"
   },

@@ -27,7 +27,7 @@ const data: any = {
     TF2: '744612938043752488',
     COH: '866333967296364574',
     KEKW: '866341110913171467',
-    scghost: '907650968018108467'
+    scghost: '907650968018108467',
   },
   roles: {
     '@everyone': '194696398413758464',
@@ -40,22 +40,22 @@ const data: any = {
     LOL: '530028645474107402',
     Apex: '543778201843793941',
     WOW: '543844663103324192',
-    'Перетаскиватель': '576131026003165204',
+    Перетаскиватель: '576131026003165204',
     WC3: '584459761710399539',
     'Nitro Booster': '588807970687549442',
     Squad: '653328269214613535',
     L4D: '698482240056852540',
     Valorant: '717766636492292237',
     TF2: '744612211913261056',
-    COH2: '866334595125608498'
-  }
+    COH2: '866334595125608498',
+  },
 };
 
 (async function() {
   const mongoClient = new MongoClient(config.dbConnectionUrl)
   await mongoClient.connect()
-  const db = mongoClient.db('ezbot-test-prod')
-  const newDb = mongoClient.db('ezbot-test-v13-2')
+  const db = mongoClient.db(process.env.OLD_DB_NAME)
+  const newDb = mongoClient.db(process.env.NEW_DB_NAME)
 
   const erCursor = await db.collection('EmotesAndRoles').find()
 
@@ -77,4 +77,4 @@ const data: any = {
   }
 
   await newDb.collection('reactionmessages').insertOne(reactionMessage)
-})().then(() => process.exit(0)).catch(console.error)
+})().then(() => process.exit(0)).catch(console.error) // eslint-disable-line no-console
