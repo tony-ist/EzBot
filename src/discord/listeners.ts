@@ -1,12 +1,24 @@
-import Discord, { GuildMember, MessageReaction, Presence, Role, User } from 'discord.js'
+import Discord, { Guild, GuildMember, MessageReaction, Presence, Role, User } from 'discord.js'
 import { commandStore } from '../commands/command-list'
-import { createAudioPlayer, createAudioResource, joinVoiceChannel } from '@discordjs/voice'
+import {
+  createAudioPlayer,
+  createAudioResource,
+  EndBehaviorType,
+  joinVoiceChannel, VoiceConnection,
+} from '@discordjs/voice'
 import fs from 'fs'
+import prism from 'prism-media'
 import logger from '../logger'
 import { I18n } from '../i18n'
 import { ActivityModel } from '../models/activity'
 import { ReactionMessageModel } from '../models/reaction-message'
+import googleSpeech from '@google-cloud/speech'
+import config from '../config'
+import { google } from '@google-cloud/speech/build/protos/protos'
+import AudioEncoding = google.cloud.speech.v1.RecognitionConfig.AudioEncoding
+import { Duplex } from 'stream'
 
+const googleSpeechClient = new googleSpeech.SpeechClient()
 const log = logger('listeners')
 
 type ListenerFunction = (...args: any[]) => Promise<void>
@@ -45,11 +57,55 @@ async function onPresenceUpdate(oldPresence: Presence, newPresence: Presence): P
   })
 
   // TODO: Cache mp3 in RAM, not read it from disk every time
-  const resource = createAudioResource(fs.createReadStream('./audio/wrongChannelRu.mp3'))
+  const resource = createAudioResource(fs.createReadStream(config.wrongChannelAudioPath))
   const player = createAudioPlayer()
 
   connection.subscribe(player)
   player.play(resource)
+
+  connection.receiver.speaking.on('start', userId => onSpeakingStart(guild, connection, userId))
+}
+
+function onSpeakingStart(guild: Guild, connection: VoiceConnection, userId: string) {
+  if (connection.receiver.subscriptions.size > 0) {
+    return
+  }
+
+  const listenStream = connection.receiver.subscribe(userId, {
+    end: {
+      behavior: EndBehaviorType.AfterSilence,
+      duration: 1000,
+    },
+  })
+
+  // this creates a 16-bit signed PCM, mono 48KHz PCM stream output
+  const opusDecoder = new prism.opus.Decoder({
+    frameSize: 960,
+    channels: 1,
+    rate: 48000,
+  })
+
+  const request = {
+    config: {
+      encoding: AudioEncoding.LINEAR16,
+      sampleRateHertz: 48000,
+      languageCode: config.languageCode,
+    },
+    interimResults: false,
+  }
+
+  const userName = guild.members.resolve(userId)?.user.username ?? 'Unknown user'
+
+  const recognizeStream: Duplex = googleSpeechClient.streamingRecognize(request)
+    .on('data', data => onRecognitionData(data, userName, recognizeStream))
+    .on('error', error => log.error('Google speech recognition error:', error))
+
+  listenStream.pipe(opusDecoder).pipe(recognizeStream)
+}
+
+function onRecognitionData(data: any, userName: string, recognizeStream: Duplex) {
+  log.info(`${userName}: ${data.results[0].alternatives[0].transcript}`)
+  recognizeStream.emit('close')
 }
 
 async function onInteractionCreate(interaction: Discord.Interaction): Promise<void> {
@@ -138,7 +194,7 @@ export async function onMessageReactionRemove(reaction: MessageReaction, user: U
 
 export function registerDiscordListeners(discordClient: Discord.Client): void {
   discordClient.on('ready', wrapErrorHandling(onReady))
-  // discordClient.on('presenceUpdate', wrapErrorHandling(onPresenceUpdate))
+  discordClient.on('presenceUpdate', wrapErrorHandling(onPresenceUpdate))
   discordClient.on('interactionCreate', wrapErrorHandling(onInteractionCreate))
   discordClient.on('messageReactionAdd', wrapErrorHandling(onMessageReactionAdd))
   discordClient.on('messageReactionRemove', wrapErrorHandling(onMessageReactionRemove))
