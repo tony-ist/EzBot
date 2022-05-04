@@ -67,7 +67,7 @@ async function onPresenceUpdate(oldPresence: Presence, newPresence: Presence): P
 }
 
 function onSpeakingStart(guild: Guild, connection: VoiceConnection, userId: string) {
-  if (connection.receiver.subscriptions.size > 0) {
+  if (connection.receiver.subscriptions.get(userId) !== undefined) {
     return
   }
 
