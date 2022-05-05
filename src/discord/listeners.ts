@@ -1,4 +1,12 @@
-import Discord, { Guild, GuildMember, MessageReaction, Presence, Role, User } from 'discord.js'
+import Discord, {
+  Guild,
+  GuildMember,
+  MessageReaction,
+  Presence,
+  Role,
+  User,
+  VoiceBasedChannel,
+} from 'discord.js'
 import { commandStore } from '../commands/command-list'
 import {
   createAudioPlayer,
@@ -10,7 +18,7 @@ import fs from 'fs'
 import prism from 'prism-media'
 import logger from '../logger'
 import { I18n } from '../i18n'
-import { ActivityModel } from '../models/activity'
+import { Activity, ActivityModel } from '../models/activity'
 import { ReactionMessageModel } from '../models/reaction-message'
 import googleSpeech from '@google-cloud/speech'
 import config from '../config'
@@ -22,11 +30,17 @@ const googleSpeechClient = new googleSpeech.SpeechClient()
 const log = logger('listeners')
 
 type ListenerFunction = (...args: any[]) => Promise<void>
+interface PresenceContext {
+  discordClient: Discord.Client
+  voiceChannel: VoiceBasedChannel
+  connection: VoiceConnection
+  activity: Activity
+}
 
-function wrapErrorHandling(f: ListenerFunction): ListenerFunction {
+function wrapErrorHandling(f: ListenerFunction, ...otherArgs: any[]): ListenerFunction {
   return async (...args) => {
     try {
-      await f(...args)
+      await f(...args, ...otherArgs)
     } catch (error) {
       log.error('There was an error in the listener', error)
     }
@@ -37,10 +51,16 @@ async function onReady(discordClient: Discord.Client): Promise<void> {
   log.info(`Logged in as ${discordClient.user?.tag ?? 'unknown user'}!`)
 }
 
-async function onPresenceUpdate(oldPresence: Presence, newPresence: Presence): Promise<void> {
+async function onPresenceUpdate(oldPresence: Presence, newPresence: Presence, discordClient: Discord.Client): Promise<void> {
   const member = newPresence.member
   const guild = newPresence.guild
   const voiceChannel = member?.voice.channel
+
+  const newActivityName = newPresence.activities[0]?.name
+
+  if (newActivityName === undefined) {
+    return
+  }
 
   if (voiceChannel?.id === undefined) {
     return
@@ -50,6 +70,29 @@ async function onPresenceUpdate(oldPresence: Presence, newPresence: Presence): P
     throw new Error(`Guild is ${String(guild)}`)
   }
 
+  const activity = await ActivityModel.findOne({ presenceNames: newActivityName })
+
+  if (activity?.channelId === undefined) {
+    return
+  }
+
+  if (activity.channelId === voiceChannel.id) {
+    return
+  }
+
+  const connection = joinVoiceChannelAndPlayAudio(voiceChannel, guild)
+
+  const presenceContext = {
+    discordClient,
+    voiceChannel,
+    connection,
+    activity,
+  }
+
+  connection.receiver.speaking.on('start', userId => onSpeakingStart(userId, guild, presenceContext))
+}
+
+function joinVoiceChannelAndPlayAudio(voiceChannel: VoiceBasedChannel, guild: Guild) {
   const connection = joinVoiceChannel({
     channelId: voiceChannel?.id,
     guildId: guild.id,
@@ -63,10 +106,12 @@ async function onPresenceUpdate(oldPresence: Presence, newPresence: Presence): P
   connection.subscribe(player)
   player.play(resource)
 
-  connection.receiver.speaking.on('start', userId => onSpeakingStart(guild, connection, userId))
+  return connection
 }
 
-function onSpeakingStart(guild: Guild, connection: VoiceConnection, userId: string) {
+function onSpeakingStart(userId: string, guild: Guild, presenceContext: PresenceContext) {
+  const { connection } = presenceContext
+
   if (connection.receiver.subscriptions.get(userId) !== undefined) {
     return
   }
@@ -97,15 +142,47 @@ function onSpeakingStart(guild: Guild, connection: VoiceConnection, userId: stri
   const userName = guild.members.resolve(userId)?.user.username ?? 'Unknown user'
 
   const recognizeStream: Duplex = googleSpeechClient.streamingRecognize(request)
-    .on('data', data => onRecognitionData(data, userName, recognizeStream))
+    .on('data', data => {
+      recognizeStream.emit('close')
+      // TODO: Print stack trace of that error
+      onRecognitionData(data, userName, presenceContext).catch(log.error)
+    })
     .on('error', error => log.error('Google speech recognition error:', error))
 
   listenStream.pipe(opusDecoder).pipe(recognizeStream)
 }
 
-function onRecognitionData(data: any, userName: string, recognizeStream: Duplex) {
-  log.info(`${userName}: ${data.results[0].alternatives[0].transcript}`)
-  recognizeStream.emit('close')
+async function onRecognitionData(data: any, userName: string, presenceContext: PresenceContext) {
+  const { discordClient, activity, voiceChannel, connection } = presenceContext
+  const transcription = data.results[0].alternatives[0].transcript.toLocaleLowerCase()
+  log.info(`${userName}: ${transcription}`)
+
+  if (activity.channelId === undefined) {
+    return
+  }
+
+  const yesWords: string[] = I18n.yesWords().split(',')
+  const noWords: string[] = I18n.noWords().split(',')
+
+  if (yesWords.includes(transcription)) {
+    const targetVoiceChannel = await voiceChannel.guild.channels.fetch(activity.channelId)
+
+    voiceChannel.members.forEach(member => {
+      if (member.user.id !== discordClient.user?.id) {
+        log.info(`Moving member "${member.displayName}" to channel "${targetVoiceChannel?.name ?? targetVoiceChannel?.id}"`)
+        // TODO: Print stack trace of that error
+        member.edit({ channel: targetVoiceChannel?.id }).catch(log.error)
+      }
+    })
+
+    connection.disconnect()
+
+    return
+  }
+
+  if (noWords.includes(transcription)) {
+    connection.disconnect()
+  }
 }
 
 async function onInteractionCreate(interaction: Discord.Interaction): Promise<void> {
@@ -194,7 +271,7 @@ export async function onMessageReactionRemove(reaction: MessageReaction, user: U
 
 export function registerDiscordListeners(discordClient: Discord.Client): void {
   discordClient.on('ready', wrapErrorHandling(onReady))
-  discordClient.on('presenceUpdate', wrapErrorHandling(onPresenceUpdate))
+  discordClient.on('presenceUpdate', wrapErrorHandling(onPresenceUpdate, discordClient))
   discordClient.on('interactionCreate', wrapErrorHandling(onInteractionCreate))
   discordClient.on('messageReactionAdd', wrapErrorHandling(onMessageReactionAdd))
   discordClient.on('messageReactionRemove', wrapErrorHandling(onMessageReactionRemove))

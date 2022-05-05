@@ -60,6 +60,14 @@ type RootTranslation = {
 	 * There was an error while executing this command!
 	 */
 	errorOnCommand: string
+	/**
+	 * yes,yeah
+	 */
+	yesWords: string
+	/**
+	 * no,nope
+	 */
+	noWords: string
 }
 
 export type TranslationFunctions = {
@@ -107,6 +115,14 @@ export type TranslationFunctions = {
 	 * There was an error while executing this command!
 	 */
 	errorOnCommand: () => LocalizedString
+	/**
+	 * yes,yeah
+	 */
+	yesWords: () => LocalizedString
+	/**
+	 * no,nope
+	 */
+	noWords: () => LocalizedString
 }
 
 export type Formatters = {}
