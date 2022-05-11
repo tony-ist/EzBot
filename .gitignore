@@ -61,3 +61,4 @@ credentials/
 dist/
 config.json
 .env
+.DS_Store

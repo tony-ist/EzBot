@@ -26,7 +26,7 @@ interface Config {
   dbConnectionUrl: string
   languageCode: 'en-US' | 'ru-RU'
   locale: 'en' | 'ru'
-  botTimeout: number
+  botTimeoutMs: number
 }
 
 export default config

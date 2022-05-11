@@ -11,7 +11,7 @@ import { commandStore } from '../commands/command-list'
 import {
   createAudioPlayer,
   createAudioResource,
-  EndBehaviorType,
+  EndBehaviorType, getVoiceConnection,
   joinVoiceChannel, VoiceConnection,
 } from '@discordjs/voice'
 import fs from 'fs'
@@ -28,6 +28,7 @@ import { Duplex } from 'stream'
 
 const googleSpeechClient = new googleSpeech.SpeechClient()
 const log = logger('listeners')
+const BOT_TIMEOUT_MS = config.botTimeoutMs === undefined ? 40000 : config.botTimeoutMs
 
 type ListenerFunction = (...args: any[]) => Promise<void>
 interface PresenceContext {
@@ -66,6 +67,16 @@ async function onPresenceUpdate(oldPresence: Presence, newPresence: Presence, di
     return
   }
 
+  if (newPresence.guild?.id === undefined) {
+    return
+  }
+
+  const isBotInVoiceChannel = getVoiceConnection(newPresence.guild?.id) !== undefined
+
+  if (isBotInVoiceChannel) {
+    return
+  }
+
   if (guild === undefined || guild === null) {
     throw new Error(`Guild is ${String(guild)}`)
   }
@@ -82,6 +93,10 @@ async function onPresenceUpdate(oldPresence: Presence, newPresence: Presence, di
 
   const connection = joinVoiceChannelAndPlayAudio(voiceChannel, guild)
 
+  setTimeout(() => {
+    leaveVoiceChannel(voiceChannel, connection)
+  }, BOT_TIMEOUT_MS)
+
   const presenceContext = {
     discordClient,
     voiceChannel,
@@ -93,6 +108,8 @@ async function onPresenceUpdate(oldPresence: Presence, newPresence: Presence, di
 }
 
 function joinVoiceChannelAndPlayAudio(voiceChannel: VoiceBasedChannel, guild: Guild) {
+  log.info(`Joining voice channel "${voiceChannel.name}"`)
+
   const connection = joinVoiceChannel({
     channelId: voiceChannel?.id,
     guildId: guild.id,
@@ -175,14 +192,20 @@ async function onRecognitionData(data: any, userName: string, presenceContext: P
       }
     })
 
-    connection.disconnect()
+    leaveVoiceChannel(voiceChannel, connection)
 
     return
   }
 
   if (noWords.includes(transcription)) {
-    connection.disconnect()
+    leaveVoiceChannel(voiceChannel, connection)
   }
+}
+
+function leaveVoiceChannel(voiceChannel: VoiceBasedChannel, connection: VoiceConnection) {
+  log.info(`Leaving voice channel "${voiceChannel.name}"`)
+  connection.disconnect()
+  connection.destroy()
 }
 
 async function onInteractionCreate(interaction: Discord.Interaction): Promise<void> {

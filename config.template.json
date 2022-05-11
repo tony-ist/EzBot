@@ -7,5 +7,5 @@
   "dbConnectionUrl": "mongodb://user:password@localhost:27017/ezbot",
   "languageCode": "en-US",
   "locale": "en",
-  "botTimeout": 40000
+  "botTimeoutMs": 40000
 }
