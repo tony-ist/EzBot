@@ -25,6 +25,7 @@ import config from '../config'
 import { google } from '@google-cloud/speech/build/protos/protos'
 import AudioEncoding = google.cloud.speech.v1.RecognitionConfig.AudioEncoding
 import { Duplex } from 'stream'
+import { isNoPhrase, isYesPhrase } from '../utils/affirmation-analyser'
 
 const googleSpeechClient = new googleSpeech.SpeechClient()
 const log = logger('listeners')
@@ -178,10 +179,7 @@ async function onRecognitionData(data: any, userName: string, presenceContext: P
     return
   }
 
-  const yesWords: string[] = I18n.yesWords().split(',')
-  const noWords: string[] = I18n.noWords().split(',')
-
-  if (yesWords.includes(transcription)) {
+  if (isYesPhrase(transcription)) {
     const targetVoiceChannel = await voiceChannel.guild.channels.fetch(activity.channelId)
 
     voiceChannel.members.forEach(member => {
@@ -197,7 +195,7 @@ async function onRecognitionData(data: any, userName: string, presenceContext: P
     return
   }
 
-  if (noWords.includes(transcription)) {
+  if (isNoPhrase(transcription)) {
     leaveVoiceChannel(voiceChannel, connection)
   }
 }

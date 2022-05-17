@@ -61,13 +61,13 @@ type RootTranslation = {
 	 */
 	errorOnCommand: string
 	/**
-	 * yes,yeah
+	 * yes,yeah,transfer,please,yep,let's go
 	 */
-	yesWords: string
+	yesPhrases: string
 	/**
-	 * no,nope
+	 * no,nope,don't,nah,get out
 	 */
-	noWords: string
+	noPhrases: string
 }
 
 export type TranslationFunctions = {
@@ -116,13 +116,13 @@ export type TranslationFunctions = {
 	 */
 	errorOnCommand: () => LocalizedString
 	/**
-	 * yes,yeah
+	 * yes,yeah,transfer,please,yep,let's go
 	 */
-	yesWords: () => LocalizedString
+	yesPhrases: () => LocalizedString
 	/**
-	 * no,nope
+	 * no,nope,don't,nah,get out
 	 */
-	noWords: () => LocalizedString
+	noPhrases: () => LocalizedString
 }
 
 export type Formatters = {}

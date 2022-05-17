@@ -19,8 +19,8 @@ const ru: Translation = {
     },
   },
   errorOnCommand: 'При выполнении команды произошла ошибка!',
-  yesWords: 'да,давай,перекинь',
-  noWords: 'нет,не надо,не',
+  yesPhrases: 'да,давай,перекинь',
+  noPhrases: 'нет,не надо,не,уйди',
 }
 
 export default ru

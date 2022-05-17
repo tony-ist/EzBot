@@ -19,8 +19,8 @@ const en: BaseTranslation = {
     },
   },
   errorOnCommand: 'There was an error while executing this command!',
-  yesWords: 'yes,yeah',
-  noWords: 'no,nope',
+  yesPhrases: `yes,yeah,transfer,please,yep,let's go`,
+  noPhrases: `no,nope,don't,nah,get out`,
 }
 
 export default en
