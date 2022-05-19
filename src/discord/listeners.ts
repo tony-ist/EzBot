@@ -291,6 +291,8 @@ export async function onMessageReactionRemove(reaction: MessageReaction, user: U
 }
 
 export function registerDiscordListeners(discordClient: Discord.Client): void {
+  // TODO: Move registration to top level
+  // TODO: Extract to class XListenerPlugin with parent ListenerPlugin, implement methods ready, presenceUpdate, etc
   discordClient.on('ready', wrapErrorHandling(onReady))
   discordClient.on('presenceUpdate', wrapErrorHandling(onPresenceUpdate, discordClient))
   discordClient.on('interactionCreate', wrapErrorHandling(onInteractionCreate))
