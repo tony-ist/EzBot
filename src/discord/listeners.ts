@@ -10,7 +10,7 @@ import { ReactionMessageModel } from '../models/reaction-message'
 import config from '../config'
 import { isNoPhrase, isYesPhrase } from '../utils/affirmation-analyser'
 import { playWrongChannelAudio } from '../audio/wrong-channel-audio'
-import { RecognitionData, recognizeSpeech } from '../utils/recognize-promised'
+import { recognizeSpeech } from '../utils/recognize-promised'
 
 const log = logger('listeners')
 const BOT_TIMEOUT_MS = config.botTimeoutMs === undefined ? 40000 : config.botTimeoutMs
@@ -139,12 +139,8 @@ async function onSpeakingStart(userId: string, guild: Guild, presenceContext: Pr
 
   const recognitionData = await recognizeSpeech(listenStream.pipe(opusDecoder))
 
-  await onRecognitionData(recognitionData, userName, presenceContext)
-}
-
-async function onRecognitionData(data: RecognitionData, userName: string, presenceContext: PresenceContext) {
-  const { discordClient, activity, voiceChannel, connection } = presenceContext
-  const transcription = data.results[0].alternatives[0].transcript.toLocaleLowerCase()
+  const { discordClient, activity, voiceChannel } = presenceContext
+  const transcription = recognitionData.results[0].alternatives[0].transcript.toLocaleLowerCase()
   log.info(`${userName}: ${transcription}`)
 
   if (activity.channelId === undefined) {
@@ -153,15 +149,17 @@ async function onRecognitionData(data: RecognitionData, userName: string, presen
 
   if (isYesPhrase(transcription)) {
     const targetVoiceChannel = await voiceChannel.guild.channels.fetch(activity.channelId)
+    const promises = []
 
-    voiceChannel.members.forEach(member => {
+    for (const keyValue of voiceChannel.members) {
+      const member = keyValue[1]
       if (member.user.id !== discordClient.user?.id) {
         log.info(`Moving member "${member.displayName}" to channel "${targetVoiceChannel?.name ?? targetVoiceChannel?.id}"`)
-        // TODO: Print stack trace of that error
-        member.edit({ channel: targetVoiceChannel?.id }).catch(log.error)
+        promises.push(member.edit({ channel: '123' }))
       }
-    })
+    }
 
+    await Promise.all(promises)
     leaveVoiceChannel(voiceChannel, connection)
 
     return
