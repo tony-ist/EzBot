@@ -38,6 +38,14 @@ async function onReady(discordClient: Discord.Client): Promise<void> {
   log.info(`Logged in as ${discordClient.user?.tag ?? 'unknown user'}!`)
 }
 
+/**
+ * Checks if user that started the game is in wrong channel.
+ * If so, then joins that channel and asks
+ * everyone if they want to me moved to the correct channel.
+ * If it hears truthy answer, then it moves everyone
+ * from that channel to the correct game channel.
+ * If it hears falsy answer, then it just leaves with sadness on its metal face.
+ */
 async function onPresenceUpdate(oldPresence: Presence, newPresence: Presence, discordClient: Discord.Client): Promise<void> {
   const member = newPresence.member
   const guild = newPresence.guild
@@ -45,6 +53,9 @@ async function onPresenceUpdate(oldPresence: Presence, newPresence: Presence, di
 
   const newActivity = newPresence.activities[0]
 
+  // TODO#presenceChange: extract these ifs to some place
+  // TODO#presenceChange: revise return or throw error
+  // TODO#presenceChange: add debug logs where necessary
   if (newActivity === undefined) {
     return
   }
@@ -70,6 +81,7 @@ async function onPresenceUpdate(oldPresence: Presence, newPresence: Presence, di
   }
 
   if (guild === undefined || guild === null) {
+    // TODO#presenceChange: strange error throw
     throw new Error(`Guild is ${String(guild)}`)
   }
 
@@ -131,6 +143,7 @@ async function onSpeakingStart(userId: string, guild: Guild, presenceContext: Pr
   })
 
   // this creates a 16-bit signed PCM, mono 48KHz PCM stream output
+  // TODO#presenceChange: can this be moved to outer scope?
   const opusDecoder = new prism.opus.Decoder({
     frameSize: 960,
     channels: 1,
