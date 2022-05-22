@@ -1,37 +1,22 @@
-import Discord, {
-  Guild,
-  GuildMember,
-  MessageReaction,
-  Presence,
-  Role,
-  User,
-  VoiceBasedChannel,
-} from 'discord.js'
+import Discord, { Guild, GuildMember, MessageReaction, Presence, Role, User, VoiceBasedChannel } from 'discord.js'
 import { commandStore } from '../commands/command-list'
-import {
-  createAudioPlayer,
-  createAudioResource,
-  EndBehaviorType, getVoiceConnection,
-  joinVoiceChannel, VoiceConnection,
-} from '@discordjs/voice'
-import fs from 'fs'
+import * as discordJsVoice from '@discordjs/voice'
+import { EndBehaviorType, VoiceConnection } from '@discordjs/voice'
 import prism from 'prism-media'
 import logger from '../logger'
 import { I18n } from '../i18n'
 import { Activity, ActivityModel } from '../models/activity'
 import { ReactionMessageModel } from '../models/reaction-message'
-import googleSpeech from '@google-cloud/speech'
 import config from '../config'
-import { google } from '@google-cloud/speech/build/protos/protos'
-import AudioEncoding = google.cloud.speech.v1.RecognitionConfig.AudioEncoding
-import { Duplex } from 'stream'
 import { isNoPhrase, isYesPhrase } from '../utils/affirmation-analyser'
+import { playWrongChannelAudio } from '../audio/wrong-channel-audio'
+import { RecognitionData, recognizeSpeech } from '../utils/recognize-promised'
 
-const googleSpeechClient = new googleSpeech.SpeechClient()
 const log = logger('listeners')
 const BOT_TIMEOUT_MS = config.botTimeoutMs === undefined ? 40000 : config.botTimeoutMs
 
 type ListenerFunction = (...args: any[]) => Promise<void>
+
 interface PresenceContext {
   discordClient: Discord.Client
   voiceChannel: VoiceBasedChannel
@@ -44,7 +29,7 @@ function wrapErrorHandling(f: ListenerFunction, ...otherArgs: any[]): ListenerFu
     try {
       await f(...args, ...otherArgs)
     } catch (error) {
-      log.error('There was an error in the listener', error)
+      log.error('There was an error in the listener:', error)
     }
   }
 }
@@ -57,6 +42,12 @@ async function onPresenceUpdate(oldPresence: Presence, newPresence: Presence, di
   const member = newPresence.member
   const guild = newPresence.guild
   const voiceChannel = member?.voice.channel
+
+  const newActivity = newPresence.activities[0]
+
+  if (newActivity === undefined) {
+    return
+  }
 
   const newActivityName = newPresence.activities[0]?.name
 
@@ -72,7 +63,7 @@ async function onPresenceUpdate(oldPresence: Presence, newPresence: Presence, di
     return
   }
 
-  const isBotInVoiceChannel = getVoiceConnection(newPresence.guild?.id) !== undefined
+  const isBotInVoiceChannel = discordJsVoice.getVoiceConnection(newPresence.guild?.id) !== undefined
 
   if (isBotInVoiceChannel) {
     return
@@ -92,11 +83,21 @@ async function onPresenceUpdate(oldPresence: Presence, newPresence: Presence, di
     return
   }
 
-  const connection = joinVoiceChannelAndPlayAudio(voiceChannel, guild)
+  log.info(`Joining voice channel "${voiceChannel.name}"`)
+
+  const connection = discordJsVoice.joinVoiceChannel({
+    channelId: voiceChannel?.id,
+    guildId: guild.id,
+    adapterCreator: guild.voiceAdapterCreator,
+  })
 
   setTimeout(() => {
     leaveVoiceChannel(voiceChannel, connection)
   }, BOT_TIMEOUT_MS)
+
+  log.debug('Started playing wrong channel audio...')
+  await playWrongChannelAudio(connection)
+  log.debug('Finished playing wrong channel audio')
 
   const presenceContext = {
     discordClient,
@@ -105,29 +106,17 @@ async function onPresenceUpdate(oldPresence: Presence, newPresence: Presence, di
     activity,
   }
 
-  connection.receiver.speaking.on('start', userId => onSpeakingStart(userId, guild, presenceContext))
+  connection.receiver.speaking.on(
+    'start',
+    async (userId) => await onSpeakingStart(userId, guild, presenceContext),
+  )
 }
 
-function joinVoiceChannelAndPlayAudio(voiceChannel: VoiceBasedChannel, guild: Guild) {
-  log.info(`Joining voice channel "${voiceChannel.name}"`)
+async function onSpeakingStart(userId: string, guild: Guild, presenceContext: PresenceContext) {
+  const userName = guild.members.resolve(userId)?.user.username ?? 'Unknown user'
 
-  const connection = joinVoiceChannel({
-    channelId: voiceChannel?.id,
-    guildId: guild.id,
-    adapterCreator: guild.voiceAdapterCreator,
-  })
+  log.debug(`User "${userName}" started speaking...`)
 
-  // TODO: Cache mp3 in RAM, not read it from disk every time
-  const resource = createAudioResource(fs.createReadStream(config.wrongChannelAudioPath))
-  const player = createAudioPlayer()
-
-  connection.subscribe(player)
-  player.play(resource)
-
-  return connection
-}
-
-function onSpeakingStart(userId: string, guild: Guild, presenceContext: PresenceContext) {
   const { connection } = presenceContext
 
   if (connection.receiver.subscriptions.get(userId) !== undefined) {
@@ -148,29 +137,12 @@ function onSpeakingStart(userId: string, guild: Guild, presenceContext: Presence
     rate: 48000,
   })
 
-  const request = {
-    config: {
-      encoding: AudioEncoding.LINEAR16,
-      sampleRateHertz: 48000,
-      languageCode: config.languageCode,
-    },
-    interimResults: false,
-  }
+  const recognitionData = await recognizeSpeech(listenStream.pipe(opusDecoder))
 
-  const userName = guild.members.resolve(userId)?.user.username ?? 'Unknown user'
-
-  const recognizeStream: Duplex = googleSpeechClient.streamingRecognize(request)
-    .on('data', data => {
-      recognizeStream.emit('close')
-      // TODO: Print stack trace of that error
-      onRecognitionData(data, userName, presenceContext).catch(log.error)
-    })
-    .on('error', error => log.error('Google speech recognition error:', error))
-
-  listenStream.pipe(opusDecoder).pipe(recognizeStream)
+  await onRecognitionData(recognitionData, userName, presenceContext)
 }
 
-async function onRecognitionData(data: any, userName: string, presenceContext: PresenceContext) {
+async function onRecognitionData(data: RecognitionData, userName: string, presenceContext: PresenceContext) {
   const { discordClient, activity, voiceChannel, connection } = presenceContext
   const transcription = data.results[0].alternatives[0].transcript.toLocaleLowerCase()
   log.info(`${userName}: ${transcription}`)
