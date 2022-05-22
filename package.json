@@ -10,7 +10,7 @@
   "scripts": {
     "start": "nodemon",
     "start:production": "node dist/src/index.js",
-    "build": "tsc",
+    "build": "rimraf dist && tsc",
     "register-commands": "ts-node ./scripts/register-commands.ts",
     "register-commands:production": "node dist/scripts/register-commands.js",
     "migrate-db:production": "node dist/scripts/migrate-db.js",
@@ -66,6 +66,7 @@
     "mongodb-memory-server": "^8.4.1",
     "nano-staged": "^0.6.0",
     "nodemon": "^2.0.15",
+    "rimraf": "^3.0.2",
     "simple-git-hooks": "^2.7.0",
     "ts-jest": "^27.1.4",
     "typescript": "^4.6.3"

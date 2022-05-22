@@ -16,5 +16,6 @@ module.exports = {
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/restrict-template-expressions': 'off',
     'no-console': 'error',
+    '@typescript-eslint/quotes': ['error', 'single', { allowTemplateLiterals: true }],
   },
 }

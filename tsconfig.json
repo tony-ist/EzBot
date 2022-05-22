@@ -1,21 +1,4 @@
 {
-  "compilerOptions": {
-    "strict": true,
-    "target": "ES2021",
-    "declaration": true,
-    "sourceMap": true,
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "lib": ["ES2021"],
-    "resolveJsonModule": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "importsNotUsedAsValues": "remove",
-    "skipLibCheck": true,
-    "typeRoots": [
-      "./typings/",
-      "node_modules/@types"
-    ],
-    "outDir": "dist",
-  },
+  "extends": "./tsconfig.eslint.json",
+  "exclude": ["src/**/__tests__/**/*.ts", "src/tests-setup/**"],
 }

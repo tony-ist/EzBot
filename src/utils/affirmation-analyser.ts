@@ -2,10 +2,8 @@ import { I18n } from '../i18n'
 
 function isEveryPhraseWordInArray(phrase: string, array: string[]) {
   const phraseWords = phrase.replaceAll(',', '').split(' ')
-  // TODO: .every(word => array.includes)
-  const inclusions = phraseWords.map(word => array.includes(word))
 
-  return inclusions.every(i => i)
+  return phraseWords.every(word => array.includes(word))
 }
 
 export function isYesPhrase(phrase: string) {
