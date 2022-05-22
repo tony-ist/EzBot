@@ -173,6 +173,7 @@ async function onSpeakingStart(userId: string, guild: Guild, presenceContext: Pr
     }
 
     await Promise.all(promises)
+    // TODO#presenceChange: handle race condition where one user says long phrase while another user says 'yes'
     leaveVoiceChannel(voiceChannel, connection)
 
     return
