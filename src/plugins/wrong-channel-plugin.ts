@@ -40,6 +40,7 @@ export default class WrongChannelPlugin implements ListenerPlugin {
       return
     }
 
+    // TODO#presenceChange: Move inside summonToTheChannel function, pass callbacks
     if (await isRightChannel(voiceChannel, newActivityName)) {
       log.debug('issuer is in the right channel')
       return

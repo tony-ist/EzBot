@@ -52,6 +52,7 @@ const levelToLogFunc: {[level in LogLevel]: LoggerFunction} = {
 const LOGGER_HEAD_PAD_END = 0
 const noopLogger = () => undefined
 function getLogFunction(loggerName: string, targetLogLevel: LogLevel, currentLogLevel: LogLevel): LoggerFunction {
+  // TODO: Use https://nodejs.org/api/async_hooks.html
   const targetLogLevelCode = levelToCode[targetLogLevel]
   const currentLogLevelCode = levelToCode[currentLogLevel]
   if (currentLogLevelCode > targetLogLevelCode) {

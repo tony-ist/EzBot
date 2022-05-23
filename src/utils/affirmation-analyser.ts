@@ -1,5 +1,7 @@
 import { I18n } from '../i18n'
 
+// TODO: Make one function getPhraseAffirmation that return enum instance
+
 function isEveryPhraseWordInArray(phrase: string, array: string[]) {
   const phraseWords = phrase.replaceAll(',', '').split(' ')
 

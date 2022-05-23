@@ -65,7 +65,6 @@ export const summonCommand: Command<typeof COMMAND_NAME> = {
 
     await commandInteraction.reply('Summoning bot...')
 
-    // TODO#presenceChange: Handle case when bot is already in the channel
     await summonToTheChannel(voiceChannel, activityName, botUserId)
   },
 }

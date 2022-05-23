@@ -1,141 +1,119 @@
-import { Guild, VoiceBasedChannel } from 'discord.js'
+import { BaseGuildVoiceChannel, Guild, VoiceBasedChannel } from 'discord.js'
 import * as discordJsVoice from '@discordjs/voice'
 import { EndBehaviorType, VoiceConnection } from '@discordjs/voice'
 import { ActivityModel } from '../models/activity'
 import { playWrongChannelAudio } from '../audio/wrong-channel-audio'
-import prism from 'prism-media'
-import { recognizeSpeech } from '../utils/recognize-promised'
+import { recognizeSpeech } from '../utils/recognize-speech'
 import { isNoPhrase, isYesPhrase } from '../utils/affirmation-analyser'
 import logger from '../logger'
 import config from '../config'
+import { moveMembers } from './move-members'
 
-interface PresenceContext {
-  voiceChannel: VoiceBasedChannel
-  connection: VoiceConnection
-  botUserId: string
-  targetChannelId: string
-}
-
-const log = logger('summon-to-the-wrong-channel')
+const log = logger('actions/summon-to-the-channel')
 
 const BOT_TIMEOUT_MS = config.botTimeoutMs === undefined ? 40000 : config.botTimeoutMs
 
 /**
- * Bot joins `voiceChannel` and asks
+ * Bot joins `sourceVoiceChannel` and asks
  * everyone if they want to me moved to the correct channel.
+ * If the answer is neutral, then it stays in the channel and listens for other answers.
  * If it hears truthy answer, then it moves everyone
  * from that channel to the correct game channel.
  * If it hears falsy answer, then it just leaves with sadness on its metal face.
  * Use `isRightChannel` and `isBotInVoiceChannel` to check if you need to summon bot at all.
- * @param voiceChannel The voice channel where to summon the bot.
+ * @param sourceVoiceChannel The voice channel where to summon the bot.
  * @param activityName The name of the game for the target voice channel.
  * The function will find the voice channel for that game
  * and move all users from the first channel to the second.
  * @param botUserId The client id of your bot.
  */
 export async function summonToTheChannel(
-  voiceChannel: VoiceBasedChannel,
+  sourceVoiceChannel: BaseGuildVoiceChannel,
   activityName: string,
   botUserId: string,
 ) {
-  const guild = voiceChannel.guild
+  // TODO: Leave voice channel on any exception with global try catch
+  const guild = sourceVoiceChannel.guild
 
-  log.info(`Joining voice channel "${voiceChannel.name}"`)
+  const activity = await ActivityModel.findOne({ presenceNames: activityName })
+  if (activity?.channelId === undefined) {
+    return // TODO: Logger or error
+  }
+
+  const targetVoiceChannel = await sourceVoiceChannel.guild.channels.fetch(activity.channelId)
+  if (targetVoiceChannel === null) {
+    return // TODO: Error
+  }
+  if (!targetVoiceChannel.isVoice()) {
+    return
+  }
+
+  log.info(`Joining voice channel "${sourceVoiceChannel.name}"`)
 
   const connection = discordJsVoice.joinVoiceChannel({
-    channelId: voiceChannel?.id,
+    channelId: sourceVoiceChannel.id,
     guildId: guild.id,
     adapterCreator: guild.voiceAdapterCreator,
   })
 
   setTimeout(() => {
-    leaveVoiceChannel(voiceChannel, connection)
+    leaveVoiceChannel(sourceVoiceChannel, connection)
   }, BOT_TIMEOUT_MS)
 
   log.debug('Started playing wrong channel audio...')
   await playWrongChannelAudio(connection)
   log.debug('Finished playing wrong channel audio')
 
-  const activity = await ActivityModel.findOne({ presenceNames: activityName })
+  const handleSpeakingStart = async (userId: string) => {
+    // TODO#presenceChange: Check if exception is handled
+    const userName = guild.members.resolve(userId)?.user.username ?? 'Unknown user'
+    log.debug(`User "${userName}" started speaking...`)
 
-  if (activity?.channelId === undefined) {
-    return
-  }
-
-  const presenceContext: PresenceContext = {
-    voiceChannel,
-    connection,
-    botUserId,
-    targetChannelId: activity.channelId,
-  }
-
-  connection.receiver.speaking.on(
-    'start',
-    async (userId) => await onSpeakingStart(userId, guild, presenceContext),
-  )
-}
-
-async function onSpeakingStart(userId: string, guild: Guild, presenceContext: PresenceContext) {
-  const userName = guild.members.resolve(userId)?.user.username ?? 'Unknown user'
-
-  log.debug(`User "${userName}" started speaking...`)
-
-  const { connection, targetChannelId, voiceChannel, botUserId } = presenceContext
-
-  if (connection.receiver.subscriptions.get(userId) !== undefined) {
-    return
-  }
-
-  const listenStream = connection.receiver.subscribe(userId, {
-    end: {
-      behavior: EndBehaviorType.AfterSilence,
-      duration: 1000,
-    },
-  })
-
-  // this creates a 16-bit signed PCM, mono 48KHz PCM stream output
-  // TODO#presenceChange: can this be moved to outer scope?
-  const opusDecoder = new prism.opus.Decoder({
-    frameSize: 960,
-    channels: 1,
-    rate: 48000,
-  })
-
-  const recognitionData = await recognizeSpeech(listenStream.pipe(opusDecoder))
-
-  const transcription = recognitionData.results[0].alternatives[0].transcript.toLocaleLowerCase()
-
-  log.info(`${userName}: ${transcription}`)
-
-  if (isYesPhrase(transcription)) {
-    const targetVoiceChannel = await voiceChannel.guild.channels.fetch(targetChannelId)
-    const promises = []
-
-    for (const keyValue of voiceChannel.members) {
-      const member = keyValue[1]
-      if (member.user.id !== botUserId) {
-        log.info(`Moving member "${member.displayName}" to channel "${targetVoiceChannel?.name ?? targetVoiceChannel?.id}"`)
-        promises.push(member.edit({ channel: targetVoiceChannel?.id }))
-      }
+    if (connection.receiver.subscriptions.get(userId) !== undefined) {
+      return // TODO: Comment
     }
 
-    await Promise.all(promises)
-      .catch((error) => log.error('Error moving users:', error))
+    const listenStream = connection.receiver.subscribe(userId, {
+      end: {
+        behavior: EndBehaviorType.AfterSilence,
+        duration: 1000,
+      },
+    })
 
-    // TODO#presenceChange: handle race condition where one user says long phrase while another user says 'yes'
-    leaveVoiceChannel(voiceChannel, connection)
+    const transcription = await recognizeSpeech(listenStream)
+    log.info(`User ${userName} transcription: ${transcription}`)
 
-    return
+    if (isYesPhrase(transcription)) {
+      const membersToMove = Array.from(sourceVoiceChannel.members.values())
+        .filter((member) => member.user.id !== botUserId)
+
+      await moveMembers(membersToMove, targetVoiceChannel)
+      // TODO#presenceChange: handle race condition where one user says long phrase while another user says 'yes'
+      leaveVoiceChannel(sourceVoiceChannel, connection)
+
+      return
+    }
+
+    if (isNoPhrase(transcription)) {
+      leaveVoiceChannel(sourceVoiceChannel, connection)
+
+      return
+    }
+
+    log.debug(`"${transcription}" is neutral. Staying on the voice channel...`)
   }
 
-  if (isNoPhrase(transcription)) {
-    leaveVoiceChannel(voiceChannel, connection)
-  }
+  return await new Promise<void>((resolve, reject) => {
+    connection.receiver.speaking.on(
+      'start',
+      (userId) => { handleSpeakingStart(userId).then(resolve).catch(reject) },
+    )
+  })
 }
 
 // TODO#presenceChange: Destroy every recognition stream on voice channel leave because of:
 // ApiError: Audio Timeout Error: Long duration elapsed without audio. Audio should be sent close to real time.
-function leaveVoiceChannel(voiceChannel: VoiceBasedChannel, connection: VoiceConnection) {
+function leaveVoiceChannel(voiceChannel: BaseGuildVoiceChannel, connection: VoiceConnection) {
   log.info(`Leaving voice channel "${voiceChannel.name}"`)
   connection.disconnect()
   connection.destroy()
