@@ -25,7 +25,7 @@ const ru: Translation = {
     },
   },
   errorOnCommand: 'При выполнении команды произошла ошибка!',
-  yesPhrases: 'да,давай,перекинь',
+  yesPhrases: 'да,давай,перекинь,хочу,хотим',
   noPhrases: 'нет,не надо,не,уйди',
 }
 

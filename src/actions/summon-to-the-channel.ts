@@ -20,19 +20,18 @@ const log = logger('summon-to-the-wrong-channel')
 
 const BOT_TIMEOUT_MS = config.botTimeoutMs === undefined ? 40000 : config.botTimeoutMs
 
-// TODO#presenceChange: Rewrite description
 /**
- * Checks if the user that has started the game is in wrong channel.
- * If so, then joins that channel and asks
+ * Bot joins `voiceChannel` and asks
  * everyone if they want to me moved to the correct channel.
  * If it hears truthy answer, then it moves everyone
  * from that channel to the correct game channel.
  * If it hears falsy answer, then it just leaves with sadness on its metal face.
+ * Use `isRightChannel` and `isBotInVoiceChannel` to check if you need to summon bot at all.
  * @param voiceChannel The voice channel where to summon the bot.
- * @param activityName The name of the game that user has started.
+ * @param activityName The name of the game for the target voice channel.
  * The function will find the voice channel for that game
  * and move all users from the first channel to the second.
- * @param botUserId This is client id of the current bot.
+ * @param botUserId The client id of your bot.
  */
 export async function summonToTheChannel(
   voiceChannel: VoiceBasedChannel,
