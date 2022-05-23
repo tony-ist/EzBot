@@ -55,6 +55,24 @@ type RootTranslation = {
 				propEmojiShouldBeValidEmoji: string
 			}
 		}
+		summon: {
+			/**
+			 * Summons bot to join your channel and to ask a question whether you want to be transferred.
+			 */
+			description: string
+			/**
+			 * Cannot summon the bot, start the game first!
+			 */
+			cannotSummon: string
+			/**
+			 * Cannot summon the bot, you are in the right channel!
+			 */
+			inTheRightChannel: string
+			/**
+			 * Cannot summon the bot, it is already in a voice channel!
+			 */
+			alreadyInChannel: string
+		}
 	}
 	/**
 	 * There was an error while executing this command!
@@ -109,6 +127,24 @@ export type TranslationFunctions = {
 				 */
 				propEmojiShouldBeValidEmoji: () => LocalizedString
 			}
+		}
+		summon: {
+			/**
+			 * Summons bot to join your channel and to ask a question whether you want to be transferred.
+			 */
+			description: () => LocalizedString
+			/**
+			 * Cannot summon the bot, start the game first!
+			 */
+			cannotSummon: () => LocalizedString
+			/**
+			 * Cannot summon the bot, you are in the right channel!
+			 */
+			inTheRightChannel: () => LocalizedString
+			/**
+			 * Cannot summon the bot, it is already in a voice channel!
+			 */
+			alreadyInChannel: () => LocalizedString
 		}
 	}
 	/**

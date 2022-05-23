@@ -1,5 +1,5 @@
 import ListenerPlugin from './listener-plugin'
-import Discord, { GuildMember, MessageReaction, Role, User } from 'discord.js'
+import { GuildMember, MessageReaction, Role, User } from 'discord.js'
 import logger from '../logger'
 import { ActivityModel } from '../models/activity'
 import { ReactionMessageModel } from '../models/reaction-message'
@@ -7,12 +7,6 @@ import { ReactionMessageModel } from '../models/reaction-message'
 const log = logger('role-plugin')
 
 export default class RolePlugin implements ListenerPlugin {
-  discordClient: Discord.Client
-
-  constructor(discordClient: Discord.Client) {
-    this.discordClient = discordClient
-  }
-
   async onMessageReactionAdd(reaction: MessageReaction, user: User): Promise<void> {
     if (!await this.isReactionOnReactionMessage(reaction)) {
       return

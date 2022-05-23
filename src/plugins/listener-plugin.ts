@@ -6,12 +6,9 @@ type ListenerFunction = (...args: any[]) => Promise<void>
 const log = logger('listener-plugin')
 
 export default interface ListenerPlugin {
-  discordClient: Discord.Client
-
   onPresenceUpdate?: (
     oldPresence: Presence,
     newPresence: Presence,
-    discordClient: Discord.Client
   ) => Promise<void>
 
   onReady?: (discordClient: Discord.Client) => Promise<void>

@@ -17,6 +17,12 @@ const en: BaseTranslation = {
         propEmojiShouldBeValidEmoji: 'Emoji is required and should be valid emoji. For example `:SC2:`.',
       },
     },
+    summon: {
+      description: 'Summons bot to join your channel and to ask a question whether you want to be transferred.',
+      cannotSummon: 'Cannot summon the bot, start the game first!',
+      inTheRightChannel: 'Cannot summon the bot, you are in the right channel!',
+      alreadyInChannel: 'Cannot summon the bot, it is already in a voice channel!',
+    },
   },
   errorOnCommand: 'There was an error while executing this command!',
   yesPhrases: `yes,yeah,transfer,please,yep,let's go`,

@@ -33,21 +33,22 @@ async function run(): Promise<void> {
 
   log.debug('Registering discord client listeners...')
 
-  const readyPlugin = new ReadyPlugin(discordClient)
+  const readyPlugin = new ReadyPlugin()
   discordClient.on('ready', wrapErrorHandling(readyPlugin.onReady.bind(readyPlugin)))
 
-  const wrongChannelPlugin = new WrongChannelPlugin(discordClient)
+  const wrongChannelPlugin = new WrongChannelPlugin()
   discordClient.on('presenceUpdate', wrapErrorHandling(wrongChannelPlugin.onPresenceUpdate.bind(wrongChannelPlugin)))
 
-  const commandPlugin = new CommandPlugin(discordClient)
+  const commandPlugin = new CommandPlugin()
   discordClient.on('interactionCreate', wrapErrorHandling(commandPlugin.onInteractionCreate.bind(commandPlugin)))
 
-  const rolePlugin = new RolePlugin(discordClient)
+  const rolePlugin = new RolePlugin()
   discordClient.on('messageReactionAdd', wrapErrorHandling(rolePlugin.onMessageReactionAdd.bind(rolePlugin)))
   discordClient.on('messageReactionRemove', wrapErrorHandling(rolePlugin.onMessageReactionRemove.bind(rolePlugin)))
 
   await discordClient.login(config.discordApiToken)
 
+  log.debug('Bot client id:', discordClient.user?.id)
   log.debug('Discord client logged in')
 }
 
