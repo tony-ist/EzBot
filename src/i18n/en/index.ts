@@ -22,6 +22,7 @@ const en: BaseTranslation = {
       cannotSummon: 'Cannot summon the bot, start the game first!',
       inTheRightChannel: 'Cannot summon the bot, you are in the right channel!',
       alreadyInChannel: 'Cannot summon the bot, it is already in a voice channel!',
+      canSummon: 'Summoning bot in the channel...',
     },
   },
   errorOnCommand: 'There was an error while executing this command!',

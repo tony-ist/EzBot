@@ -3,7 +3,7 @@ import logger from '../logger'
 
 type ListenerFunction = (...args: any[]) => Promise<void>
 
-const log = logger('listener-plugin')
+const log = logger('plugins/listener')
 
 export default interface ListenerPlugin {
   onPresenceUpdate?: (

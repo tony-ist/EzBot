@@ -4,7 +4,7 @@ import { commandStore } from '../commands/command-list'
 import { I18n } from '../i18n'
 import logger from '../logger'
 
-const log = logger('command-plugin')
+const log = logger('plugins/command')
 
 export default class CommandPlugin implements ListenerPlugin {
   async onInteractionCreate(interaction: Discord.Interaction): Promise<void> {

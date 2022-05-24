@@ -4,7 +4,7 @@ import logger from '../logger'
 import { ActivityModel } from '../models/activity'
 import { ReactionMessageModel } from '../models/reaction-message'
 
-const log = logger('role-plugin')
+const log = logger('plugins/role')
 
 export default class RolePlugin implements ListenerPlugin {
   async onMessageReactionAdd(reaction: MessageReaction, user: User): Promise<void> {

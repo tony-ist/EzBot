@@ -72,6 +72,10 @@ type RootTranslation = {
 			 * Cannot summon the bot, it is already in a voice channel!
 			 */
 			alreadyInChannel: string
+			/**
+			 * Summoning bot in the channel...
+			 */
+			canSummon: string
 		}
 	}
 	/**
@@ -145,6 +149,10 @@ export type TranslationFunctions = {
 			 * Cannot summon the bot, it is already in a voice channel!
 			 */
 			alreadyInChannel: () => LocalizedString
+			/**
+			 * Summoning bot in the channel...
+			 */
+			canSummon: () => LocalizedString
 		}
 	}
 	/**
