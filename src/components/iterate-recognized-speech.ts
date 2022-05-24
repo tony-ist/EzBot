@@ -15,14 +15,8 @@ function defer<T>() {
 
   return {
     promise,
-    resolve: resolveOuter as unknown as (result: T) => void,
+    resolve: resolveOuter as unknown as (result?: T) => void,
     reject: rejectOuter as unknown as (reason?: any) => void,
-  }
-}
-
-function * wrapperGenerator<T>(array: Array<Promise<T>>) {
-  for (const promise of array) {
-    yield promise.then((result) => ({ result, promise }))
   }
 }
 
@@ -32,8 +26,8 @@ interface UserTranscription {
 }
 
 export async function * iterateRecognizedSpeech(connection: VoiceConnection, guild: Guild) {
-  let deferred = defer<UserTranscription>()
-  const buffer: Array<Promise<UserTranscription>> = [deferred.promise]
+  let waitForBufferUpdate = defer()
+  let buffer: UserTranscription[] = []
 
   connection.receiver.speaking.on(
     'start',
@@ -42,7 +36,7 @@ export async function * iterateRecognizedSpeech(connection: VoiceConnection, gui
       const user = guild.members.resolve(userId)?.user
 
       if (user === undefined) {
-        deferred.reject(new Error(`Cannot resolve user with id "${userId}"`))
+        waitForBufferUpdate.reject(new Error(`Cannot resolve user with id "${userId}"`))
         return
       }
 
@@ -60,24 +54,22 @@ export async function * iterateRecognizedSpeech(connection: VoiceConnection, gui
         },
       })
 
-      const oldDeferred = deferred
-
       recognizeSpeech(listenStream)
         .then(transcription => ({ user, transcription }))
-        .then(oldDeferred.resolve)
-        .catch(oldDeferred.reject)
-
-      deferred = defer<UserTranscription>()
-      buffer.push(deferred.promise)
+        .then((result) => {
+          buffer.push(result)
+          waitForBufferUpdate.resolve()
+          waitForBufferUpdate = defer()
+        })
+        .catch(waitForBufferUpdate.reject)
     },
   )
 
   while (true) {
-    const { promise, result } = await Promise.race(wrapperGenerator(buffer))
+    await waitForBufferUpdate.promise
 
-    const indexOfPromise = buffer.indexOf(promise)
-    buffer.splice(indexOfPromise, 1)
+    yield * buffer
 
-    yield result
+    buffer = []
   }
 }

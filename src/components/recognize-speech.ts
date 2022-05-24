@@ -41,6 +41,11 @@ export async function recognizeSpeech(inputStream: AudioReceiveStream): Promise<
       rate: 48000,
     })
 
+    inputStream
+      .on('error', error => log.error('Input stream error:', error))
+      .on('end', () => log.debug('Input stream end'))
+      .on('close', () => log.debug('Input stream close'))
+
     // TODO: What happens if inputStream is very long?
     const recognizeStream: Stream.Duplex = googleSpeechClient.streamingRecognize(request)
       .on('error', error => log.error('Google speech recognition error:', error))
@@ -53,6 +58,10 @@ export async function recognizeSpeech(inputStream: AudioReceiveStream): Promise<
       .pipe(recognizeStream)
       .on('data', (recognitionData: RecognitionData) => {
         recognizeStream.emit('close')
+        // console.log('inputStream.destroyed:', inputStream.destroyed)
+        // console.log('inputStream.readable:', inputStream.readable)
+        // console.log('recognizeStream.destroyed:', recognizeStream.destroyed)
+        // console.log('recognizeStream.readable:', recognizeStream.readable)
         const firstTranscription = recognitionData.results[0].alternatives[0].transcript
         const result = firstTranscription.toLocaleLowerCase()
         resolve(result)
