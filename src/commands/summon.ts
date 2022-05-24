@@ -5,7 +5,7 @@ import { Command } from '../types'
 import {
   SummonOptions,
   summonToTheChannel,
-} from '../actions/summon-to-the-channel'
+} from '../features/summon-to-the-channel'
 import logger from '../logger'
 
 const log = logger('commands/summon')

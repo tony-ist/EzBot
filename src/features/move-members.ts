@@ -1,7 +1,7 @@
 import { BaseGuildVoiceChannel, GuildMember } from 'discord.js'
 import logger from '../logger'
 
-const log = logger('actions/move-members')
+const log = logger('features/move-members')
 
 export async function moveMembers(members: GuildMember[], targetVoiceChannel: BaseGuildVoiceChannel) {
   const moveMembersPromises = []

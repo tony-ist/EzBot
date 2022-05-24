@@ -1,15 +1,15 @@
 import { BaseGuildVoiceChannel, Guild } from 'discord.js'
 import * as discordJsVoice from '@discordjs/voice'
-import { EndBehaviorType, VoiceConnection } from '@discordjs/voice'
+import { VoiceConnection } from '@discordjs/voice'
 import { ActivityModel } from '../models/activity'
 import { playWrongChannelAudio } from '../audio/wrong-channel-audio'
-import { recognizeSpeech } from '../utils/recognize-speech'
 import { isNoPhrase, isYesPhrase } from '../utils/affirmation-analyser'
 import logger from '../logger'
 import config from '../config'
 import { moveMembers } from './move-members'
+import { iterateRecognizedSpeech } from '../components/iterate-recognized-speech'
 
-const log = logger('actions/summon-to-the-channel')
+const log = logger('features/summon-to-the-channel')
 
 const BOT_TIMEOUT_MS = config.botTimeoutMs === undefined ? 40000 : config.botTimeoutMs
 
@@ -98,24 +98,9 @@ export async function summonToTheChannel(
   await playWrongChannelAudio(connection)
   log.debug('Finished playing wrong channel audio')
 
-  const handleSpeakingStart = async (userId: string) => {
-    // TODO#presenceChange: Check if exception is handled
-    const userName = guild.members.resolve(userId)?.user.username ?? 'Unknown user'
-    log.debug(`User "${userName}" started speaking...`)
-
-    if (connection.receiver.subscriptions.get(userId) !== undefined) {
-      return // TODO: Comment
-    }
-
-    const listenStream = connection.receiver.subscribe(userId, {
-      end: {
-        behavior: EndBehaviorType.AfterSilence,
-        duration: 1000,
-      },
-    })
-
-    const transcription = await recognizeSpeech(listenStream)
-    log.info(`User ${userName} transcription: ${transcription}`)
+  for await (const userTranscription of iterateRecognizedSpeech(connection, guild)) {
+    const { user, transcription } = userTranscription
+    log.info(`User ${user.username} transcription: ${transcription}`)
 
     if (isYesPhrase(transcription)) {
       const membersToMove = Array.from(sourceVoiceChannel.members.values())
@@ -136,13 +121,6 @@ export async function summonToTheChannel(
 
     log.debug(`"${transcription}" is neutral. Staying in the voice channel...`)
   }
-
-  return await new Promise<void>((resolve, reject) => {
-    connection.receiver.speaking.on(
-      'start',
-      (userId) => { handleSpeakingStart(userId).then(resolve).catch(reject) },
-    )
-  })
 }
 
 // TODO#presenceChange: Destroy every recognition stream on voice channel leave because of:
