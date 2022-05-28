@@ -3,7 +3,7 @@ import * as discordJsVoice from '@discordjs/voice'
 import { VoiceConnection } from '@discordjs/voice'
 import { ActivityModel } from '../models/activity'
 import { playWrongChannelAudio } from '../audio/wrong-channel-audio'
-import { isNoPhrase, isYesPhrase } from '../utils/affirmation-analyser'
+import { AffirmationAnalysisResult, analyzeAffirmation } from '../utils/affirmation-analyser'
 import logger from '../logger'
 import config from '../config'
 import { moveMembers } from './move-members'
@@ -112,7 +112,9 @@ export async function summonToTheChannel(
     const { user, transcription } = userTranscription
     log.info(`User ${user.username} transcription: ${transcription}`)
 
-    if (isYesPhrase(transcription)) {
+    const affirmationAnalysisResult = analyzeAffirmation(transcription)
+
+    if (affirmationAnalysisResult === AffirmationAnalysisResult.AFFIRMATION) {
       const membersToMove = Array.from(sourceVoiceChannel.members.values())
         .filter((member) => member.user.id !== botUserId)
 
@@ -121,15 +123,15 @@ export async function summonToTheChannel(
       leaveVoiceChannel(sourceVoiceChannel, connection)
 
       return SummonResult.MOVE_MEMBERS
-    }
-
-    if (isNoPhrase(transcription)) {
+    } else if (affirmationAnalysisResult === AffirmationAnalysisResult.DENIAL) {
       leaveVoiceChannel(sourceVoiceChannel, connection)
 
       return SummonResult.LEAVE
+    } else if (affirmationAnalysisResult === AffirmationAnalysisResult.NEUTRAL) {
+      log.debug(`"${transcription}" is neutral. Staying in the voice channel...`)
+    } else {
+      throw new Error(`Unknown affirmation analysis result "${affirmationAnalysisResult}"`)
     }
-
-    log.debug(`"${transcription}" is neutral. Staying in the voice channel...`)
   }
 
   leaveVoiceChannel(sourceVoiceChannel, connection)
