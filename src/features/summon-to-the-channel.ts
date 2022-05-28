@@ -19,6 +19,15 @@ export interface SummonOptions {
   canSummonBotCallback?: () => Promise<void>
 }
 
+export enum SummonResult {
+  MOVE_MEMBERS,
+  LEAVE,
+  LEAVE_BY_TIMEOUT,
+  LEAVE_SPEECH_END,
+  NOT_JOIN_SOURCE_CHANNEL,
+  NOT_JOIN_ALREADY_IN_CHANNEL,
+}
+
 /**
  * Bot joins `sourceVoiceChannel` and asks
  * everyone if they want to me moved to the correct `targetVoiceChannel` channel. `targetVoiceChannel` is found
@@ -43,7 +52,7 @@ export async function summonToTheChannel(
   activityName: string,
   botUserId: string,
   options?: SummonOptions,
-) {
+): Promise<SummonResult> {
   // TODO: Leave voice channel on any exception with global try catch
   const guild = sourceVoiceChannel.guild
 
@@ -68,7 +77,7 @@ export async function summonToTheChannel(
     if (options?.alreadyInRightChannelCallback !== undefined) {
       await options.alreadyInRightChannelCallback()
     }
-    return
+    return SummonResult.NOT_JOIN_SOURCE_CHANNEL
   }
 
   if (isBotInVoiceChannel(guild)) {
@@ -76,7 +85,7 @@ export async function summonToTheChannel(
     if (options?.botInVoiceChannelCallback !== undefined) {
       await options.botInVoiceChannelCallback()
     }
-    return
+    return SummonResult.NOT_JOIN_ALREADY_IN_CHANNEL
   }
 
   log.info(`Joining voice channel "${sourceVoiceChannel.name}"`)
@@ -90,13 +99,14 @@ export async function summonToTheChannel(
     adapterCreator: guild.voiceAdapterCreator,
   })
 
-  setTimeout(() => {
-    leaveVoiceChannel(sourceVoiceChannel, connection)
-  }, BOT_TIMEOUT_MS)
-
   log.debug('Started playing wrong channel audio...')
   await playWrongChannelAudio(connection)
   log.debug('Finished playing wrong channel audio')
+
+  setTimeout(() => {
+    // TODO#presenceChange: Return code LEAVE_BY_TIMEOUT
+    leaveVoiceChannel(sourceVoiceChannel, connection)
+  }, BOT_TIMEOUT_MS)
 
   for await (const userTranscription of iterateRecognizedSpeech(connection, guild)) {
     const { user, transcription } = userTranscription
@@ -110,17 +120,21 @@ export async function summonToTheChannel(
       // TODO#presenceChange: handle race condition where one user says long phrase while another user says 'yes'
       leaveVoiceChannel(sourceVoiceChannel, connection)
 
-      return
+      return SummonResult.MOVE_MEMBERS
     }
 
     if (isNoPhrase(transcription)) {
       leaveVoiceChannel(sourceVoiceChannel, connection)
 
-      return
+      return SummonResult.LEAVE
     }
 
     log.debug(`"${transcription}" is neutral. Staying in the voice channel...`)
   }
+
+  leaveVoiceChannel(sourceVoiceChannel, connection)
+
+  return SummonResult.LEAVE_SPEECH_END
 }
 
 // TODO#presenceChange: Destroy every recognition stream on voice channel leave because of:
