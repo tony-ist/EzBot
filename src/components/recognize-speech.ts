@@ -21,7 +21,7 @@ interface RecognitionAlternative {
 
 const googleSpeechClient = new googleSpeech.SpeechClient()
 
-const log = logger('recognize-promised')
+const log = logger('components/recognize-speech')
 
 export async function recognizeSpeech(inputStream: AudioReceiveStream): Promise<string> {
   return await new Promise((resolve, reject) => {
@@ -57,11 +57,11 @@ export async function recognizeSpeech(inputStream: AudioReceiveStream): Promise<
       .pipe(opusDecoder)
       .pipe(recognizeStream)
       .on('data', (recognitionData: RecognitionData) => {
-        recognizeStream.emit('close')
         // console.log('inputStream.destroyed:', inputStream.destroyed)
         // console.log('inputStream.readable:', inputStream.readable)
         // console.log('recognizeStream.destroyed:', recognizeStream.destroyed)
         // console.log('recognizeStream.readable:', recognizeStream.readable)
+        recognizeStream.emit('close')
         const firstTranscription = recognitionData.results[0].alternatives[0].transcript
         const result = firstTranscription.toLocaleLowerCase()
         resolve(result)

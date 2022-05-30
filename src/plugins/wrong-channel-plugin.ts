@@ -23,14 +23,14 @@ export default class WrongChannelPlugin implements ListenerPlugin {
     }
 
     if (newActivity === undefined) {
-      log.debug('newActivity is undefined because the user quit the game. Skipping...')
+      log.debug(`newActivity is undefined because the user "${member?.user.username}" quit the game. Skipping...`)
       return
     }
 
     const newActivityName = newActivity.name
 
     if (voiceChannel === undefined || voiceChannel === null) {
-      log.debug(`voiceChannel is ${voiceChannel} because the user is not in the voice channel. Skipping...`)
+      log.debug(`voiceChannel is ${voiceChannel} because the user "${member?.user.username}" is not in the voice channel. Skipping...`)
       return
     }
 

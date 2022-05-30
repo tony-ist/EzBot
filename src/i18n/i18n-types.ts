@@ -61,7 +61,7 @@ type RootTranslation = {
 			 */
 			description: string
 			/**
-			 * Cannot summon the bot, start the game first!
+			 * Cannot summon the bot, start the game first and/or turn activity status on!
 			 */
 			cannotSummon: string
 			/**
@@ -76,6 +76,10 @@ type RootTranslation = {
 			 * Summoning bot in the channel...
 			 */
 			canSummon: string
+			/**
+			 * Cannot summon the bot, you are not in a voice channel!
+			 */
+			userNotInVoiceChannel: string
 		}
 	}
 	/**
@@ -138,7 +142,7 @@ export type TranslationFunctions = {
 			 */
 			description: () => LocalizedString
 			/**
-			 * Cannot summon the bot, start the game first!
+			 * Cannot summon the bot, start the game first and/or turn activity status on!
 			 */
 			cannotSummon: () => LocalizedString
 			/**
@@ -153,6 +157,10 @@ export type TranslationFunctions = {
 			 * Summoning bot in the channel...
 			 */
 			canSummon: () => LocalizedString
+			/**
+			 * Cannot summon the bot, you are not in a voice channel!
+			 */
+			userNotInVoiceChannel: () => LocalizedString
 		}
 	}
 	/**

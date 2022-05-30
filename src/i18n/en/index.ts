@@ -19,10 +19,11 @@ const en: BaseTranslation = {
     },
     summon: {
       description: 'Summons bot to join your channel and to ask a question whether you want to be transferred.',
-      cannotSummon: 'Cannot summon the bot, start the game first!',
+      cannotSummon: 'Cannot summon the bot, start the game first and/or turn activity status on!',
       inTheRightChannel: 'Cannot summon the bot, you are in the right channel!',
       alreadyInChannel: 'Cannot summon the bot, it is already in a voice channel!',
       canSummon: 'Summoning bot in the channel...',
+      userNotInVoiceChannel: 'Cannot summon the bot, you are not in a voice channel!',
     },
   },
   errorOnCommand: 'There was an error while executing this command!',

@@ -8,7 +8,8 @@
     "npm": "8.5.0"
   },
   "scripts": {
-    "start": "nodemon",
+    "start": "ts-node src/index.ts",
+    "nodemon": "nodemon",
     "start:production": "node dist/src/index.js",
     "build": "rimraf dist && tsc",
     "register-commands": "ts-node ./scripts/register-commands.ts",

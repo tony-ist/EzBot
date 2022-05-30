@@ -110,7 +110,7 @@ export async function summonToTheChannel(
 
   for await (const userTranscription of iterateRecognizedSpeech(connection, guild)) {
     const { user, transcription } = userTranscription
-    log.info(`User ${user.username} transcription: ${transcription}`)
+    log.info(`User "${user.username}" transcription: "${transcription}"`)
 
     const affirmationAnalysisResult = analyzeAffirmation(transcription)
 

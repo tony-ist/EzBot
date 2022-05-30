@@ -39,7 +39,7 @@ export const summonCommand: Command<typeof COMMAND_NAME> = {
 
     if (activity === undefined) {
       await commandInteraction.reply(I18n.commands.summon.cannotSummon())
-      log.debug('activity is undefined')
+      log.debug('activity is undefined: user is not playing the game or his activity status is off')
       return
     }
 
@@ -47,7 +47,9 @@ export const summonCommand: Command<typeof COMMAND_NAME> = {
     const botUserId = commandInteraction.client.user?.id
 
     if (voiceChannel === undefined || voiceChannel === null) {
-      throw new Error(`voiceChannel is ${voiceChannel}`)
+      await commandInteraction.reply(I18n.commands.summon.userNotInVoiceChannel())
+      log.debug(`voiceChannel is ${voiceChannel}: user is not in a voice channel`)
+      return
     }
 
     if (botUserId === undefined) {
