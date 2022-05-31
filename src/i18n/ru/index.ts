@@ -8,6 +8,10 @@ const ru: Translation = {
     help: {
       description: 'Отображает помощь по командам.',
     },
+    game: {
+      description: 'Отображает название игры, в которую ты играешь.',
+      notPlayingAnyGame: 'Ты не играешь ни в какую игру в данный момент или отключено ее отображаение.',
+    },
     addactivity: {
       description: 'Добавляет новую активность в базу данных.',
       roleReason: 'Роль для тех, кто наслаждается {roleName}. Создано EzBot.',

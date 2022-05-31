@@ -8,6 +8,10 @@ const en: BaseTranslation = {
     help: {
       description: 'Displays help on bot commands.',
     },
+    game: {
+      description: 'Displays the name of the current game you are playing.',
+      notPlayingAnyGame: 'You are not playing any game right now or activity status is disabled.',
+    },
     addactivity: {
       description: 'Add new activity to the database.',
       roleReason: 'Role for those who enjoy {roleName:string}. Created by EzBot.',

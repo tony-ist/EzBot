@@ -17,7 +17,9 @@ export default class CommandPlugin implements ListenerPlugin {
       return
     }
 
-    log.info(`User issued "${interaction.commandName}"`)
+    const userName = interaction.user.username
+
+    log.info(`User "${userName}" issued "${interaction.commandName}"`)
 
     try {
       await command.execute(interaction)

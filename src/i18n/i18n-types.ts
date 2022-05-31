@@ -27,6 +27,16 @@ type RootTranslation = {
 			 */
 			description: string
 		}
+		game: {
+			/**
+			 * Displays the name of the current game you are playing.
+			 */
+			description: string
+			/**
+			 * You are not playing any game right now or activity status is disabled.
+			 */
+			notPlayingAnyGame: string
+		}
 		addactivity: {
 			/**
 			 * Add new activity to the database.
@@ -109,6 +119,16 @@ export type TranslationFunctions = {
 			 * Displays help on bot commands.
 			 */
 			description: () => LocalizedString
+		}
+		game: {
+			/**
+			 * Displays the name of the current game you are playing.
+			 */
+			description: () => LocalizedString
+			/**
+			 * You are not playing any game right now or activity status is disabled.
+			 */
+			notPlayingAnyGame: () => LocalizedString
 		}
 		addactivity: {
 			/**
