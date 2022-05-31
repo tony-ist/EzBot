@@ -18,9 +18,9 @@ export const gameCommand: Command<typeof COMMAND_NAME> = {
 
   async execute(commandInteraction: CommandInteraction) {
     const userId = commandInteraction.user.id
-    const presence = commandInteraction.guild?.presences.cache.get(userId)
-    if (presence === undefined) {
-      throw new Error('Presence is undefined')
+    const presence = commandInteraction.guild?.presences.resolve(userId)
+    if (presence === undefined || presence === null) {
+      throw new Error(`Presence is ${presence}`)
     }
 
     const activities = presence.activities
