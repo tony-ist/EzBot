@@ -7,6 +7,9 @@ import logger from '../logger'
 import prism from 'prism-media'
 import { AudioReceiveStream } from '@discordjs/voice'
 
+const streams = new WeakMap()
+let id = 1
+
 export interface RecognitionData {
   results: RecognitionResult[]
 }
@@ -41,27 +44,54 @@ export async function recognizeSpeech(inputStream: AudioReceiveStream): Promise<
       rate: 48000,
     })
 
-    inputStream
-      .on('error', error => log.error('Input stream error:', error))
-      .on('end', () => log.debug('Input stream end'))
-      .on('close', () => log.debug('Input stream close'))
-
     // TODO: What happens if inputStream is very long?
     const recognizeStream: Stream.Duplex = googleSpeechClient.streamingRecognize(request)
-      .on('error', error => log.error('Google speech recognition error:', error))
-      .on('end', () => log.debug('Recognize stream end'))
-      .on('close', () => log.debug('Recognize stream close'))
+
+    if (!streams.has(inputStream)) {
+      log.debug(`New input stream with id ${id}`)
+      streams.set(inputStream, id)
+      id++
+    }
+
+    if (!streams.has(opusDecoder)) {
+      log.debug(`New opus decoder stream with id ${id}`)
+      streams.set(opusDecoder, id)
+      id++
+    }
+
+    if (!streams.has(recognizeStream)) {
+      log.debug(`New recognize stream with id ${id}`)
+      streams.set(recognizeStream, id)
+      id++
+    }
+
+    const inputStreamId = streams.get(inputStream)
+    const recognizeStreamId = streams.get(recognizeStream)
+
+    inputStream
+      .on('end', () => log.debug(`Input stream ${inputStreamId} end`))
+      .on('close', () => {
+        // This fixes "Long duration elapsed without audio" error because recognize stream waits for input stream to end.
+        // When bot leaves channel or moves speaking user to another channel, speaking user input stream is closed
+        // but not ended automatically, so we need to end it manually.
+        inputStream.emit('end')
+        log.debug(`Input stream ${inputStreamId} close`)
+      })
+      .on('error', error => log.error(`Input stream ${inputStreamId} error:`, error))
+    opusDecoder
+      .on('end', () => log.debug(`Opus decoder stream ${inputStreamId} end`))
+      .on('close', () => log.debug(`Opus decoder stream ${inputStreamId} close`))
+      .on('error', error => log.error(`Opus decoder stream ${inputStreamId} error:`, error))
+    recognizeStream
+      .on('end', () => log.debug(`Recognize stream ${recognizeStreamId} end`))
+      .on('close', () => log.debug(`Recognize stream ${recognizeStreamId} close`))
+      .on('error', error => log.error(`Recognize stream ${recognizeStreamId} error:`, error))
 
     // TODO: Error handler for pipe?
     inputStream
       .pipe(opusDecoder)
       .pipe(recognizeStream)
       .on('data', (recognitionData: RecognitionData) => {
-        // console.log('inputStream.destroyed:', inputStream.destroyed)
-        // console.log('inputStream.readable:', inputStream.readable)
-        // console.log('recognizeStream.destroyed:', recognizeStream.destroyed)
-        // console.log('recognizeStream.readable:', recognizeStream.readable)
-        recognizeStream.emit('close')
         const firstTranscription = recognitionData.results[0].alternatives[0].transcript
         const result = firstTranscription.toLocaleLowerCase()
         resolve(result)

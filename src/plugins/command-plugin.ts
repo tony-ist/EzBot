@@ -22,6 +22,7 @@ export default class CommandPlugin implements ListenerPlugin {
     try {
       await command.execute(interaction)
     } catch (error) {
+      // TODO: Fix "The reply to this interaction has already been sent or deferred."
       await interaction.reply({ content: I18n.errorOnCommand(), ephemeral: true })
       throw error
     }
