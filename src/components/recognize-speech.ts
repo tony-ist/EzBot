@@ -87,7 +87,6 @@ export async function recognizeSpeech(inputStream: AudioReceiveStream): Promise<
       .on('close', () => log.debug(`Recognize stream ${recognizeStreamId} close`))
       .on('error', error => log.error(`Recognize stream ${recognizeStreamId} error:`, error))
 
-    // TODO: Error handler for pipe?
     inputStream
       .pipe(opusDecoder)
       .pipe(recognizeStream)
