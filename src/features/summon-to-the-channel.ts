@@ -56,6 +56,7 @@ export async function summonToTheChannel(
   // TODO: Leave voice channel on any exception with global try catch
   const guild = sourceVoiceChannel.guild
 
+  // TODO: Cast activityName and presenceNames to lower register
   const activity = await ActivityModel.findOne({ presenceNames: activityName })
   if (activity === undefined || activity === null) {
     throw new Error(`activity is ${activity}`)
