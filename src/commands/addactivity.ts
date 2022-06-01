@@ -40,6 +40,13 @@ export const addactivityCommand: Command<typeof COMMAND_NAME> = {
       return
     }
 
+    const existingActivity = await ActivityModel.findOne({ name: activityName })
+
+    if (existingActivity !== null) {
+      await commandInteraction.reply(I18n.commands.addactivity.errors.activityWithThatNameExists({ activityName }))
+      return
+    }
+
     const emojiNameOption = commandInteraction.options.get('emoji')
     const emojiString = typeof emojiNameOption?.value === 'string' ? emojiNameOption?.value.trim() : ''
     log.debug(`Emoji string: "${emojiString}"`)

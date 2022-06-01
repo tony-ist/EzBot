@@ -48,7 +48,7 @@ type RootTranslation = {
 			 */
 			roleReason: RequiredParams<'roleName'>
 			/**
-			 * New activity with name `{activityName}` created.
+			 * New activity with name "{activityName}" created.
 		A role with the same name has also been created.
 		Now you can use dashboard and channel binding for this activity.
 			 * @param {string} activityName
@@ -60,9 +60,14 @@ type RootTranslation = {
 				 */
 				propActivityNameIsRequired: string
 				/**
-				 * Emoji is required and should be valid emoji. For example `:SC2:`.
+				 * Emoji is required and should be valid emoji. For example ":SC2:".
 				 */
 				propEmojiShouldBeValidEmoji: string
+				/**
+				 * Activity with the name "{activityName}" already exists.
+				 * @param {string} activityName
+				 */
+				activityWithThatNameExists: RequiredParams<'activityName'>
 			}
 		}
 		summon: {
@@ -140,7 +145,7 @@ export type TranslationFunctions = {
 			 */
 			roleReason: (arg: { roleName: string }) => LocalizedString
 			/**
-			 * New activity with name `{activityName}` created.
+			 * New activity with name "{activityName}" created.
 		A role with the same name has also been created.
 		Now you can use dashboard and channel binding for this activity.
 			 */
@@ -151,9 +156,13 @@ export type TranslationFunctions = {
 				 */
 				propActivityNameIsRequired: () => LocalizedString
 				/**
-				 * Emoji is required and should be valid emoji. For example `:SC2:`.
+				 * Emoji is required and should be valid emoji. For example ":SC2:".
 				 */
 				propEmojiShouldBeValidEmoji: () => LocalizedString
+				/**
+				 * Activity with the name "{activityName}" already exists.
+				 */
+				activityWithThatNameExists: (arg: { activityName: string }) => LocalizedString
 			}
 		}
 		summon: {

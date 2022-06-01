@@ -19,6 +19,7 @@ const en: BaseTranslation = {
       errors: {
         propActivityNameIsRequired: 'Activity name is required.',
         propEmojiShouldBeValidEmoji: 'Emoji is required and should be valid emoji. For example ":SC2:".',
+        activityWithThatNameExists: 'Activity with the name "{activityName:string}" already exists.',
       },
     },
     summon: {

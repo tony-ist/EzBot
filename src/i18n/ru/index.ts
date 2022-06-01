@@ -19,6 +19,7 @@ const ru: Translation = {
       errors: {
         propActivityNameIsRequired: 'Укажите название активности.',
         propEmojiShouldBeValidEmoji: 'Параметр эмодзи обязателен и должен быть валидным эмодзи. Например ":SC2:".',
+        activityWithThatNameExists: 'Активность с названием "{activityName}" уже существует.',
       },
     },
     summon: {
