@@ -50,7 +50,7 @@ describe('addactivity command', () => {
     const interaction = new CommandInteractionMock()
     interaction.options.set('activity', { value: 'StarCraft 2' })
     await addactivityCommand.execute(interaction as any)
-    expect(interaction.reply).toBeCalledWith('Emoji is required and should be valid emoji. For example `:SC2:`.')
+    expect(interaction.reply).toBeCalledWith('Emoji is required and should be valid emoji. For example ":SC2:".')
   })
 
   it('should reply with error when emoji does not match emoji pattern', async () => {
@@ -58,7 +58,7 @@ describe('addactivity command', () => {
     interaction.options.set('activity', { value: 'StarCraft 2' })
     interaction.options.set('emoji', { value: INVALID_EMOJI })
     await addactivityCommand.execute(interaction as any)
-    expect(interaction.reply).toBeCalledWith('Emoji is required and should be valid emoji. For example `:SC2:`.')
+    expect(interaction.reply).toBeCalledWith('Emoji is required and should be valid emoji. For example ":SC2:".')
   })
 
   it('should throw an error when no guild in interaction', async () => {
@@ -78,6 +78,7 @@ describe('addactivity command', () => {
     expect(interaction.guild?.roles.create).toBeCalledWith({
       name: 'StarCraft 2',
       reason: 'Role for those who enjoy StarCraft 2. Created by EzBot.',
+      mentionable: true,
     })
   })
 
@@ -102,6 +103,23 @@ describe('addactivity command', () => {
     await addactivityCommand.execute(interaction as any)
 
     const replyMessage = interaction.reply.mock.calls[0][0]
-    expect(replyMessage).toMatch('New activity with name `StarCraft 2` created')
+    expect(replyMessage).toMatch('New activity with name "StarCraft 2" created')
+  })
+
+  it('should reply with error when activity with that name already exists', async () => {
+    await new ActivityModel({
+      name: 'StarCraft 2',
+      emoji: VALID_EMOJI,
+      roleId: 'roleId',
+      channelId: 'channelId',
+    }).save()
+
+    const interaction = new CommandInteractionMock()
+    interaction.options.set('activity', { value: 'StarCraft 2' })
+    interaction.options.set('emoji', { value: VALID_EMOJI })
+    await addactivityCommand.execute(interaction as any)
+
+    const replyMessage = interaction.reply.mock.calls[0][0]
+    expect(replyMessage).toMatch('Activity with the name "StarCraft 2" already exists.')
   })
 })

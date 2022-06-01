@@ -42,9 +42,9 @@ export const addactivityCommand: Command<typeof COMMAND_NAME> = {
 
     const emojiNameOption = commandInteraction.options.get('emoji')
     const emojiString = typeof emojiNameOption?.value === 'string' ? emojiNameOption?.value.trim() : ''
+    log.debug(`Emoji string: "${emojiString}"`)
     const emoji = tryExtractSingleDiscordEmoji(emojiString)
-    // TODO: Check that emoji exist on the server
-    log.debug(`Emoji option value: ${emojiString}`)
+    // TODO: Check that emoji exists on the server
     if (emoji === null) {
       await commandInteraction.reply(I18n.commands.addactivity.errors.propEmojiShouldBeValidEmoji())
       return
@@ -56,7 +56,7 @@ export const addactivityCommand: Command<typeof COMMAND_NAME> = {
     }
     const roleName = activityName
     const roleReason = I18n.commands.addactivity.roleReason({ roleName })
-    const role = await guild.roles.create({ name: roleName, reason: roleReason })
+    const role = await guild.roles.create({ name: roleName, reason: roleReason, mentionable: true })
 
     const newActivity = new ActivityModel({
       name: activityName,

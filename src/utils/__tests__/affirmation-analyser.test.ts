@@ -11,7 +11,7 @@ describe('affirmation-analyser', () => {
     'yep',
     'yeah',
     `let's go`,
-  ])('should return AFFIRMATION for yes phrase', (phrase) => {
+  ])('should return AFFIRMATION for phrase "%s"', (phrase) => {
     expect(analyzeAffirmation(phrase) === AffirmationAnalysisResult.AFFIRMATION)
   })
 
@@ -22,7 +22,7 @@ describe('affirmation-analyser', () => {
     `no don't`,
     'nah',
     'get out',
-  ])('should return DENIAL for no phrase', (phrase) => {
+  ])('should return DENIAL for phrase "%s"', (phrase) => {
     expect(analyzeAffirmation(phrase) === AffirmationAnalysisResult.DENIAL)
   })
 
@@ -35,7 +35,7 @@ describe('affirmation-analyser', () => {
       'please no',
       'neutral phrase',
       'transfer me',
-  ])('should return NEUTRAL for unknown phrase', (phrase) => {
+  ])('should return NEUTRAL for unknown phrase "%s"', (phrase) => {
     expect(analyzeAffirmation(phrase) === AffirmationAnalysisResult.NEUTRAL)
   })
 })
