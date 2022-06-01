@@ -1,7 +1,8 @@
 import { EndBehaviorType, VoiceConnection } from '@discordjs/voice'
-import { Guild, User } from 'discord.js'
+import { Guild } from 'discord.js'
 import { recognizeSpeech } from './recognize-speech'
 import logger from '../logger'
+import { UserTranscription } from '../types'
 
 const log = logger('components/iterate-recognized-speech')
 
@@ -18,11 +19,6 @@ function defer<T>() {
     resolve: resolveOuter as unknown as (result?: T) => void,
     reject: rejectOuter as unknown as (reason?: any) => void,
   }
-}
-
-interface UserTranscription {
-  user: User
-  transcription: string
 }
 
 export async function * iterateRecognizedSpeech(connection: VoiceConnection, guild: Guild) {

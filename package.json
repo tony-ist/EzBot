@@ -59,6 +59,7 @@
     "@types/i18n": "^0.13.2",
     "@types/jest": "^27.4.1",
     "@typescript-eslint/eslint-plugin": "^4.33.0",
+    "dependency-cruiser": "^11.8.0",
     "eslint": "^7.32.0",
     "eslint-config-standard-with-typescript": "^21.0.1",
     "eslint-plugin-import": "^2.25.4",
