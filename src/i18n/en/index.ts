@@ -15,10 +15,10 @@ const en: BaseTranslation = {
     addactivity: {
       description: 'Add new activity to the database.',
       roleReason: 'Role for those who enjoy {roleName:string}. Created by EzBot.',
-      activityCreated: 'New activity with name `{activityName:string}` created.\nA role with the same name has also been created.\nNow you can use dashboard and channel binding for this activity.',
+      activityCreated: 'New activity with name "{activityName:string}" created.\nA role with the same name has also been created.\nNow you can use dashboard and channel binding for this activity.',
       errors: {
         propActivityNameIsRequired: 'Activity name is required.',
-        propEmojiShouldBeValidEmoji: 'Emoji is required and should be valid emoji. For example `:SC2:`.',
+        propEmojiShouldBeValidEmoji: 'Emoji is required and should be valid emoji. For example ":SC2:".',
       },
     },
     summon: {

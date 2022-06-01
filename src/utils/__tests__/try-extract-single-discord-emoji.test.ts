@@ -15,6 +15,8 @@ describe('tryExtractSingleDiscordEmoji', () => {
   it.each([
     ['📙', '📙'],
     [' 📙 ', '📙'],
+    ['◀', '◀'],
+    ['◀️', '◀️'],
     [' <:dummy:123>', '123'],
   ])('should extract emoji for %s', (input, output) => {
     expect(tryExtractSingleDiscordEmoji(input)).toBe(output)
