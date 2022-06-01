@@ -31,35 +31,35 @@ export enum SummonResult {
 /**
  * Bot joins `sourceVoiceChannel` and asks
  * everyone if they want to me moved to the correct `targetVoiceChannel` channel. `targetVoiceChannel` is found
- * using activity for provided `activityName`.
+ * using activity for provided `presenceName`.
  * If the answer is neutral, then it stays in the channel and listens for other answers.
  * If it hears truthy answer, then it moves everyone
  * from that channel to the correct game channel.
  * If it hears falsy answer, then it just leaves with sadness on its metal face.
  * @param sourceVoiceChannel The voice channel where to summon the bot.
- * @param activityName The name of the game for the target voice channel.
+ * @param presenceName The name of the game for the target voice channel.
  * The function will find the voice channel for that game
  * and move all users from the first channel to the second.
  * @param botUserId The client id of your bot.
  * @param options Provides callbacks. `alreadyInRightChannelCallback` is called in when `sourceVoiceChannel` is the same
- * as `targetVoiceChannel` that corresponds to `activityName`. `botInVoiceChannelCallback` is called if bot
+ * as `targetVoiceChannel` that corresponds to `presenceName`. `botInVoiceChannelCallback` is called if bot
  * is already in the voice channel and interacting with users. Function returns immediately after calling these callbacks.
  * `canSummonBotCallback` is called when function is going to summon the bot eventually and go on with the logic.
  */
-// TODO: Consider renaming activityName to presenceName
+// TODO: Consider renaming presenceName to presenceName
 export async function summonToTheChannel(
   sourceVoiceChannel: BaseGuildVoiceChannel,
-  activityName: string,
+  presenceName: string,
   botUserId: string,
   options?: SummonOptions,
 ): Promise<SummonResult> {
   // TODO: Leave voice channel on any exception with global try catch
   const guild = sourceVoiceChannel.guild
 
-  // TODO: Cast activityName and presenceNames to lower register
-  const activity = await ActivityModel.findOne({ presenceNames: activityName })
-  if (activity === undefined || activity === null) {
-    throw new Error(`activity is ${activity}`)
+  // TODO: Cast presenceNames to lower register there and also while saving to db
+  const activity = await ActivityModel.findOne({ presenceNames: presenceName })
+  if (activity === null) {
+    throw new Error(`No activity found for presence name "${presenceName}"`)
   }
   if (activity.channelId === undefined || activity.channelId === null) {
     throw new Error(`activity.channelId is ${activity.channelId}`)

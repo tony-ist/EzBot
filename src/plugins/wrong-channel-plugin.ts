@@ -11,7 +11,7 @@ export default class WrongChannelPlugin implements ListenerPlugin {
     const guild = newPresence.guild
     const voiceChannel = member?.voice.channel
     const botUserId = newPresence.client.user?.id
-    const newActivity = newPresence.activities[0]
+    const newDiscordActivity = newPresence.activities[0]
 
     // TODO#presenceChange: extract these ifs to some place
     if (botUserId === undefined || botUserId === null) {
@@ -22,18 +22,18 @@ export default class WrongChannelPlugin implements ListenerPlugin {
       throw new Error(`guild id ${guild}`)
     }
 
-    if (newActivity === undefined) {
+    if (newDiscordActivity === undefined) {
       log.debug(`newActivity is undefined because the user "${member?.user.username}" quit the game. Skipping...`)
       return
     }
 
-    const newActivityName = newActivity.name
+    const newPresenceName = newDiscordActivity.name
 
     if (voiceChannel === undefined || voiceChannel === null) {
       log.debug(`voiceChannel is ${voiceChannel} because the user "${member?.user.username}" is not in the voice channel. Skipping...`)
       return
     }
 
-    await summonToTheChannel(voiceChannel, newActivityName, botUserId)
+    await summonToTheChannel(voiceChannel, newPresenceName, botUserId)
   }
 }
