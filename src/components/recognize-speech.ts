@@ -44,7 +44,6 @@ export async function recognizeSpeech(inputStream: AudioReceiveStream): Promise<
       rate: 48000,
     })
 
-    // TODO: What happens if inputStream is very long?
     const recognizeStream: Stream.Duplex = googleSpeechClient.streamingRecognize(request)
 
     if (!streams.has(inputStream)) {

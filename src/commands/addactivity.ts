@@ -56,7 +56,6 @@ export const addactivityCommand: Command<typeof COMMAND_NAME> = {
     }
     const roleName = activityName
     const roleReason = I18n.commands.addactivity.roleReason({ roleName })
-    // TODO: Allow everyone to mention that role (off by default)
     const role = await guild.roles.create({ name: roleName, reason: roleReason })
 
     const newActivity = new ActivityModel({
