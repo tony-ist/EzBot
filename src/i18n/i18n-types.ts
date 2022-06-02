@@ -96,6 +96,30 @@ type RootTranslation = {
 			 */
 			userNotInVoiceChannel: string
 		}
+		showactivities: {
+			/**
+			 * Displays all activities.
+			 */
+			description: string
+			/**
+			 * Activity: {activityName}
+		Emoji: {emoji}
+		Role: {roleName}
+		Role ID: {roleId}
+		Channel: {channelName}
+		Channel ID: {channelId}
+		Games: {presenceNames}
+	
+			 * @param {string} activityName
+			 * @param {string} channelId
+			 * @param {string} channelName
+			 * @param {string} emoji
+			 * @param {string} presenceNames
+			 * @param {string} roleId
+			 * @param {string} roleName
+			 */
+			formatActivity: RequiredParams<'activityName' | 'channelId' | 'channelName' | 'emoji' | 'presenceNames' | 'roleId' | 'roleName'>
+		}
 	}
 	/**
 	 * There was an error while executing this command!
@@ -190,6 +214,23 @@ export type TranslationFunctions = {
 			 * Cannot summon the bot, you are not in a voice channel!
 			 */
 			userNotInVoiceChannel: () => LocalizedString
+		}
+		showactivities: {
+			/**
+			 * Displays all activities.
+			 */
+			description: () => LocalizedString
+			/**
+			 * Activity: {activityName}
+		Emoji: {emoji}
+		Role: {roleName}
+		Role ID: {roleId}
+		Channel: {channelName}
+		Channel ID: {channelId}
+		Games: {presenceNames}
+	
+			 */
+			formatActivity: (arg: { activityName: string, channelId: string, channelName: string, emoji: string, presenceNames: string, roleId: string, roleName: string }) => LocalizedString
 		}
 	}
 	/**

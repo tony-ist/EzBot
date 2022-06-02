@@ -30,6 +30,10 @@ const ru: Translation = {
       canSummon: 'Призываю бота в канал...',
       userNotInVoiceChannel: 'Не могу призвать бота, ты не в голосовом канале!',
     },
+    showactivities: {
+      description: 'Отображает все активности.',
+      formatActivity: '**Активность: {activityName}**\nЭмодзи: {emoji}\nРоль: {roleName}\nId Роли: {roleId}\nКанал: {channelName}\nID канала: {channelId}\nИгры: {presenceNames}\n',
+    },
   },
   errorOnCommand: 'При выполнении команды произошла ошибка!',
   yesPhrases: 'да,давай,перекинь,хочу,хотим',

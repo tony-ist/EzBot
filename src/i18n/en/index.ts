@@ -30,6 +30,16 @@ const en: BaseTranslation = {
       canSummon: 'Summoning bot in the channel...',
       userNotInVoiceChannel: 'Cannot summon the bot, you are not in a voice channel!',
     },
+    showactivities: {
+      description: 'Displays all activities.',
+      formatActivity: 'Activity: {activityName:string}\n' +
+        'Emoji: {emoji:string}\n' +
+        'Role: {roleName:string}\n' +
+        'Role ID: {roleId:string}\n' +
+        'Channel: {channelName:string}\n' +
+        'Channel ID: {channelId:string}\n' +
+        'Games: {presenceNames:string}\n',
+    },
   },
   errorOnCommand: 'There was an error while executing this command!',
   yesPhrases: `yes,yeah,transfer,please,yep,let's go`,
