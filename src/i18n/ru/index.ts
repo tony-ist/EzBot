@@ -30,6 +30,9 @@ const ru: Translation = {
       canSummon: 'Призываю бота в канал...',
       userNotInVoiceChannel: 'Не могу призвать бота, ты не в голосовом канале!',
     },
+    connectchannel: {
+      description: 'Присоединяет выбранный канал к выбранным активностям.',
+    },
   },
   errorOnCommand: 'При выполнении команды произошла ошибка!',
   yesPhrases: 'да,давай,перекинь,хочу,хотим',

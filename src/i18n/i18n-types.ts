@@ -96,6 +96,12 @@ type RootTranslation = {
 			 */
 			userNotInVoiceChannel: string
 		}
+		connectchannel: {
+			/**
+			 * Connects the chosen channel and the chosen activities.
+			 */
+			description: string
+		}
 	}
 	/**
 	 * There was an error while executing this command!
@@ -190,6 +196,12 @@ export type TranslationFunctions = {
 			 * Cannot summon the bot, you are not in a voice channel!
 			 */
 			userNotInVoiceChannel: () => LocalizedString
+		}
+		connectchannel: {
+			/**
+			 * Connects the chosen channel and the chosen activities.
+			 */
+			description: () => LocalizedString
 		}
 	}
 	/**

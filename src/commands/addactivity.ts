@@ -19,6 +19,7 @@ export const addactivityCommand: Command<typeof COMMAND_NAME> = {
 
     command.addStringOption(option =>
       option.setName('activity')
+        // TODO: I18n there and in all similar places
         .setDescription('New Activity name')
         .setRequired(true),
     )

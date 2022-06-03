@@ -30,6 +30,9 @@ const en: BaseTranslation = {
       canSummon: 'Summoning bot in the channel...',
       userNotInVoiceChannel: 'Cannot summon the bot, you are not in a voice channel!',
     },
+    connectchannel: {
+      description: 'Connects the chosen channel and the chosen activities.',
+    },
   },
   errorOnCommand: 'There was an error while executing this command!',
   yesPhrases: `yes,yeah,transfer,please,yep,let's go`,
