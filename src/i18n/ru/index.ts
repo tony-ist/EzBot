@@ -33,6 +33,10 @@ const ru: Translation = {
     connectchannel: {
       description: 'Присоединяет выбранный канал к выбранным активностям.',
     },
+    showactivities: {
+      description: 'Отображает все активности.',
+      formatActivity: '**Активность: {activityName}**\nЭмодзи: {emoji}\nРоль: {roleName}\nId Роли: {roleId}\nКанал: {channelName}\nID канала: {channelId}\nИгры: {presenceNames}\n',
+    },
   },
   errorOnCommand: 'При выполнении команды произошла ошибка!',
   yesPhrases: 'да,давай,перекинь,хочу,хотим',
