@@ -15,10 +15,15 @@ const ru: Translation = {
     addactivity: {
       description: 'Добавляет новую активность в базу данных.',
       roleReason: 'Роль для тех, кто наслаждается {roleName}. Создано EzBot.',
-      activityCreated: 'Новая активность с именем `{activityName}` создана.\nТакже создана роль с таким же именем.\nТеперь вы можете использовать эту активность для дашборда или привязки к каналу.',
+      activityCreated: 'Новая активность с именем "{activityName}" создана.\nТакже создана роль с таким же именем.\nТеперь вы можете использовать эту активность для дашборда или привязки к каналу.',
+      options: {
+        activity: 'Название новой Активности',
+        emoji: 'Эмодзи из канала #dashboard',
+      },
       errors: {
         propActivityNameIsRequired: 'Укажите название активности.',
-        propEmojiShouldBeValidEmoji: 'Параметр эмодзи обязателен и должен быть валидным эмодзи. Например `:SC2:`.',
+        propEmojiShouldBeValidEmoji: 'Параметр эмодзи обязателен и должен быть валидным эмодзи. Например ":SC2:".',
+        activityWithThatNameExists: 'Активность с названием "{activityName}" уже существует.',
       },
     },
     summon: {
@@ -28,6 +33,29 @@ const ru: Translation = {
       alreadyInChannel: 'Не могу призвать бота, так как он уже в канале!',
       canSummon: 'Призываю бота в канал...',
       userNotInVoiceChannel: 'Не могу призвать бота, ты не в голосовом канале!',
+    },
+    connectchannel: {
+      description: 'Присоединяет выбранный канал к выбранным активностям.',
+      options: {
+        channel: 'Voice channel to connect to specified activities',
+      },
+      multiselect: {
+        placeholder: 'Ничего не выбрано',
+        selectActivities: 'Выбери активности...',
+      },
+      buttons: {
+        header: 'Канал "{channelName}" будет присоединен к активностям: "{activityNames}". Ты уверен?',
+        submit: 'Погнали',
+        cancel: 'А можно не надо',
+      },
+      result: {
+        success: 'Канал "{channelName}" присоединен к активностям: "{activityNames}".',
+        cancelled: 'Отменено.',
+      },
+    },
+    showactivities: {
+      description: 'Отображает все активности.',
+      formatActivity: '**Активность: {activityName}**\nЭмодзи: {emoji}\nРоль: {roleName}\nId Роли: {roleId}\nКанал: {channelName}\nID канала: {channelId}\nИгры: {presenceNames}\n',
     },
   },
   errorOnCommand: 'При выполнении команды произошла ошибка!',

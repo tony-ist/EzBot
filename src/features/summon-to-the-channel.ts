@@ -106,7 +106,13 @@ export async function summonToTheChannel(
 
   setTimeout(() => {
     // TODO#presenceChange: Return code LEAVE_BY_TIMEOUT
-    leaveVoiceChannel(sourceVoiceChannel, connection)
+    try {
+      if (isBotInVoiceChannel(guild)) {
+        leaveVoiceChannel(sourceVoiceChannel, connection)
+      }
+    } catch (error) {
+      log.error('Error in setTimeout leaveVoiceChannel:', error)
+    }
   }, BOT_TIMEOUT_MS)
 
   for await (const userTranscription of iterateRecognizedSpeech(connection, guild)) {
