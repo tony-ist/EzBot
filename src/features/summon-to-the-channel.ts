@@ -104,7 +104,7 @@ export async function summonToTheChannel(
   await playWrongChannelAudio(connection)
   log.debug('Finished playing wrong channel audio')
 
-  setTimeout(() => {
+  const timeoutTimer = setTimeout(() => {
     // TODO#presenceChange: Return code LEAVE_BY_TIMEOUT
     try {
       if (isBotInVoiceChannel(guild)) {
@@ -128,20 +128,24 @@ export async function summonToTheChannel(
       await moveMembers(membersToMove, targetVoiceChannel)
       // TODO#presenceChange: handle race condition where one user says long phrase while another user says 'yes'
       leaveVoiceChannel(sourceVoiceChannel, connection)
+      clearTimeout(timeoutTimer)
 
       return SummonResult.MOVE_MEMBERS
     } else if (affirmationAnalysisResult === AffirmationAnalysisResult.DENIAL) {
       leaveVoiceChannel(sourceVoiceChannel, connection)
+      clearTimeout(timeoutTimer)
 
       return SummonResult.LEAVE
     } else if (affirmationAnalysisResult === AffirmationAnalysisResult.NEUTRAL) {
       log.debug(`"${transcription}" is neutral. Staying in the voice channel...`)
     } else {
+      clearTimeout(timeoutTimer)
       throw new Error(`Unknown affirmation analysis result "${affirmationAnalysisResult}"`)
     }
   }
 
   leaveVoiceChannel(sourceVoiceChannel, connection)
+  clearTimeout(timeoutTimer)
 
   return SummonResult.LEAVE_SPEECH_END
 }

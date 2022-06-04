@@ -228,5 +228,11 @@ describe('summon-to-the-channel', () => {
       const actual = await summonToTheChannel(sourceVoiceChannelMock as any, presenceName, botUserId)
       expect(actual).toBe(SummonResult.LEAVE)
     })
+
+    it('should return SummonResult.LEAVE_SPEECH_END on neutral answer', async () => {
+      transcription = 'neutral'
+      const actual = await summonToTheChannel(sourceVoiceChannelMock as any, presenceName, botUserId)
+      expect(actual).toBe(SummonResult.LEAVE_SPEECH_END)
+    })
   })
 })
