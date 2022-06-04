@@ -2,7 +2,7 @@ import { model, Schema } from 'mongoose'
 
 // TODO: Remove dummy after proper typings are written
 interface Dummy {
-  dummyField: string
+  dummyField: number
 }
 
 export interface ConnectChannelState {
@@ -17,7 +17,7 @@ export interface ConnectChannelState {
   channelName: string
 }
 
-export type State = ConnectChannelState & Dummy
+export type State = ConnectChannelState | Dummy
 
 export type CommandOptionType = string | number | boolean | undefined
 

@@ -1,5 +1,11 @@
 import ListenerPlugin from './listener-plugin'
-import Discord, { ButtonInteraction, MessageActionRow, MessageButton, SelectMenuInteraction } from 'discord.js'
+import Discord, {
+  ButtonInteraction, CommandInteraction,
+  MessageActionRow,
+  MessageButton,
+  MessageSelectMenu,
+  SelectMenuInteraction,
+} from 'discord.js'
 import { MULTISELECT_ID } from '../commands/connectchannel'
 import { MessageButtonStyles } from 'discord.js/typings/enums'
 import { ConnectChannelState } from '../models/user-state'
@@ -10,6 +16,34 @@ export const SUBMIT_BUTTON_ID = 'connectchannel/submit'
 export const CANCEL_BUTTON_ID = 'connectchannel/cancel'
 
 export default class ConnectChannelPlugin implements ListenerPlugin {
+  static async replyWithActivitiesSelectMenu(commandInteraction: CommandInteraction) {
+    const activities = await ActivityModel.find()
+    const activityOptions = activities.map(activity => ({
+      label: activity.name,
+      value: activity.name,
+    }))
+
+    const selectRow = new MessageActionRow()
+      .addComponents(
+        new MessageSelectMenu()
+          .setCustomId(MULTISELECT_ID)
+          .setPlaceholder('Nothing selected')
+          .setMinValues(1)
+          .addOptions(activityOptions),
+      )
+
+    const channelOption = commandInteraction.options.get('channel')
+
+    if (channelOption === null) {
+      throw new Error('No "channel" option for command /connectchannel')
+    }
+
+    const userStateManager = new UserStateManager()
+    await userStateManager.setCommandOptions(commandInteraction.user.id, [channelOption.value])
+
+    await commandInteraction.reply({ content: 'Select activities...', components: [selectRow] })
+  }
+
   async onInteractionCreate(interaction: Discord.Interaction) {
     if (interaction.isSelectMenu()) {
       return await this.onSelectMenu(interaction)
@@ -68,7 +102,7 @@ export default class ConnectChannelPlugin implements ListenerPlugin {
   async onButtonClick(interaction: ButtonInteraction) {
     if (interaction.customId === SUBMIT_BUTTON_ID) {
       const userStateManager = new UserStateManager()
-      const connectChannelState: ConnectChannelState = await userStateManager.getState(interaction.user.id)
+      const connectChannelState = await userStateManager.getState(interaction.user.id) as ConnectChannelState
 
       for (const activityName of connectChannelState.activityNames) {
         const channelId = await userStateManager.getCommandOption(interaction.user.id, 0)

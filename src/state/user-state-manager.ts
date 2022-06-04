@@ -34,8 +34,7 @@ export default class UserStateManager {
    * @param userId Discord user id
    * @param update Fields to update
    */
-  // TODO: Proper update type
-  async updateState(userId: string, update: { [key: string]: any }) {
+  async updateState(userId: string, update: Partial<State>) {
     await UserStateModel.findOneAndUpdate({ userId }, { state: update }, { upsert: true })
   }
 
