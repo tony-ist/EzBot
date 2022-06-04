@@ -1,10 +1,5 @@
 import { model, Schema } from 'mongoose'
 
-// TODO: Remove dummy after proper typings are written
-interface Dummy {
-  dummyField: number
-}
-
 export interface ConnectChannelState {
   /**
    * Names of activities that are selected in multiselect on step 2 of /connectchannel wizard
@@ -17,7 +12,7 @@ export interface ConnectChannelState {
   channelName: string
 }
 
-export type State = ConnectChannelState | Dummy
+export type State = ConnectChannelState
 
 export type CommandOptionType = string | number | boolean | undefined
 
