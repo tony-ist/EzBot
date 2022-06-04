@@ -7,6 +7,8 @@ import logger from '../logger'
 const log = logger('scripts/register-commands')
 
 export async function registerSlashCommands(): Promise<void> {
+  log.info('Reloading application commands...')
+
   const rest = new REST({ version: '10' }).setToken(config.discordApiToken)
 
   const body = commandList.map(command => command.build().toJSON())
