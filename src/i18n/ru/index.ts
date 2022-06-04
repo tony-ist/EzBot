@@ -16,14 +16,14 @@ const ru: Translation = {
       description: 'Добавляет новую активность в базу данных.',
       roleReason: 'Роль для тех, кто наслаждается {roleName}. Создано EzBot.',
       activityCreated: 'Новая активность с именем "{activityName}" создана.\nТакже создана роль с таким же именем.\nТеперь вы можете использовать эту активность для дашборда или привязки к каналу.',
+      options: {
+        activity: 'Название новой Активности',
+        emoji: 'Эмодзи из канала #dashboard',
+      },
       errors: {
         propActivityNameIsRequired: 'Укажите название активности.',
         propEmojiShouldBeValidEmoji: 'Параметр эмодзи обязателен и должен быть валидным эмодзи. Например ":SC2:".',
         activityWithThatNameExists: 'Активность с названием "{activityName}" уже существует.',
-      },
-      options: {
-        activity: 'Название новой Активности',
-        emoji: 'Эмодзи из канала #dashboard',
       },
     },
     summon: {
@@ -45,8 +45,8 @@ const ru: Translation = {
       },
       buttons: {
         header: 'Канал "{channelName}" будет присоединен к активностям: "{activityNames}". Ты уверен?',
-        submit: 'Yay',
-        cancel: 'Nay',
+        submit: 'Погнали',
+        cancel: 'А можно не надо',
       },
       result: {
         success: 'Канал "{channelName}" присоединен к активностям: "{activityNames}".',
