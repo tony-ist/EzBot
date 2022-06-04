@@ -1,14 +1,14 @@
 import { SummonOptions, SummonResult, summonToTheChannel } from '../summon-to-the-channel'
 import { BaseGuildVoiceChannelMock } from './mocks/base-guild-voice-channel-mock'
 import { MongoMemoryServer } from 'mongodb-memory-server'
-import mongoose, { Mongoose, HydratedDocument } from 'mongoose'
+import mongoose, { HydratedDocument, Mongoose } from 'mongoose'
 import { Activity, ActivityModel } from '../../models/activity'
 import { NonThreadGuildBasedChannelMock } from './mocks/non-thread-guild-based-channel-mock'
 import * as discordJsVoice from '@discordjs/voice'
 import { VoiceConnectionMock } from './mocks/voice-connnection-mock'
-// import * as speechModule from '../../components/iterate-recognized-speech'
 import { UserMock } from './mocks/user-mock'
 import { User } from 'discord.js'
+import { moveMembers } from '../move-members'
 
 jest.mock('@discordjs/voice')
 const getVoiceConnectionMock = discordJsVoice.getVoiceConnection as jest.MockedFunction<typeof discordJsVoice.getVoiceConnection>
@@ -16,8 +16,9 @@ const joinVoiceChannelMock = discordJsVoice.joinVoiceChannel as jest.MockedFunct
 
 jest.mock('../../audio/wrong-channel-audio')
 
-// jest.mock('../../components/iterate-recognized-speech')
-// const iterateRecognizedSpeechMock = speechModule.iterateRecognizedSpeech as jest.MockedFunction<typeof speechModule.iterateRecognizedSpeech>
+// Jest does not automatically mock async generator functions
+// https://github.com/facebook/jest/issues/12040
+let transcription: string | undefined
 jest.mock('../../components/iterate-recognized-speech', () => {
   const originalModule = jest.requireActual('../../components/iterate-recognized-speech')
 
@@ -26,10 +27,13 @@ jest.mock('../../components/iterate-recognized-speech', () => {
     ...originalModule,
     iterateRecognizedSpeech:
       async function * () {
-        yield * [{ user: new UserMock() as User, transcription: 'yes' }]
+        yield * [{ user: new UserMock() as User, transcription }]
       },
   }
 })
+
+jest.mock('../move-members')
+const moveMembersMock = moveMembers as jest.MockedFunction<typeof moveMembers>
 
 describe('summon-to-the-channel', () => {
   let dbInstance: MongoMemoryServer
@@ -93,7 +97,7 @@ describe('summon-to-the-channel', () => {
     const sourceVoiceChannelMock = new BaseGuildVoiceChannelMock()
     const nonVoiceChannel = new NonThreadGuildBasedChannelMock()
     nonVoiceChannel.isVoice = jest.fn(() => false)
-    sourceVoiceChannelMock.guild.channels.fetch = jest.fn(async () => nonVoiceChannel)
+    sourceVoiceChannelMock.guild.channels.fetch = jest.fn(async (channelId: string) => nonVoiceChannel)
     const botUserId = 'botUserId'
     const presenceName = 'Half-Life'
     const activity = new ActivityModel({
@@ -108,7 +112,7 @@ describe('summon-to-the-channel', () => {
       .rejects.toThrowError('bot was summoned to the channel that is not a voice channel')
   })
 
-  describe('summoning to source channel', () => {
+  describe('trying to move to source channel', () => {
     let sourceVoiceChannelMock: BaseGuildVoiceChannelMock
     let botUserId: string
     let presenceName: string
@@ -132,7 +136,7 @@ describe('summon-to-the-channel', () => {
       await activity.save()
     })
 
-    it('should call callback one time', async () => {
+    it('should call callback alreadyInRightChannelCallback one time', async () => {
       await summonToTheChannel(sourceVoiceChannelMock as any, presenceName, botUserId, options)
       await expect(options.alreadyInRightChannelCallback).toBeCalledTimes(1)
     })
@@ -168,7 +172,7 @@ describe('summon-to-the-channel', () => {
       await activity.save()
     })
 
-    it('should call callback one time', async () => {
+    it('should call callback botInVoiceChannelCallback one time', async () => {
       await summonToTheChannel(sourceVoiceChannelMock as any, presenceName, botUserId, options)
       await expect(options.botInVoiceChannelCallback).toBeCalledTimes(1)
     })
@@ -179,26 +183,50 @@ describe('summon-to-the-channel', () => {
     })
   })
 
-  it('should move members on affirmative answer', async () => {
-    getVoiceConnectionMock.mockImplementation(() => undefined)
-    joinVoiceChannelMock.mockImplementation(() => new VoiceConnectionMock() as any)
-    // console.log('speechModule:', speechModule)
-    // iterateRecognizedSpeechMock.mockImplementation(async function * (connection, guild) {
-    //   yield * [{ user: new UserMock() as User, transcription: 'yes' }]
-    // })
+  describe('successful summoning', () => {
     const sourceVoiceChannelMock = new BaseGuildVoiceChannelMock()
     const botUserId = 'botUserId'
     const presenceName = 'Half-Life'
-    const activity = new ActivityModel({
-      name: presenceName,
-      roleId: 'role-id',
-      emoji: ':HL:',
-      channelId: 'target-voice-channel-id',
-      presenceNames: [presenceName],
-    })
-    await activity.save()
+    let activity: HydratedDocument<Activity>
 
-    const actual = await summonToTheChannel(sourceVoiceChannelMock as any, presenceName, botUserId)
-    expect(actual).toBe(SummonResult.MOVE_MEMBERS)
+    beforeEach(async () => {
+      getVoiceConnectionMock.mockImplementation(() => undefined)
+      joinVoiceChannelMock.mockImplementation(() => new VoiceConnectionMock() as any)
+      transcription = undefined
+      activity = new ActivityModel({
+        name: presenceName,
+        roleId: 'role-id',
+        emoji: ':HL:',
+        channelId: 'target-voice-channel-id',
+        presenceNames: [presenceName],
+      })
+      await activity.save()
+    })
+
+    it('should call moveMembers on affirmative answer', async () => {
+      transcription = 'yes'
+      const targetVoiceChannel = new NonThreadGuildBasedChannelMock()
+      sourceVoiceChannelMock.guild.channels.fetch = jest.fn(async (channelId: string) => targetVoiceChannel)
+      await summonToTheChannel(sourceVoiceChannelMock as any, presenceName, botUserId)
+      expect(moveMembersMock).toBeCalledWith([], targetVoiceChannel)
+    })
+
+    it('should return SummonResult.MOVE_MEMBERS on affirmative answer', async () => {
+      transcription = 'yes'
+      const actual = await summonToTheChannel(sourceVoiceChannelMock as any, presenceName, botUserId)
+      expect(actual).toBe(SummonResult.MOVE_MEMBERS)
+    })
+
+    it('should not call moveMembers on negative answer', async () => {
+      transcription = 'no'
+      await summonToTheChannel(sourceVoiceChannelMock as any, presenceName, botUserId)
+      expect(moveMembersMock).toBeCalledTimes(0)
+    })
+
+    it('should return SummonResult.LEAVE on negative answer', async () => {
+      transcription = 'no'
+      const actual = await summonToTheChannel(sourceVoiceChannelMock as any, presenceName, botUserId)
+      expect(actual).toBe(SummonResult.LEAVE)
+    })
   })
 })
