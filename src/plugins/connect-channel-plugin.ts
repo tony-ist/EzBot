@@ -1,6 +1,7 @@
 import ListenerPlugin from './listener-plugin'
 import Discord, {
-  ButtonInteraction, CommandInteraction,
+  ButtonInteraction,
+  CommandInteraction,
   MessageActionRow,
   MessageButton,
   MessageSelectMenu,
@@ -8,9 +9,9 @@ import Discord, {
 } from 'discord.js'
 import { MULTISELECT_ID } from '../commands/connectchannel'
 import { MessageButtonStyles } from 'discord.js/typings/enums'
-import { ConnectChannelState } from '../models/user-state'
 import { ActivityModel } from '../models/activity'
 import UserStateManager from '../state/user-state-manager'
+import { I18n } from '../i18n'
 
 export const SUBMIT_BUTTON_ID = 'connectchannel/submit'
 export const CANCEL_BUTTON_ID = 'connectchannel/cancel'
@@ -27,7 +28,7 @@ export default class ConnectChannelPlugin implements ListenerPlugin {
       .addComponents(
         new MessageSelectMenu()
           .setCustomId(MULTISELECT_ID)
-          .setPlaceholder('Nothing selected')
+          .setPlaceholder(I18n.commands.connectchannel.multiselect.placeholder())
           .setMinValues(1)
           .addOptions(activityOptions),
       )
@@ -41,7 +42,10 @@ export default class ConnectChannelPlugin implements ListenerPlugin {
     const userStateManager = new UserStateManager()
     await userStateManager.setCommandOptions(commandInteraction.user.id, [channelOption.value])
 
-    await commandInteraction.reply({ content: 'Select activities...', components: [selectRow] })
+    await commandInteraction.reply({
+      content: I18n.commands.connectchannel.multiselect.selectActivities(),
+      components: [selectRow],
+    })
   }
 
   async onInteractionCreate(interaction: Discord.Interaction) {
@@ -85,16 +89,16 @@ export default class ConnectChannelPlugin implements ListenerPlugin {
       .addComponents(
         new MessageButton()
           .setCustomId(SUBMIT_BUTTON_ID)
-          .setLabel('Yay')
+          .setLabel(I18n.commands.connectchannel.buttons.submit())
           .setStyle(MessageButtonStyles.PRIMARY),
         new MessageButton()
           .setCustomId(CANCEL_BUTTON_ID)
-          .setLabel('Nay')
+          .setLabel(I18n.commands.connectchannel.buttons.cancel())
           .setStyle(MessageButtonStyles.SECONDARY),
       )
 
     await interaction.update({
-      content: `Channel "${channelName}" will be connected to these activities: "${activityNames.join(', ')}". Are you sure?`,
+      content: I18n.commands.connectchannel.buttons.header({ channelName, activityNames: activityNames.join(', ') }),
       components: [buttonRow],
     })
   }
@@ -102,7 +106,7 @@ export default class ConnectChannelPlugin implements ListenerPlugin {
   async onButtonClick(interaction: ButtonInteraction) {
     if (interaction.customId === SUBMIT_BUTTON_ID) {
       const userStateManager = new UserStateManager()
-      const connectChannelState = await userStateManager.getState(interaction.user.id) as ConnectChannelState
+      const connectChannelState = await userStateManager.getState(interaction.user.id)
 
       for (const activityName of connectChannelState.activityNames) {
         const channelId = await userStateManager.getCommandOption(interaction.user.id, 0)
@@ -110,11 +114,14 @@ export default class ConnectChannelPlugin implements ListenerPlugin {
       }
 
       await interaction.update({
-        content: `Channel "${connectChannelState.channelName}" was connected to these activities: "${connectChannelState.activityNames.join(', ')}".`,
+        content: I18n.commands.connectchannel.result.success({
+          channelName: connectChannelState.channelName,
+          activityNames: connectChannelState.activityNames.join(', '),
+        }),
         components: [],
       })
     } else if (interaction.customId === CANCEL_BUTTON_ID) {
-      await interaction.update({ content: 'Cancelled', components: [] })
+      await interaction.update({ content: I18n.commands.connectchannel.result.cancelled(), components: [] })
     }
   }
 }

@@ -20,7 +20,7 @@ export const connectchannelCommand: Command<typeof COMMAND_NAME> = {
     command.addChannelOption(option =>
       option.setName('channel')
         .addChannelTypes([ChannelType.GuildVoice.valueOf()])
-        .setDescription('Voice channel to connect')
+        .setDescription(I18n.commands.connectchannel.options.channel())
         .setRequired(true),
     )
 

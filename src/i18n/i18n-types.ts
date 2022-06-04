@@ -54,6 +54,16 @@ type RootTranslation = {
 			 * @param {string} activityName
 			 */
 			activityCreated: RequiredParams<'activityName'>
+			options: {
+				/**
+				 * New Activity name
+				 */
+				activity: string
+				/**
+				 * Dashboard emoji
+				 */
+				emoji: string
+			}
 			errors: {
 				/**
 				 * Activity name is required.
@@ -101,6 +111,50 @@ type RootTranslation = {
 			 * Connects the chosen channel and the chosen activities.
 			 */
 			description: string
+			options: {
+				/**
+				 * Voice channel to connect to specified activities
+				 */
+				channel: string
+			}
+			multiselect: {
+				/**
+				 * Nothing selected
+				 */
+				placeholder: string
+				/**
+				 * Select activities...
+				 */
+				selectActivities: string
+			}
+			buttons: {
+				/**
+				 * Channel "{channelName}" will be connected to these activities: "{activityNames}". Are you sure?
+				 * @param {string} activityNames
+				 * @param {string} channelName
+				 */
+				header: RequiredParams<'activityNames' | 'channelName'>
+				/**
+				 * Yay
+				 */
+				submit: string
+				/**
+				 * Nay
+				 */
+				cancel: string
+			}
+			result: {
+				/**
+				 * Channel "{channelName}" was connected to these activities: "{activityNames}".
+				 * @param {string} activityNames
+				 * @param {string} channelName
+				 */
+				success: RequiredParams<'activityNames' | 'channelName'>
+				/**
+				 * Cancelled.
+				 */
+				cancelled: string
+			}
 		}
 		showactivities: {
 			/**
@@ -180,6 +234,16 @@ export type TranslationFunctions = {
 		Now you can use dashboard and channel binding for this activity.
 			 */
 			activityCreated: (arg: { activityName: string }) => LocalizedString
+			options: {
+				/**
+				 * New Activity name
+				 */
+				activity: () => LocalizedString
+				/**
+				 * Dashboard emoji
+				 */
+				emoji: () => LocalizedString
+			}
 			errors: {
 				/**
 				 * Activity name is required.
@@ -226,6 +290,46 @@ export type TranslationFunctions = {
 			 * Connects the chosen channel and the chosen activities.
 			 */
 			description: () => LocalizedString
+			options: {
+				/**
+				 * Voice channel to connect to specified activities
+				 */
+				channel: () => LocalizedString
+			}
+			multiselect: {
+				/**
+				 * Nothing selected
+				 */
+				placeholder: () => LocalizedString
+				/**
+				 * Select activities...
+				 */
+				selectActivities: () => LocalizedString
+			}
+			buttons: {
+				/**
+				 * Channel "{channelName}" will be connected to these activities: "{activityNames}". Are you sure?
+				 */
+				header: (arg: { activityNames: string, channelName: string }) => LocalizedString
+				/**
+				 * Yay
+				 */
+				submit: () => LocalizedString
+				/**
+				 * Nay
+				 */
+				cancel: () => LocalizedString
+			}
+			result: {
+				/**
+				 * Channel "{channelName}" was connected to these activities: "{activityNames}".
+				 */
+				success: (arg: { activityNames: string, channelName: string }) => LocalizedString
+				/**
+				 * Cancelled.
+				 */
+				cancelled: () => LocalizedString
+			}
 		}
 		showactivities: {
 			/**
