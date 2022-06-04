@@ -7,6 +7,7 @@ import WrongChannelPlugin from './plugins/wrong-channel-plugin'
 import CommandPlugin from './plugins/command-plugin'
 import RolePlugin from './plugins/role-plugin'
 import { wrapErrorHandling } from './plugins/listener-plugin'
+import ConnectChannelPlugin from './plugins/connect-channel-plugin'
 
 const log = logger('index')
 
@@ -45,6 +46,9 @@ async function run(): Promise<void> {
   const rolePlugin = new RolePlugin()
   discordClient.on('messageReactionAdd', wrapErrorHandling(rolePlugin.onMessageReactionAdd.bind(rolePlugin)))
   discordClient.on('messageReactionRemove', wrapErrorHandling(rolePlugin.onMessageReactionRemove.bind(rolePlugin)))
+
+  const connectChannelPlugin = new ConnectChannelPlugin()
+  discordClient.on('interactionCreate', wrapErrorHandling(connectChannelPlugin.onInteractionCreate.bind(connectChannelPlugin)))
 
   await discordClient.login(config.discordApiToken)
 

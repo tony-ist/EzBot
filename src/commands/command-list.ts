@@ -5,6 +5,7 @@ import { addactivityCommand } from './addactivity'
 import { summonCommand } from './summon'
 import { Command } from '../types'
 import { gameCommand } from './game'
+import { connectchannelCommand } from './connectchannel'
 import { showactivitiesCommand } from './showactivities'
 
 type AllCommands = typeof pingCommand
@@ -13,6 +14,7 @@ type AllCommands = typeof pingCommand
   | typeof summonCommand
   | typeof gameCommand
   | typeof showactivitiesCommand
+  | typeof connectchannelCommand
 type AllCommandNames = AllCommands['name']
 
 export const commandList = [
@@ -21,6 +23,7 @@ export const commandList = [
   addactivityCommand,
   summonCommand,
   gameCommand,
+  connectchannelCommand,
   showactivitiesCommand,
 ]
 

@@ -19,13 +19,13 @@ export const addactivityCommand: Command<typeof COMMAND_NAME> = {
 
     command.addStringOption(option =>
       option.setName('activity')
-        .setDescription('New Activity name')
+        .setDescription(I18n.commands.addactivity.options.activity())
         .setRequired(true),
     )
 
     command.addStringOption(option =>
       option.setName('emoji')
-        .setDescription('Dashboard emoji')
+        .setDescription(I18n.commands.addactivity.options.emoji())
         .setRequired(true),
     )
 

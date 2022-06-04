@@ -21,6 +21,10 @@ const ru: Translation = {
         propEmojiShouldBeValidEmoji: 'Параметр эмодзи обязателен и должен быть валидным эмодзи. Например ":SC2:".',
         activityWithThatNameExists: 'Активность с названием "{activityName}" уже существует.',
       },
+      options: {
+        activity: 'Название новой Активности',
+        emoji: 'Эмодзи из канала #dashboard',
+      },
     },
     summon: {
       description: 'Призывает бота в твой канал. Бот задает вопрос о переносе игроков в правильный канал игры.',
@@ -29,6 +33,25 @@ const ru: Translation = {
       alreadyInChannel: 'Не могу призвать бота, так как он уже в канале!',
       canSummon: 'Призываю бота в канал...',
       userNotInVoiceChannel: 'Не могу призвать бота, ты не в голосовом канале!',
+    },
+    connectchannel: {
+      description: 'Присоединяет выбранный канал к выбранным активностям.',
+      options: {
+        channel: 'Voice channel to connect to specified activities',
+      },
+      multiselect: {
+        placeholder: 'Ничего не выбрано',
+        selectActivities: 'Выбери активности...',
+      },
+      buttons: {
+        header: 'Канал "{channelName}" будет присоединен к активностям: "{activityNames}". Ты уверен?',
+        submit: 'Yay',
+        cancel: 'Nay',
+      },
+      result: {
+        success: 'Канал "{channelName}" присоединен к активностям: "{activityNames}".',
+        cancelled: 'Отменено.',
+      },
     },
     showactivities: {
       description: 'Отображает все активности.',

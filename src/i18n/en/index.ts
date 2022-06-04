@@ -16,6 +16,10 @@ const en: BaseTranslation = {
       description: 'Add new activity to the database.',
       roleReason: 'Role for those who enjoy {roleName:string}. Created by EzBot.',
       activityCreated: 'New activity with name "{activityName:string}" created.\nA role with the same name has also been created.\nNow you can use dashboard and channel binding for this activity.',
+      options: {
+        activity: 'New Activity name',
+        emoji: 'Dashboard emoji',
+      },
       errors: {
         propActivityNameIsRequired: 'Activity name is required.',
         propEmojiShouldBeValidEmoji: 'Emoji is required and should be valid emoji. For example ":SC2:".',
@@ -29,6 +33,25 @@ const en: BaseTranslation = {
       alreadyInChannel: 'Cannot summon the bot, it is already in a voice channel!',
       canSummon: 'Summoning bot in the channel...',
       userNotInVoiceChannel: 'Cannot summon the bot, you are not in a voice channel!',
+    },
+    connectchannel: {
+      description: 'Connects the chosen channel and the chosen activities.',
+      options: {
+        channel: 'Voice channel to connect to specified activities',
+      },
+      multiselect: {
+        placeholder: 'Nothing selected',
+        selectActivities: 'Select activities...',
+      },
+      buttons: {
+        header: 'Channel "{channelName:string}" will be connected to these activities: "{activityNames:string}". Are you sure?',
+        submit: 'Yay',
+        cancel: 'Nay',
+      },
+      result: {
+        success: 'Channel "{channelName:string}" was connected to these activities: "{activityNames:string}".',
+        cancelled: 'Cancelled.',
+      },
     },
     showactivities: {
       description: 'Displays all activities.',

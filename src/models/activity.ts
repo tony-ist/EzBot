@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose'
+import { model, Schema } from 'mongoose'
 
 export interface Activity {
   /**
@@ -27,7 +27,7 @@ export interface Activity {
 }
 
 const ActivitySchema = new Schema<Activity>({
-  name: { type: String, required: true },
+  name: { type: String, unique: true, required: true },
   emoji: { type: String, required: true },
   roleId: { type: String, required: true },
   channelId: { type: String },
