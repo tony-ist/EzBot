@@ -9,6 +9,8 @@ import { VoiceConnectionMock } from './mocks/voice-connnection-mock'
 import { UserMock } from './mocks/user-mock'
 import { User } from 'discord.js'
 import { moveMembers } from '../move-members'
+import { setTimeout as sleep } from 'node:timers/promises'
+import * as timeUtil from '../../utils/time'
 
 jest.mock('@discordjs/voice')
 const getVoiceConnectionMock = discordJsVoice.getVoiceConnection as jest.MockedFunction<typeof discordJsVoice.getVoiceConnection>
@@ -18,7 +20,7 @@ jest.mock('../../audio/wrong-channel-audio')
 
 // Jest does not automatically mock async generator functions
 // https://github.com/facebook/jest/issues/12040
-let transcription: string | undefined
+let transcriptions: string[] = []
 jest.mock('../../components/iterate-recognized-speech', () => {
   const originalModule = jest.requireActual('../../components/iterate-recognized-speech')
 
@@ -27,13 +29,22 @@ jest.mock('../../components/iterate-recognized-speech', () => {
     ...originalModule,
     iterateRecognizedSpeech:
       async function * () {
-        yield * [{ user: new UserMock() as User, transcription }]
+        for (let i = 0; i < transcriptions.length; i++) {
+          const transcription = transcriptions[i]
+          yield * [{ user: new UserMock() as User, transcription }]
+          if (i < transcriptions.length - 1) {
+            await sleep(1)
+          }
+        }
       },
   }
 })
 
 jest.mock('../move-members')
 const moveMembersMock = moveMembers as jest.MockedFunction<typeof moveMembers>
+
+jest.mock('../../utils/time')
+const setTimeoutMock = timeUtil.setTimeout as jest.MockedFunction<typeof timeUtil.setTimeout>
 
 describe('summon-to-the-channel', () => {
   let dbInstance: MongoMemoryServer
@@ -192,7 +203,7 @@ describe('summon-to-the-channel', () => {
     beforeEach(async () => {
       getVoiceConnectionMock.mockImplementation(() => undefined)
       joinVoiceChannelMock.mockImplementation(() => new VoiceConnectionMock() as any)
-      transcription = undefined
+      transcriptions = []
       activity = new ActivityModel({
         name: presenceName,
         roleId: 'role-id',
@@ -203,36 +214,43 @@ describe('summon-to-the-channel', () => {
       await activity.save()
     })
 
-    it('should call moveMembers on affirmative answer', async () => {
-      transcription = 'yes'
+    it('should call moveMembers on single affirmative answer', async () => {
+      transcriptions = ['yes']
       const targetVoiceChannel = new NonThreadGuildBasedChannelMock()
       sourceVoiceChannelMock.guild.channels.fetch = jest.fn(async (channelId: string) => targetVoiceChannel)
       await summonToTheChannel(sourceVoiceChannelMock as any, presenceName, botUserId)
       expect(moveMembersMock).toBeCalledWith([], targetVoiceChannel)
     })
 
-    it('should return SummonResult.MOVE_MEMBERS on affirmative answer', async () => {
-      transcription = 'yes'
+    it('should return SummonResult.MOVE_MEMBERS on single affirmative answer', async () => {
+      transcriptions = ['yes']
       const actual = await summonToTheChannel(sourceVoiceChannelMock as any, presenceName, botUserId)
       expect(actual).toBe(SummonResult.MOVE_MEMBERS)
     })
 
-    it('should not call moveMembers on negative answer', async () => {
-      transcription = 'no'
+    it('should not call moveMembers on single negative answer', async () => {
+      transcriptions = ['no']
       await summonToTheChannel(sourceVoiceChannelMock as any, presenceName, botUserId)
       expect(moveMembersMock).toBeCalledTimes(0)
     })
 
-    it('should return SummonResult.LEAVE on negative answer', async () => {
-      transcription = 'no'
+    it('should return SummonResult.LEAVE on single negative answer', async () => {
+      transcriptions = ['no']
       const actual = await summonToTheChannel(sourceVoiceChannelMock as any, presenceName, botUserId)
       expect(actual).toBe(SummonResult.LEAVE)
     })
 
-    it('should return SummonResult.LEAVE_SPEECH_END on neutral answer', async () => {
-      transcription = 'neutral'
+    it('should return SummonResult.LEAVE_SPEECH_END on single neutral answer', async () => {
+      transcriptions = ['neutral']
       const actual = await summonToTheChannel(sourceVoiceChannelMock as any, presenceName, botUserId)
       expect(actual).toBe(SummonResult.LEAVE_SPEECH_END)
+    })
+
+    it('should return SummonResult.LEAVE_BY_TIMEOUT on timeout', async () => {
+      transcriptions = ['neutral1', 'neutral2', 'neutral3']
+      setTimeoutMock.mockImplementation((callback: () => void, ms?: number) => setTimeout(callback, 0))
+      const actual = await summonToTheChannel(sourceVoiceChannelMock as any, presenceName, botUserId)
+      expect(actual).toBe(SummonResult.LEAVE_BY_TIMEOUT)
     })
   })
 })

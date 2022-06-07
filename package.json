@@ -8,7 +8,7 @@
     "npm": "8.5.0"
   },
   "scripts": {
-    "start": "ts-node src/index.ts",
+    "start": "node --trace-warnings -r ts-node/register src/index.ts",
     "nodemon": "nodemon",
     "start:production": "node dist/src/index.js",
     "build": "rimraf dist && tsc",

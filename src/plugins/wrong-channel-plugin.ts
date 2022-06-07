@@ -1,6 +1,6 @@
 import ListenerPlugin from './listener-plugin'
 import { Presence } from 'discord.js'
-import { summonToTheChannel } from '../features/summon-to-the-channel'
+import { SummonResult, summonToTheChannel } from '../features/summon-to-the-channel'
 import logger from '../logger'
 
 const log = logger('plugins/wrong-channel')
@@ -34,6 +34,7 @@ export default class WrongChannelPlugin implements ListenerPlugin {
       return
     }
 
-    await summonToTheChannel(voiceChannel, newPresenceName, botUserId)
+    const summonResult = await summonToTheChannel(voiceChannel, newPresenceName, botUserId)
+    log.info(`Summon result is ${SummonResult[summonResult]}`)
   }
 }

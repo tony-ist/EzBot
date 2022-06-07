@@ -8,6 +8,7 @@ import logger from '../logger'
 import config from '../config'
 import { moveMembers } from './move-members'
 import { iterateRecognizedSpeech } from '../components/iterate-recognized-speech'
+import { setTimeout } from '../utils/time'
 
 const log = logger('features/summon-to-the-channel')
 
@@ -46,7 +47,6 @@ export enum SummonResult {
  * is already in the voice channel and interacting with users. Function returns immediately after calling these callbacks.
  * `canSummonBotCallback` is called when function is going to summon the bot eventually and go on with the logic.
  */
-// TODO: Consider renaming presenceName to presenceName
 export async function summonToTheChannel(
   sourceVoiceChannel: BaseGuildVoiceChannel,
   presenceName: string,
@@ -104,9 +104,11 @@ export async function summonToTheChannel(
   await playWrongChannelAudio(connection)
   log.debug('Finished playing wrong channel audio')
 
+  let summonResult = SummonResult.LEAVE_SPEECH_END
+
   const timeoutTimer = setTimeout(() => {
-    // TODO#presenceChange: Return code LEAVE_BY_TIMEOUT
     try {
+      summonResult = SummonResult.LEAVE_BY_TIMEOUT
       if (isBotInVoiceChannel(guild)) {
         leaveVoiceChannel(sourceVoiceChannel, connection)
       }
@@ -144,10 +146,12 @@ export async function summonToTheChannel(
     }
   }
 
-  leaveVoiceChannel(sourceVoiceChannel, connection)
+  if (isBotInVoiceChannel(guild)) {
+    leaveVoiceChannel(sourceVoiceChannel, connection)
+  }
   clearTimeout(timeoutTimer)
 
-  return SummonResult.LEAVE_SPEECH_END
+  return summonResult
 }
 
 // TODO#presenceChange: Destroy every recognition stream on voice channel leave because of:

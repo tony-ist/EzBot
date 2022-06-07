@@ -2,10 +2,7 @@ import { SlashCommandBuilder } from '@discordjs/builders'
 import { CommandInteraction } from 'discord.js'
 import { I18n } from '../i18n'
 import { Command } from '../types'
-import {
-  SummonOptions,
-  summonToTheChannel,
-} from '../features/summon-to-the-channel'
+import { SummonOptions, SummonResult, summonToTheChannel } from '../features/summon-to-the-channel'
 import logger from '../logger'
 
 const log = logger('commands/summon')
@@ -62,6 +59,7 @@ export const summonCommand: Command<typeof COMMAND_NAME> = {
       canSummonBotCallback: async () => await commandInteraction.reply(I18n.commands.summon.canSummon()),
     }
 
-    await summonToTheChannel(voiceChannel, presenceName, botUserId, options)
+    const summonResult = await summonToTheChannel(voiceChannel, presenceName, botUserId, options)
+    log.info(`Summon result is ${SummonResult[summonResult]}`)
   },
 }

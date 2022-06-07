@@ -1,14 +1,14 @@
 import Stream from 'stream'
 import { google } from '@google-cloud/speech/build/protos/protos'
-import AudioEncoding = google.cloud.speech.v1.RecognitionConfig.AudioEncoding
 import config from '../config'
 import googleSpeech from '@google-cloud/speech'
 import logger from '../logger'
 import prism from 'prism-media'
 import { AudioReceiveStream } from '@discordjs/voice'
+import AudioEncoding = google.cloud.speech.v1.RecognitionConfig.AudioEncoding
 
-const streams = new WeakMap()
-let id = 1
+const debugStreams = new WeakMap()
+let streamId = 1
 
 export interface RecognitionData {
   results: RecognitionResult[]
@@ -46,26 +46,26 @@ export async function recognizeSpeech(inputStream: AudioReceiveStream): Promise<
 
     const recognizeStream: Stream.Duplex = googleSpeechClient.streamingRecognize(request)
 
-    if (!streams.has(inputStream)) {
-      log.debug(`New input stream with id ${id}`)
-      streams.set(inputStream, id)
-      id++
+    if (!debugStreams.has(inputStream)) {
+      log.debug(`New input stream with id ${streamId}`)
+      debugStreams.set(inputStream, streamId)
+      streamId++
     }
 
-    if (!streams.has(opusDecoder)) {
-      log.debug(`New opus decoder stream with id ${id}`)
-      streams.set(opusDecoder, id)
-      id++
+    if (!debugStreams.has(opusDecoder)) {
+      log.debug(`New opus decoder stream with id ${streamId}`)
+      debugStreams.set(opusDecoder, streamId)
+      streamId++
     }
 
-    if (!streams.has(recognizeStream)) {
-      log.debug(`New recognize stream with id ${id}`)
-      streams.set(recognizeStream, id)
-      id++
+    if (!debugStreams.has(recognizeStream)) {
+      log.debug(`New recognize stream with id ${streamId}`)
+      debugStreams.set(recognizeStream, streamId)
+      streamId++
     }
 
-    const inputStreamId = streams.get(inputStream)
-    const recognizeStreamId = streams.get(recognizeStream)
+    const inputStreamId = debugStreams.get(inputStream)
+    const recognizeStreamId = debugStreams.get(recognizeStream)
 
     inputStream
       .on('end', () => log.debug(`Input stream ${inputStreamId} end`))
@@ -73,6 +73,7 @@ export async function recognizeSpeech(inputStream: AudioReceiveStream): Promise<
         // This fixes "Long duration elapsed without audio" error because recognize stream waits for input stream to end.
         // When bot leaves channel or moves speaking user to another channel, speaking user input stream is closed
         // but not ended automatically, so we need to end it manually.
+        // https://github.com/googleapis/nodejs-speech/issues/894
         inputStream.emit('end')
         log.debug(`Input stream ${inputStreamId} close`)
       })
