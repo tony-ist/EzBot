@@ -31,7 +31,7 @@ jest.mock('../../components/iterate-recognized-speech', () => {
       async function * () {
         for (let i = 0; i < transcriptions.length; i++) {
           const transcription = transcriptions[i]
-          yield * [{ user: new UserMock() as User, transcription }]
+          yield { user: new UserMock() as User, transcription }
           if (i < transcriptions.length - 1) {
             await sleep(1)
           }

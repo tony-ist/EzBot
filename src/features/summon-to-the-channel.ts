@@ -106,6 +106,7 @@ export async function summonToTheChannel(
 
   let summonResult = SummonResult.LEAVE_SPEECH_END
 
+  // We use custom setTimeout from utils/time.ts to ease mocking and testing this functionality
   const timeoutTimer = setTimeout(() => {
     try {
       summonResult = SummonResult.LEAVE_BY_TIMEOUT

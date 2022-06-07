@@ -6,9 +6,7 @@ import logger from '../logger'
 import prism from 'prism-media'
 import { AudioReceiveStream } from '@discordjs/voice'
 import AudioEncoding = google.cloud.speech.v1.RecognitionConfig.AudioEncoding
-
-const debugStreams = new WeakMap()
-let streamId = 1
+import * as idMap from '../utils/id-map'
 
 export interface RecognitionData {
   results: RecognitionResult[]
@@ -46,46 +44,46 @@ export async function recognizeSpeech(inputStream: AudioReceiveStream): Promise<
 
     const recognizeStream: Stream.Duplex = googleSpeechClient.streamingRecognize(request)
 
-    if (!debugStreams.has(inputStream)) {
-      log.debug(`New input stream with id ${streamId}`)
-      debugStreams.set(inputStream, streamId)
-      streamId++
-    }
+    let inputStreamId: number | undefined
+    let opusDecoderId: number | undefined
+    let recognizeStreamId: number | undefined
 
-    if (!debugStreams.has(opusDecoder)) {
-      log.debug(`New opus decoder stream with id ${streamId}`)
-      debugStreams.set(opusDecoder, streamId)
-      streamId++
-    }
+    if (config.enableStreamDebug) {
+      if (!idMap.hasObject(inputStream)) {
+        inputStreamId = idMap.addObject(inputStream)
+        log.debug(`New input stream with id ${inputStreamId}`)
+      }
 
-    if (!debugStreams.has(recognizeStream)) {
-      log.debug(`New recognize stream with id ${streamId}`)
-      debugStreams.set(recognizeStream, streamId)
-      streamId++
-    }
+      if (!idMap.hasObject(opusDecoder)) {
+        opusDecoderId = idMap.addObject(opusDecoder)
+        log.debug(`New opus decoder stream with id ${opusDecoderId}`)
+      }
 
-    const inputStreamId = debugStreams.get(inputStream)
-    const recognizeStreamId = debugStreams.get(recognizeStream)
+      if (!idMap.hasObject(recognizeStream)) {
+        recognizeStreamId = idMap.addObject(recognizeStream)
+        log.debug(`New recognize stream with id ${recognizeStreamId}`)
+      }
+
+      inputStream
+        .on('end', () => log.debug(`Input stream ${inputStreamId} end`))
+        .on('close', () => log.debug(`Input stream ${inputStreamId} close`))
+      opusDecoder
+        .on('end', () => log.debug(`Opus decoder stream ${opusDecoderId} end`))
+        .on('close', () => log.debug(`Opus decoder stream ${opusDecoderId} close`))
+      recognizeStream
+        .on('end', () => log.debug(`Recognize stream ${recognizeStreamId} end`))
+        .on('close', () => log.debug(`Recognize stream ${recognizeStreamId} close`))
+    }
 
     inputStream
-      .on('end', () => log.debug(`Input stream ${inputStreamId} end`))
-      .on('close', () => {
-        // This fixes "Long duration elapsed without audio" error because recognize stream waits for input stream to end.
-        // When bot leaves channel or moves speaking user to another channel, speaking user input stream is closed
-        // but not ended automatically, so we need to end it manually.
-        // https://github.com/googleapis/nodejs-speech/issues/894
-        inputStream.emit('end')
-        log.debug(`Input stream ${inputStreamId} close`)
-      })
+      // Next line fixes "Long duration elapsed without audio" error because recognize stream waits for input stream to end.
+      // When bot leaves channel or moves speaking user to another channel, speaking user input stream is closed
+      // but not ended automatically, so we need to end it manually.
+      // https://github.com/googleapis/nodejs-speech/issues/894
+      .on('close', () => inputStream.emit('end'))
       .on('error', error => log.error(`Input stream ${inputStreamId} error:`, error))
-    opusDecoder
-      .on('end', () => log.debug(`Opus decoder stream ${inputStreamId} end`))
-      .on('close', () => log.debug(`Opus decoder stream ${inputStreamId} close`))
-      .on('error', error => log.error(`Opus decoder stream ${inputStreamId} error:`, error))
-    recognizeStream
-      .on('end', () => log.debug(`Recognize stream ${recognizeStreamId} end`))
-      .on('close', () => log.debug(`Recognize stream ${recognizeStreamId} close`))
-      .on('error', error => log.error(`Recognize stream ${recognizeStreamId} error:`, error))
+    opusDecoder.on('error', error => log.error(`Opus decoder stream ${inputStreamId ?? ''} error:`, error))
+    recognizeStream.on('error', error => log.error(`Recognize stream ${inputStreamId ?? ''} error:`, error))
 
     inputStream
       .pipe(opusDecoder)

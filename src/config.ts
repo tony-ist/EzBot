@@ -27,6 +27,7 @@ interface Config {
   languageCode: 'en-US' | 'ru-RU'
   locale: 'en' | 'ru'
   botTimeoutMs: number
+  enableStreamDebug: boolean
 }
 
 export default config
