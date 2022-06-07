@@ -2,10 +2,7 @@ import { SlashCommandBuilder } from '@discordjs/builders'
 import { CommandInteraction } from 'discord.js'
 import { I18n } from '../i18n'
 import { Command } from '../types'
-import {
-  SummonOptions,
-  summonToTheChannel,
-} from '../features/summon-to-the-channel'
+import { SummonOptions, SummonResult, summonToTheChannel } from '../features/summon-to-the-channel'
 import logger from '../logger'
 
 const log = logger('commands/summon')
@@ -35,15 +32,15 @@ export const summonCommand: Command<typeof COMMAND_NAME> = {
     const voiceState = guild.voiceStates.cache.get(userId)
     const voiceChannel = voiceState?.channel
     const presences = guild.presences.cache
-    const activity = presences?.get(userId)?.activities[0]
+    const discordActivity = presences?.get(userId)?.activities[0]
 
-    if (activity === undefined) {
+    if (discordActivity === undefined) {
       await commandInteraction.reply(I18n.commands.summon.cannotSummon())
       log.debug('activity is undefined: user is not playing the game or his activity status is off')
       return
     }
 
-    const activityName = activity.name
+    const presenceName = discordActivity.name
     const botUserId = commandInteraction.client.user?.id
 
     if (voiceChannel === undefined || voiceChannel === null) {
@@ -62,6 +59,7 @@ export const summonCommand: Command<typeof COMMAND_NAME> = {
       canSummonBotCallback: async () => await commandInteraction.reply(I18n.commands.summon.canSummon()),
     }
 
-    await summonToTheChannel(voiceChannel, activityName, botUserId, options)
+    const summonResult = await summonToTheChannel(voiceChannel, presenceName, botUserId, options)
+    log.info(`Summon result is ${SummonResult[summonResult]}`)
   },
 }

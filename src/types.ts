@@ -1,4 +1,4 @@
-import { CommandInteraction } from 'discord.js'
+import { CommandInteraction, User } from 'discord.js'
 import { SlashCommandBuilder } from '@discordjs/builders'
 
 export enum LogLevel {
@@ -13,4 +13,9 @@ export interface Command<N extends (string extends N ? never : string)> {
   name: N
   build: () => SlashCommandBuilder
   execute: (commandInteraction: CommandInteraction) => Promise<any>
+}
+
+export interface UserTranscription {
+  user: User
+  transcription: string
 }

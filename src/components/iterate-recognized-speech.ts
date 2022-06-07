@@ -1,7 +1,8 @@
-import { EndBehaviorType, VoiceConnection } from '@discordjs/voice'
-import { Guild, User } from 'discord.js'
+import { EndBehaviorType, VoiceConnection, VoiceConnectionStatus } from '@discordjs/voice'
+import { Guild } from 'discord.js'
 import { recognizeSpeech } from './recognize-speech'
 import logger from '../logger'
+import { UserTranscription } from '../types'
 
 const log = logger('components/iterate-recognized-speech')
 
@@ -20,14 +21,10 @@ function defer<T>() {
   }
 }
 
-interface UserTranscription {
-  user: User
-  transcription: string
-}
-
 export async function * iterateRecognizedSpeech(connection: VoiceConnection, guild: Guild) {
   let waitForBufferUpdate = defer()
   let buffer: UserTranscription[] = []
+  let isConnectionConnected = true
 
   connection.receiver.speaking.on(
     'start',
@@ -43,8 +40,12 @@ export async function * iterateRecognizedSpeech(connection: VoiceConnection, gui
       const userName = user.username ?? 'Unknown user'
       log.debug(`User "${userName}" started speaking...`)
 
+      // This prevents calling recognizeSpeech multiple times on one listenStream.
+      // This can happen when user speaks with short pauses about 500ms long.
+      // The recognition result is not yet returned but new input is given.
+      // Which would lead to addition of multiple listeners on the listenStream and EventEmitter memory leak
       if (connection.receiver.subscriptions.get(userId) !== undefined) {
-        return // TODO: Comment
+        return
       }
 
       const listenStream = connection.receiver.subscribe(userId, {
@@ -65,7 +66,14 @@ export async function * iterateRecognizedSpeech(connection: VoiceConnection, gui
     },
   )
 
-  while (true) {
+  connection.on(VoiceConnectionStatus.Disconnected, () => {
+    log.debug('Connection was disconnected')
+    isConnectionConnected = false
+    waitForBufferUpdate.resolve()
+  })
+
+  // eslint-disable-next-line no-unmodified-loop-condition
+  while (isConnectionConnected) {
     await waitForBufferUpdate.promise
 
     yield * buffer
