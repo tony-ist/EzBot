@@ -72,6 +72,7 @@ export async function * iterateRecognizedSpeech(connection: VoiceConnection, gui
     waitForBufferUpdate.resolve()
   })
 
+  // eslint-disable-next-line no-unmodified-loop-condition
   while (isConnectionConnected) {
     await waitForBufferUpdate.promise
 

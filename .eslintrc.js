@@ -17,6 +17,5 @@ module.exports = {
     '@typescript-eslint/restrict-template-expressions': 'off',
     'no-console': 'error',
     '@typescript-eslint/quotes': ['error', 'single', { allowTemplateLiterals: true }],
-    'no-unmodified-loop-condition': 'off',
   },
 }
