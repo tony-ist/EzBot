@@ -12,7 +12,7 @@ import { ActivityModel } from '../models/activity'
 import UserStateManager from '../state/user-state-manager'
 import { I18n } from '../i18n'
 import logger from '../logger'
-import { ADD_GAMES_OPTIONS } from '../commands/addgames'
+import { AddGamesOptions } from '../commands/addgames'
 import { AddGamesState } from '../models/user-state'
 
 const SELECT_ID = 'addgames/select'
@@ -37,7 +37,7 @@ export default class AddGamesPlugin implements ListenerPlugin {
           .addOptions(activityOptions),
       )
 
-    const gameNameOption = commandInteraction.options.get(ADD_GAMES_OPTIONS.GAME_NAME)
+    const gameNameOption = commandInteraction.options.get(AddGamesOptions.GAME_NAME)
 
     log.debug('Game name option:', gameNameOption)
 
