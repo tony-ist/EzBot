@@ -8,6 +8,7 @@ import CommandPlugin from './plugins/command-plugin'
 import RolePlugin from './plugins/role-plugin'
 import { wrapErrorHandling } from './plugins/listener-plugin'
 import ConnectChannelPlugin from './plugins/connect-channel-plugin'
+import AddGamesPlugin from './plugins/add-games-plugin'
 
 const log = logger('index')
 
@@ -49,6 +50,9 @@ async function run(): Promise<void> {
 
   const connectChannelPlugin = new ConnectChannelPlugin()
   discordClient.on('interactionCreate', wrapErrorHandling(connectChannelPlugin.onInteractionCreate.bind(connectChannelPlugin)))
+
+  const addGamesPlugin = new AddGamesPlugin()
+  discordClient.on('interactionCreate', wrapErrorHandling(addGamesPlugin.onInteractionCreate.bind(addGamesPlugin)))
 
   await discordClient.login(config.discordApiToken)
 

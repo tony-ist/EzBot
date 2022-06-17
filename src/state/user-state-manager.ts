@@ -1,5 +1,6 @@
 import { CommandOptionType, State, UserStateModel } from '../models/user-state'
 
+// TODO: Tests
 export default class UserStateManager {
   /**
    * Get a command argument provided after slash command.
@@ -35,7 +36,14 @@ export default class UserStateManager {
    * @param update Fields to update
    */
   async updateState(userId: string, update: Partial<State>) {
-    await UserStateModel.findOneAndUpdate({ userId }, { state: update }, { upsert: true })
+    const currentUserState = await UserStateModel.findOne({ userId })
+
+    if (currentUserState === null) {
+      await new UserStateModel({ userId, state: update }).save()
+    } else {
+      currentUserState.state = { ...currentUserState.state, ...update }
+      await currentUserState.save()
+    }
   }
 
   /**

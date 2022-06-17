@@ -40,13 +40,10 @@ const ru: Translation = {
         channel: 'Voice channel to connect to specified activities',
       },
       multiselect: {
-        placeholder: 'Ничего не выбрано',
         selectActivities: 'Выбери активности...',
       },
       buttons: {
         header: 'Канал "{channelName}" будет присоединен к активностям: "{activityNames}". Ты уверен?',
-        submit: 'Погнали',
-        cancel: 'А можно не надо',
       },
       result: {
         success: 'Канал "{channelName}" присоединен к активностям: "{activityNames}".',
@@ -56,6 +53,31 @@ const ru: Translation = {
     showactivities: {
       description: 'Отображает все активности.',
       formatActivity: '**Активность: {activityName}**\nЭмодзи: {emoji}\nРоль: {roleName}\nId Роли: {roleId}\nКанал: {channelName}\nID канала: {channelId}\nИгры: {presenceNames}\n',
+    },
+    addgames: {
+      description: 'Привязывает названия игр к активности.',
+      options: {
+        gameName: 'Название игры, которую ты хочешь присоединить к существующей активности',
+      },
+      select: {
+        selectActivity: 'Выбери активность...',
+      },
+      buttons: {
+        header: 'Добавляю игру "{gameName}" к активности "{activityName}". Ты уверен?',
+      },
+      result: {
+        success: 'Игра "{gameName}" добавлена к активности "{activityName}".',
+        cancelled: 'Отменено.',
+      },
+    },
+  },
+  elements: {
+    buttons: {
+      submit: 'Погнали',
+      cancel: 'А можно не надо',
+    },
+    select: {
+      placeholder: 'Ничего не выбрано',
     },
   },
   errorOnCommand: 'При выполнении команды произошла ошибка!',

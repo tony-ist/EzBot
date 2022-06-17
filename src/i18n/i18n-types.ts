@@ -119,10 +119,6 @@ type RootTranslation = {
 			}
 			multiselect: {
 				/**
-				 * Nothing selected
-				 */
-				placeholder: string
-				/**
 				 * Select activities...
 				 */
 				selectActivities: string
@@ -134,14 +130,6 @@ type RootTranslation = {
 				 * @param {string} channelName
 				 */
 				header: RequiredParams<'activityNames' | 'channelName'>
-				/**
-				 * Yay
-				 */
-				submit: string
-				/**
-				 * Nay
-				 */
-				cancel: string
 			}
 			result: {
 				/**
@@ -179,6 +167,62 @@ type RootTranslation = {
 			 * @param {string} roleName
 			 */
 			formatActivity: RequiredParams<'activityName' | 'channelId' | 'channelName' | 'emoji' | 'presenceNames' | 'roleId' | 'roleName'>
+		}
+		addgames: {
+			/**
+			 * Adds game (presence) names to activity
+			 */
+			description: string
+			options: {
+				/**
+				 * Name of the game that you want to connect to the existing activity
+				 */
+				gameName: string
+			}
+			select: {
+				/**
+				 * Select the activity...
+				 */
+				selectActivity: string
+			}
+			buttons: {
+				/**
+				 * Adding game "{gameName}" to activity "{activityName}". Are you sure?
+				 * @param {string} activityName
+				 * @param {string} gameName
+				 */
+				header: RequiredParams<'activityName' | 'gameName'>
+			}
+			result: {
+				/**
+				 * Game "{gameName}" was connected to the activity "{activityName}".
+				 * @param {string} activityName
+				 * @param {string} gameName
+				 */
+				success: RequiredParams<'activityName' | 'gameName'>
+				/**
+				 * Cancelled.
+				 */
+				cancelled: string
+			}
+		}
+	}
+	elements: {
+		buttons: {
+			/**
+			 * Yay
+			 */
+			submit: string
+			/**
+			 * Nay
+			 */
+			cancel: string
+		}
+		select: {
+			/**
+			 * Nothing selected
+			 */
+			placeholder: string
 		}
 	}
 	/**
@@ -298,10 +342,6 @@ export type TranslationFunctions = {
 			}
 			multiselect: {
 				/**
-				 * Nothing selected
-				 */
-				placeholder: () => LocalizedString
-				/**
 				 * Select activities...
 				 */
 				selectActivities: () => LocalizedString
@@ -311,14 +351,6 @@ export type TranslationFunctions = {
 				 * Channel "{channelName}" will be connected to these activities: "{activityNames}". Are you sure?
 				 */
 				header: (arg: { activityNames: string, channelName: string }) => LocalizedString
-				/**
-				 * Yay
-				 */
-				submit: () => LocalizedString
-				/**
-				 * Nay
-				 */
-				cancel: () => LocalizedString
 			}
 			result: {
 				/**
@@ -347,6 +379,58 @@ export type TranslationFunctions = {
 	
 			 */
 			formatActivity: (arg: { activityName: string, channelId: string, channelName: string, emoji: string, presenceNames: string, roleId: string, roleName: string }) => LocalizedString
+		}
+		addgames: {
+			/**
+			 * Adds game (presence) names to activity
+			 */
+			description: () => LocalizedString
+			options: {
+				/**
+				 * Name of the game that you want to connect to the existing activity
+				 */
+				gameName: () => LocalizedString
+			}
+			select: {
+				/**
+				 * Select the activity...
+				 */
+				selectActivity: () => LocalizedString
+			}
+			buttons: {
+				/**
+				 * Adding game "{gameName}" to activity "{activityName}". Are you sure?
+				 */
+				header: (arg: { activityName: string, gameName: string }) => LocalizedString
+			}
+			result: {
+				/**
+				 * Game "{gameName}" was connected to the activity "{activityName}".
+				 */
+				success: (arg: { activityName: string, gameName: string }) => LocalizedString
+				/**
+				 * Cancelled.
+				 */
+				cancelled: () => LocalizedString
+			}
+		}
+	}
+	elements: {
+		buttons: {
+			/**
+			 * Yay
+			 */
+			submit: () => LocalizedString
+			/**
+			 * Nay
+			 */
+			cancel: () => LocalizedString
+		}
+		select: {
+			/**
+			 * Nothing selected
+			 */
+			placeholder: () => LocalizedString
 		}
 	}
 	/**

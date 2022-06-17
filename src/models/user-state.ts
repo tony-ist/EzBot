@@ -1,5 +1,17 @@
 import { model, Schema } from 'mongoose'
 
+export interface AddGamesState {
+  /**
+   * Names of the activity that is selected in select on step 1 of /addgames wizard
+   */
+  activityName: string
+
+  /**
+   * Name of the game that is provided on the second step and will be connected to the activity
+   */
+  gameName: string
+}
+
 export interface ConnectChannelState {
   /**
    * Names of activities that are selected in multiselect on step 2 of /connectchannel wizard
@@ -12,7 +24,7 @@ export interface ConnectChannelState {
   channelName: string
 }
 
-export type State = ConnectChannelState
+export type State = ConnectChannelState | AddGamesState
 
 export type CommandOptionType = string | number | boolean | undefined
 
@@ -25,6 +37,7 @@ export interface UserState {
   /**
    * Values provided to the slash command. Example: ['544022547478478861', 'Tony', 1, undefined, false]
    */
+  // TODO: Deprecated, remove, use state instead
   commandOptions: CommandOptionType[]
 
   /**

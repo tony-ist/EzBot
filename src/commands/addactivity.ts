@@ -17,6 +17,7 @@ export const addactivityCommand: Command<typeof COMMAND_NAME> = {
       .setName(COMMAND_NAME)
       .setDescription(I18n.commands.addactivity.description())
 
+    // TODO: Extract "activity" and similar to enum
     command.addStringOption(option =>
       option.setName('activity')
         .setDescription(I18n.commands.addactivity.options.activity())
