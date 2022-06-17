@@ -40,13 +40,10 @@ const en: BaseTranslation = {
         channel: 'Voice channel to connect to specified activities',
       },
       multiselect: {
-        placeholder: 'Nothing selected',
         selectActivities: 'Select activities...',
       },
       buttons: {
         header: 'Channel "{channelName:string}" will be connected to these activities: "{activityNames:string}". Are you sure?',
-        submit: 'Yay',
-        cancel: 'Nay',
       },
       result: {
         success: 'Channel "{channelName:string}" was connected to these activities: "{activityNames:string}".',
@@ -62,6 +59,31 @@ const en: BaseTranslation = {
         'Channel: {channelName:string}\n' +
         'Channel ID: {channelId:string}\n' +
         'Games: {presenceNames:string}\n',
+    },
+    addgames: {
+      description: 'Adds game (presence) names to activity',
+      options: {
+        gameName: 'Name of the game that you want to connect to the existing activity',
+      },
+      select: {
+        selectActivity: 'Select the activity...',
+      },
+      buttons: {
+        header: 'Adding game "{gameName:string}" to activity "{activityName:string}". Are you sure?',
+      },
+      result: {
+        success: 'Game "{gameName:string}" was connected to the activity "{activityName:string}".',
+        cancelled: 'Cancelled.',
+      },
+    },
+  },
+  elements: {
+    buttons: {
+      submit: 'Yay',
+      cancel: 'Nay',
+    },
+    select: {
+      placeholder: 'Nothing selected',
     },
   },
   errorOnCommand: 'There was an error while executing this command!',

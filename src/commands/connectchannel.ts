@@ -7,8 +7,6 @@ import ConnectChannelPlugin from '../plugins/connect-channel-plugin'
 
 const COMMAND_NAME = 'connectchannel'
 
-export const MULTISELECT_ID = 'connectchannel/activities'
-
 export const connectchannelCommand: Command<typeof COMMAND_NAME> = {
   name: COMMAND_NAME,
 
