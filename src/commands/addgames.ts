@@ -6,7 +6,7 @@ import AddGamesPlugin from '../plugins/add-games-plugin'
 
 const COMMAND_NAME = 'addgames'
 
-export enum ADD_GAMES_OPTIONS {
+export enum AddGamesOptions {
   GAME_NAME = 'gamename'
 }
 
@@ -20,7 +20,7 @@ export const addgamesCommand: Command<typeof COMMAND_NAME> = {
 
     command.addStringOption(option =>
       option
-        .setName(ADD_GAMES_OPTIONS.GAME_NAME)
+        .setName(AddGamesOptions.GAME_NAME)
         .setDescription(I18n.commands.addgames.options.gameName())
         .setRequired(true),
     )

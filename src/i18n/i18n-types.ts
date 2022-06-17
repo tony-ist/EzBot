@@ -33,9 +33,16 @@ type RootTranslation = {
 			 */
 			description: string
 			/**
-			 * You are not playing any game right now or activity status is disabled.
+			 * User "{userName}" is not playing any game right now or activity status is disabled.
+			 * @param {string} userName
 			 */
-			notPlayingAnyGame: string
+			notPlayingAnyGame: RequiredParams<'userName'>
+			options: {
+				/**
+				 * User whose game you want to see.
+				 */
+				user: string
+			}
 		}
 		addactivity: {
 			/**
@@ -259,9 +266,15 @@ export type TranslationFunctions = {
 			 */
 			description: () => LocalizedString
 			/**
-			 * You are not playing any game right now or activity status is disabled.
+			 * User "{userName}" is not playing any game right now or activity status is disabled.
 			 */
-			notPlayingAnyGame: () => LocalizedString
+			notPlayingAnyGame: (arg: { userName: string }) => LocalizedString
+			options: {
+				/**
+				 * User whose game you want to see.
+				 */
+				user: () => LocalizedString
+			}
 		}
 		addactivity: {
 			/**

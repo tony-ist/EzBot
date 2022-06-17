@@ -10,7 +10,10 @@ const en: BaseTranslation = {
     },
     game: {
       description: 'Displays the name of the current game you are playing.',
-      notPlayingAnyGame: 'You are not playing any game right now or activity status is disabled.',
+      notPlayingAnyGame: 'User "{userName:string}" is not playing any game right now or activity status is disabled.',
+      options: {
+        user: 'User whose game you want to see.',
+      },
     },
     addactivity: {
       description: 'Add new activity to the database.',
