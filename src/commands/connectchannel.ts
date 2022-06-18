@@ -6,6 +6,9 @@ import { ChannelType } from 'discord-api-types/v9'
 import ConnectChannelPlugin from '../plugins/connect-channel-plugin'
 
 const COMMAND_NAME = 'connectchannel'
+export enum ConnectChannelOptions {
+  CHANNEL = 'channel',
+}
 
 export const connectchannelCommand: Command<typeof COMMAND_NAME> = {
   name: COMMAND_NAME,
@@ -16,7 +19,7 @@ export const connectchannelCommand: Command<typeof COMMAND_NAME> = {
       .setDescription(I18n.commands.connectchannel.description())
 
     command.addChannelOption(option =>
-      option.setName('channel')
+      option.setName(ConnectChannelOptions.CHANNEL)
         .addChannelTypes([ChannelType.GuildVoice.valueOf()])
         .setDescription(I18n.commands.connectchannel.options.channel())
         .setRequired(true),

@@ -8,6 +8,10 @@ import { tryExtractSingleDiscordEmoji } from '../utils/try-extract-single-discor
 
 const COMMAND_NAME = 'addactivity'
 const log = logger('commands/addactivity')
+export enum AddActivityOptions {
+  ACTIVITY = 'activity',
+  EMOJI = 'emoji',
+}
 
 export const addactivityCommand: Command<typeof COMMAND_NAME> = {
   name: COMMAND_NAME,
@@ -17,15 +21,14 @@ export const addactivityCommand: Command<typeof COMMAND_NAME> = {
       .setName(COMMAND_NAME)
       .setDescription(I18n.commands.addactivity.description())
 
-    // TODO: Extract "activity" and similar to enum
     command.addStringOption(option =>
-      option.setName('activity')
+      option.setName(AddActivityOptions.ACTIVITY)
         .setDescription(I18n.commands.addactivity.options.activity())
         .setRequired(true),
     )
 
     command.addStringOption(option =>
-      option.setName('emoji')
+      option.setName(AddActivityOptions.EMOJI)
         .setDescription(I18n.commands.addactivity.options.emoji())
         .setRequired(true),
     )
@@ -34,7 +37,7 @@ export const addactivityCommand: Command<typeof COMMAND_NAME> = {
   },
 
   async execute(commandInteraction: CommandInteraction) {
-    const activityNameOption = commandInteraction.options.get('activity')
+    const activityNameOption = commandInteraction.options.get(AddActivityOptions.ACTIVITY)
     const activityName = typeof activityNameOption?.value === 'string' ? activityNameOption?.value.trim() : ''
     if (activityName === '') {
       await commandInteraction.reply(I18n.commands.addactivity.errors.propActivityNameIsRequired())
@@ -48,7 +51,7 @@ export const addactivityCommand: Command<typeof COMMAND_NAME> = {
       return
     }
 
-    const emojiNameOption = commandInteraction.options.get('emoji')
+    const emojiNameOption = commandInteraction.options.get(AddActivityOptions.EMOJI)
     const emojiString = typeof emojiNameOption?.value === 'string' ? emojiNameOption?.value.trim() : ''
     log.debug(`Emoji string: "${emojiString}"`)
     const emoji = tryExtractSingleDiscordEmoji(emojiString)

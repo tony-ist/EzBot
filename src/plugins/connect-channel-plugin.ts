@@ -12,6 +12,7 @@ import { ActivityModel } from '../models/activity'
 import UserStateManager from '../state/user-state-manager'
 import { I18n } from '../i18n'
 import { ConnectChannelState } from '../models/user-state'
+import { ConnectChannelOptions } from '../commands/connectchannel'
 
 export const MULTISELECT_ID = 'connectchannel/activities'
 export const SUBMIT_BUTTON_ID = 'connectchannel/submit'
@@ -34,7 +35,7 @@ export default class ConnectChannelPlugin implements ListenerPlugin {
           .addOptions(activityOptions),
       )
 
-    const channelOption = commandInteraction.options.get('channel')
+    const channelOption = commandInteraction.options.get(ConnectChannelOptions.CHANNEL)
 
     if (channelOption === null) {
       throw new Error('No "channel" option provided for command /connectchannel')
