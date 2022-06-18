@@ -92,6 +92,7 @@ const en: BaseTranslation = {
   errorOnCommand: 'There was an error while executing this command!',
   yesPhrases: `yes,yeah,transfer,please,yep,let's go`,
   noPhrases: `no,nope,don't,nah,get out`,
+  welcomeMessage: `Welcome to the server! On the server there are roles and notifications. Open the dashboard chat and click the emojis of the games you play, you will get the roles. To call people to play a game, just mention your game's role, for example @SC2, in general chat.`,
 }
 
 export default en

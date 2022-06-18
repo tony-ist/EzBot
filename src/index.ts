@@ -9,6 +9,7 @@ import RolePlugin from './plugins/role-plugin'
 import { wrapErrorHandling } from './plugins/listener-plugin'
 import ConnectChannelPlugin from './plugins/connect-channel-plugin'
 import AddGamesPlugin from './plugins/add-games-plugin'
+import WelcomePlugin from './plugins/welcome-plugin'
 
 const log = logger('index')
 
@@ -30,6 +31,7 @@ async function run(): Promise<void> {
       INTENTS.GUILD_PRESENCES,
       INTENTS.GUILD_MESSAGE_REACTIONS,
       INTENTS.GUILD_VOICE_STATES,
+      INTENTS.GUILD_MEMBERS,
     ],
   })
 
@@ -53,6 +55,9 @@ async function run(): Promise<void> {
 
   const addGamesPlugin = new AddGamesPlugin()
   discordClient.on('interactionCreate', wrapErrorHandling(addGamesPlugin.onInteractionCreate.bind(addGamesPlugin)))
+
+  const welcomePlugin = new WelcomePlugin()
+  discordClient.on('guildMemberAdd', wrapErrorHandling(welcomePlugin.onGuildMemberAdd.bind(welcomePlugin)))
 
   await discordClient.login(config.discordApiToken)
 

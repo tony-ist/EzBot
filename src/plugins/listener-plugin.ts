@@ -1,4 +1,4 @@
-import Discord, { MessageReaction, Presence, User } from 'discord.js'
+import Discord, { GuildMember, MessageReaction, Presence, User } from 'discord.js'
 import logger from '../logger'
 
 type ListenerFunction = (...args: any[]) => Promise<void>
@@ -18,6 +18,8 @@ export default interface ListenerPlugin {
   onMessageReactionAdd?: (reaction: MessageReaction, user: User) => Promise<void>
 
   onMessageReactionRemove?: (reaction: MessageReaction, user: User) => Promise<void>
+
+  onGuildMemberAdd?: (member: GuildMember) => Promise<void>
 }
 
 export function wrapErrorHandling(f: ListenerFunction): ListenerFunction {

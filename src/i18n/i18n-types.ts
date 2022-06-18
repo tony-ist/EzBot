@@ -244,6 +244,10 @@ type RootTranslation = {
 	 * no,nope,don't,nah,get out
 	 */
 	noPhrases: string
+	/**
+	 * Welcome to the server! On the server there are roles and notifications. Open the dashboard chat and click the emojis of the games you play, you will get the roles. To call people to play a game, just mention your game's role, for example @SC2, in general chat.
+	 */
+	welcomeMessage: string
 }
 
 export type TranslationFunctions = {
@@ -458,6 +462,10 @@ export type TranslationFunctions = {
 	 * no,nope,don't,nah,get out
 	 */
 	noPhrases: () => LocalizedString
+	/**
+	 * Welcome to the server! On the server there are roles and notifications. Open the dashboard chat and click the emojis of the games you play, you will get the roles. To call people to play a game, just mention your game's role, for example @SC2, in general chat.
+	 */
+	welcomeMessage: () => LocalizedString
 }
 
 export type Formatters = {}
