@@ -13,10 +13,13 @@ import UserStateManager from '../state/user-state-manager'
 import { I18n } from '../i18n'
 import { ConnectChannelState } from '../models/user-state'
 import { ConnectChannelOptions } from '../commands/connectchannel'
+import logger from '../logger'
 
 export const MULTISELECT_ID = 'connectchannel/activities'
 export const SUBMIT_BUTTON_ID = 'connectchannel/submit'
 export const CANCEL_BUTTON_ID = 'connectchannel/cancel'
+
+const log = logger('plugins/connect-channel')
 
 export default class ConnectChannelPlugin implements ListenerPlugin {
   static async replyWithActivitiesSelectMenu(commandInteraction: CommandInteraction) {
@@ -37,13 +40,15 @@ export default class ConnectChannelPlugin implements ListenerPlugin {
 
     const channelOption = commandInteraction.options.get(ConnectChannelOptions.CHANNEL)
 
+    log.debug('Channel option:', channelOption)
+
     if (channelOption === null) {
       throw new Error('No "channel" option provided for command /connectchannel')
     }
 
     const userStateManager = new UserStateManager()
     await userStateManager.clear(commandInteraction.user.id)
-    await userStateManager.setCommandOptions(commandInteraction.user.id, [channelOption.value])
+    await userStateManager.updateState(commandInteraction.user.id, { channelId: channelOption.value as string })
 
     await commandInteraction.reply({
       content: I18n.commands.connectchannel.multiselect.selectActivities(),
@@ -72,8 +77,8 @@ export default class ConnectChannelPlugin implements ListenerPlugin {
 
     const userStateManager = new UserStateManager()
 
-    // TODO: Refactor this to use state instead, delete command options
-    const channelId = await userStateManager.getCommandOption(interaction.user.id, 0)
+    const userState = await userStateManager.getState(interaction.user.id) as ConnectChannelState
+    const channelId = userState.channelId
 
     if (typeof channelId !== 'string') {
       throw new Error(`channelId is of type ${typeof channelId} but expected string`)
@@ -112,8 +117,17 @@ export default class ConnectChannelPlugin implements ListenerPlugin {
       const userStateManager = new UserStateManager()
       const connectChannelState = await userStateManager.getState(interaction.user.id) as ConnectChannelState
 
+      if (connectChannelState.activityNames === undefined) {
+        throw new Error('connectChannelState.activityNames is undefined')
+      }
+
+      if (connectChannelState.channelName === undefined) {
+        throw new Error('connectChannelState.channelName is undefined')
+      }
+
       for (const activityName of connectChannelState.activityNames) {
-        const channelId = await userStateManager.getCommandOption(interaction.user.id, 0)
+        const userState = await userStateManager.getState(interaction.user.id) as ConnectChannelState
+        const channelId = userState.channelId
         await ActivityModel.findOneAndUpdate({ name: activityName }, { channelId })
       }
 

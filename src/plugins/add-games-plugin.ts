@@ -87,6 +87,11 @@ export default class AddGamesPlugin implements ListenerPlugin {
     log.debug('User state:', addGamesState)
 
     const gameName = addGamesState.gameName
+
+    if (gameName === undefined) {
+      throw new Error('gameName is undefined')
+    }
+
     const activityName = interaction.values[0]
     await userStateManager.updateState(interaction.user.id, { activityName })
 
@@ -118,6 +123,14 @@ export default class AddGamesPlugin implements ListenerPlugin {
       log.debug('User state:', addGamesState)
 
       await ActivityModel.findOneAndUpdate({ name: activityName }, { $addToSet: { presenceNames: gameName } })
+
+      if (activityName === undefined) {
+        throw new Error('activityName is undefined')
+      }
+
+      if (gameName === undefined) {
+        throw new Error('gameName is undefined')
+      }
 
       await interaction.update({
         content: I18n.commands.addgames.result.success({
