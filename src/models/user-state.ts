@@ -29,7 +29,34 @@ export interface ConnectChannelState {
   activityNames?: string[]
 }
 
-export type State = ConnectChannelState | AddGamesState
+export interface RemoveActivityState {
+  /**
+   * Id of the activity that is selected in select on step 1 of /removeactivity wizard
+   */
+  activityId?: string
+
+  /**
+   * Name of the activity that is selected in select on step 1 of /removeactivity wizard
+   */
+  activityName?: string
+
+  /**
+   * Name of the role associated with the selected activity
+   */
+  roleName?: string
+
+  /**
+   * Name of the channel associated with the selected activity
+   */
+  channelName?: string
+
+  /**
+   * Emoji associated with the selected activity
+   */
+  emoji?: string
+}
+
+export type State = ConnectChannelState | AddGamesState | RemoveActivityState
 
 export interface UserState {
   /**

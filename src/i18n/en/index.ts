@@ -79,6 +79,19 @@ const en: BaseTranslation = {
         cancelled: 'Cancelled.',
       },
     },
+    removeactivity: {
+      description: 'Removes selected activity and associated voice channel, role and emoji',
+      select: {
+        selectActivity: 'Select the activity...',
+      },
+      buttons: {
+        header: 'Removing activity "{activityName:string}", role "{roleName:string}", channel "{channelName:string}" and emoji "{emoji:string}". Are you sure?',
+      },
+      result: {
+        success: 'Removed activity "{activityName:string}", role "{roleName:string}", channel "{channelName:string}" and emoji "{emoji:string}".',
+        cancelled: 'Cancelled.',
+      },
+    },
   },
   elements: {
     buttons: {
@@ -89,6 +102,7 @@ const en: BaseTranslation = {
       placeholder: 'Nothing selected',
     },
   },
+  notFound: 'Not found',
   errorOnCommand: 'There was an error while executing this command!',
   yesPhrases: `yes,yeah,transfer,please,yep,let's go`,
   noPhrases: `no,nope,don't,nah,get out`,

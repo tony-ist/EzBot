@@ -10,6 +10,7 @@ import { wrapErrorHandling } from './plugins/listener-plugin'
 import ConnectChannelPlugin from './plugins/connect-channel-plugin'
 import AddGamesPlugin from './plugins/add-games-plugin'
 import WelcomePlugin from './plugins/welcome-plugin'
+import RemoveActivityPlugin from './plugins/remove-activity-plugin'
 
 const log = logger('index')
 
@@ -58,6 +59,9 @@ async function run(): Promise<void> {
 
   const welcomePlugin = new WelcomePlugin()
   discordClient.on('guildMemberAdd', wrapErrorHandling(welcomePlugin.onGuildMemberAdd.bind(welcomePlugin)))
+
+  const removeActivityPlugin = new RemoveActivityPlugin()
+  discordClient.on('interactionCreate', wrapErrorHandling(removeActivityPlugin.onInteractionCreate.bind(removeActivityPlugin)))
 
   await discordClient.login(config.discordApiToken)
 
