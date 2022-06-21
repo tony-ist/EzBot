@@ -3,7 +3,7 @@ import { BaseGuildVoiceChannelMock } from './mocks/base-guild-voice-channel-mock
 import { MongoMemoryServer } from 'mongodb-memory-server'
 import mongoose, { HydratedDocument, Mongoose } from 'mongoose'
 import { Activity, ActivityModel } from '../../models/activity'
-import { NonThreadGuildBasedChannelMock } from './mocks/non-thread-guild-based-channel-mock'
+import { NonThreadGuildBasedChannelMock } from '../../tests-mocks/non-thread-guild-based-channel-mock'
 import * as discordJsVoice from '@discordjs/voice'
 import { VoiceConnectionMock } from './mocks/voice-connnection-mock'
 import { UserMock } from './mocks/user-mock'

@@ -84,7 +84,7 @@ export default class AddGamesPlugin implements ListenerPlugin {
     const userStateManager = new UserStateManager()
     const addGamesState = await userStateManager.getState(interaction.user.id) as AddGamesState
 
-    log.debug('User state:', addGamesState)
+    log.debug('onSelectMenu user state:', addGamesState)
 
     const gameName = addGamesState.gameName
 
@@ -120,7 +120,7 @@ export default class AddGamesPlugin implements ListenerPlugin {
       const activityName = addGamesState.activityName
       const gameName = addGamesState.gameName
 
-      log.debug('User state:', addGamesState)
+      log.debug('onButtonClick user state:', addGamesState)
 
       await ActivityModel.findOneAndUpdate({ name: activityName }, { $addToSet: { presenceNames: gameName } })
 

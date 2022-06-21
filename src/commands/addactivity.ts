@@ -4,7 +4,7 @@ import { ActivityModel } from '../models/activity'
 import { I18n } from '../i18n'
 import { CommandInteraction } from 'discord.js'
 import logger from '../logger'
-import { tryExtractSingleDiscordEmoji } from '../utils/try-extract-single-discord-emoji'
+import { isValidEmoji } from '../validators/emoji-validator'
 
 const COMMAND_NAME = 'addactivity'
 const log = logger('commands/addactivity')
@@ -52,18 +52,24 @@ export const addactivityCommand: Command<typeof COMMAND_NAME> = {
     }
 
     const emojiNameOption = commandInteraction.options.get(AddActivityOptions.EMOJI)
-    const emojiString = typeof emojiNameOption?.value === 'string' ? emojiNameOption?.value.trim() : ''
-    log.debug(`Emoji string: "${emojiString}"`)
-    const emoji = tryExtractSingleDiscordEmoji(emojiString)
-    // TODO: Check that emoji exists on the server
-    if (emoji === null) {
+
+    // This should throw because emoji field is required
+    if (emojiNameOption === null) {
+      throw new Error('emojiNameOption is null')
+    }
+
+    const optionValue = emojiNameOption.value as string
+    const emoji = optionValue.trim()
+    log.debug(`Emoji: "${emoji}"`)
+
+    if (!isValidEmoji(emoji)) {
       await commandInteraction.reply(I18n.commands.addactivity.errors.propEmojiShouldBeValidEmoji())
       return
     }
 
     const guild = commandInteraction.guild
     if (guild == null) {
-      throw new Error('No guild specified in interaction instance')
+      throw new Error('commandInteraction.guild is null')
     }
     const roleName = activityName
     const roleReason = I18n.commands.addactivity.roleReason({ roleName })
