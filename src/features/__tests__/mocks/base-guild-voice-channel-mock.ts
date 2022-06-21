@@ -1,4 +1,4 @@
-import { GuildMock } from '../../../tests-mocks/guild-mock'
+import { GuildMock } from '../../../__tests__/mocks/guild-mock'
 
 export class BaseGuildVoiceChannelMock {
   id = 'voice-channel-id'

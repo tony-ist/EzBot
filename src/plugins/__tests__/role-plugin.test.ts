@@ -4,7 +4,7 @@ import { MongoMemoryServer } from 'mongodb-memory-server'
 import mongoose, { Mongoose } from 'mongoose'
 import { ActivityModel } from '../../models/activity'
 import { Collection } from 'discord.js'
-import { RoleMock } from '../../tests-mocks/role-mock'
+import { RoleMock } from '../../__tests__/mocks/role-mock'
 
 describe('role-plugin', () => {
   let dbInstance: MongoMemoryServer
