@@ -92,6 +92,9 @@ const en: BaseTranslation = {
         cancelled: 'Cancelled.',
       },
     },
+    version: {
+      description: 'Displays current bot version and git commit SHA',
+    },
   },
   elements: {
     buttons: {

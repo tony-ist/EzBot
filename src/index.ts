@@ -66,6 +66,7 @@ async function run(): Promise<void> {
   await discordClient.login(config.discordApiToken)
 
   log.debug('Bot client id:', discordClient.user?.id)
+  log.debug('Bot version', discordClient.user?.id)
   log.debug('Discord client logged in')
 }
 
