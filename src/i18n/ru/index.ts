@@ -73,6 +73,19 @@ const ru: Translation = {
         cancelled: 'Отменено.',
       },
     },
+    removeactivity: {
+      description: 'Удаляет выбранную активность и ее голосовой канал, роль и эмоцию.',
+      select: {
+        selectActivity: 'Выбери активность...',
+      },
+      buttons: {
+        header: 'Удаляю активность "{activityName}", роль "{roleName}", канал "{channelName}" и эмоцию "{emoji}". Ты уверен?',
+      },
+      result: {
+        success: 'Удалена активность "{activityName}", роль "{roleName}", канал "{channelName}" и эмоция "{emoji}".',
+        cancelled: 'Отменено.',
+      },
+    },
   },
   elements: {
     buttons: {
@@ -83,6 +96,7 @@ const ru: Translation = {
       placeholder: 'Ничего не выбрано',
     },
   },
+  notFound: 'Не найдено',
   errorOnCommand: 'При выполнении команды произошла ошибка!',
   yesPhrases: 'да,давай,перекинь,хочу,хотим',
   noPhrases: 'нет,не надо,не,уйди',

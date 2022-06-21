@@ -213,6 +213,42 @@ type RootTranslation = {
 				cancelled: string
 			}
 		}
+		removeactivity: {
+			/**
+			 * Removes selected activity and associated voice channel, role and emoji
+			 */
+			description: string
+			select: {
+				/**
+				 * Select the activity...
+				 */
+				selectActivity: string
+			}
+			buttons: {
+				/**
+				 * Removing activity "{activityName}", role "{roleName}", channel "{channelName}" and emoji "{emoji}". Are you sure?
+				 * @param {string} activityName
+				 * @param {string} channelName
+				 * @param {string} emoji
+				 * @param {string} roleName
+				 */
+				header: RequiredParams<'activityName' | 'channelName' | 'emoji' | 'roleName'>
+			}
+			result: {
+				/**
+				 * Removed activity "{activityName}", role "{roleName}", channel "{channelName}" and emoji "{emoji}".
+				 * @param {string} activityName
+				 * @param {string} channelName
+				 * @param {string} emoji
+				 * @param {string} roleName
+				 */
+				success: RequiredParams<'activityName' | 'channelName' | 'emoji' | 'roleName'>
+				/**
+				 * Cancelled.
+				 */
+				cancelled: string
+			}
+		}
 	}
 	elements: {
 		buttons: {
@@ -232,6 +268,10 @@ type RootTranslation = {
 			placeholder: string
 		}
 	}
+	/**
+	 * Not found
+	 */
+	notFound: string
 	/**
 	 * There was an error while executing this command!
 	 */
@@ -431,6 +471,34 @@ export type TranslationFunctions = {
 				cancelled: () => LocalizedString
 			}
 		}
+		removeactivity: {
+			/**
+			 * Removes selected activity and associated voice channel, role and emoji
+			 */
+			description: () => LocalizedString
+			select: {
+				/**
+				 * Select the activity...
+				 */
+				selectActivity: () => LocalizedString
+			}
+			buttons: {
+				/**
+				 * Removing activity "{activityName}", role "{roleName}", channel "{channelName}" and emoji "{emoji}". Are you sure?
+				 */
+				header: (arg: { activityName: string, channelName: string, emoji: string, roleName: string }) => LocalizedString
+			}
+			result: {
+				/**
+				 * Removed activity "{activityName}", role "{roleName}", channel "{channelName}" and emoji "{emoji}".
+				 */
+				success: (arg: { activityName: string, channelName: string, emoji: string, roleName: string }) => LocalizedString
+				/**
+				 * Cancelled.
+				 */
+				cancelled: () => LocalizedString
+			}
+		}
 	}
 	elements: {
 		buttons: {
@@ -450,6 +518,10 @@ export type TranslationFunctions = {
 			placeholder: () => LocalizedString
 		}
 	}
+	/**
+	 * Not found
+	 */
+	notFound: () => LocalizedString
 	/**
 	 * There was an error while executing this command!
 	 */
