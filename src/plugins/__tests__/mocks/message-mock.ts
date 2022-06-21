@@ -1,7 +1,5 @@
 import { GuildMock } from '../../../tests-mocks/guild-mock'
 
-export class BaseGuildVoiceChannelMock {
-  id = 'voice-channel-id'
+export class MessageMock {
   guild = new GuildMock()
-  members = new Map()
 }

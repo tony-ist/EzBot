@@ -13,6 +13,7 @@ import UserStateManager from '../state/user-state-manager'
 import { I18n } from '../i18n'
 import logger from '../logger'
 import { RemoveActivityState } from '../models/user-state'
+import { extractEmojiId } from '../utils/emoji'
 
 const SELECT_ID = 'removeactivity/select'
 const SUBMIT_BUTTON_ID = 'removeactivity/submit'
@@ -161,6 +162,7 @@ export default class RemoveActivityPlugin implements ListenerPlugin {
       const role = await guild.roles.fetch(roleId)
 
       if (role !== null) {
+        log.info(`Deleting role "${role.name}"`)
         await role.delete('Deleted by EzBot')
       }
 
@@ -168,24 +170,26 @@ export default class RemoveActivityPlugin implements ListenerPlugin {
         const channel = await guild.channels.fetch(channelId)
 
         if (channel !== null) {
+          log.info(`Deleting channel "${channel.name}"`)
           await channel.delete('Deleted by EzBot')
         }
       }
 
       log.debug(`Emoji: "${emoji}"`)
-      try {
-        // Emoji is either common emoji or guild emoji id.
-        // Fetch will return guild emoji if emoji is valid guild emoji id.
-        // Otherwise it will throw an error.
-        const guildEmoji = await guild.emojis.fetch(emoji)
-
-        log.debug(`Guild emoji: "${guildEmoji}"`)
-
-        if (guildEmoji !== null) {
-          await guildEmoji.delete('Deleted by EzBot')
+      const emojiId = extractEmojiId(emoji)
+      log.debug(`Emoji id: "${emojiId}"`)
+      let guildEmoji = null
+      if (emojiId !== null) {
+        try {
+          guildEmoji = await guild.emojis.fetch(emojiId)
+          log.debug(`Guild emoji: "${guildEmoji}"`)
+        } catch {
+          log.info(`No emoji "${emoji}" found in guild.`)
         }
-      } catch {
-        log.debug(`No emoji "${emoji}" found in guild.`)
+      }
+      if (guildEmoji !== null) {
+        log.info(`Deleting emoji "${emoji}"`)
+        await guildEmoji.delete('Deleted by EzBot')
       }
 
       await activity.remove()

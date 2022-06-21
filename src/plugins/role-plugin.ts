@@ -42,7 +42,8 @@ export default class RolePlugin implements ListenerPlugin {
       throw new Error('reaction.emoji.id is undefined, only custom emoji are supported')
     }
 
-    const activity = await ActivityModel.findOne({ emoji: reaction.emoji.id })
+    const emoji = `<:${reaction.emoji.name}:${reaction.emoji.id}>`
+    const activity = await ActivityModel.findOne({ emoji })
 
     if (activity === null) {
       throw new Error(`Activity for emoji with id "${reaction.emoji.id}" and name "${reaction.emoji.name}" was not found`)

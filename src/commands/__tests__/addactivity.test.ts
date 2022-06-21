@@ -46,11 +46,11 @@ describe('addactivity command', () => {
     expect(interaction.reply).toBeCalledWith('Activity name is required.')
   })
 
-  it('should reply with error when no emoji specified', async () => {
+  it('should throw an error when no emoji is specified', async () => {
     const interaction = new CommandInteractionMock()
     interaction.options.set('activity', { value: 'StarCraft 2' })
-    await addactivityCommand.execute(interaction as any)
-    expect(interaction.reply).toBeCalledWith('Emoji is required and should be valid emoji. For example ":SC2:".')
+    await expect(addactivityCommand.execute(interaction as any))
+      .rejects.toThrowError('emojiNameOption is null')
   })
 
   it('should reply with error when emoji does not match emoji pattern', async () => {
@@ -67,7 +67,7 @@ describe('addactivity command', () => {
     interaction.options.set('emoji', { value: VALID_EMOJI })
     interaction.guild = null
     await expect(addactivityCommand.execute(interaction as any))
-      .rejects.toThrowError('No guild specified in interaction instance')
+      .rejects.toThrowError('commandInteraction.guild is null')
   })
 
   it('should create discord role by activity name', async () => {
@@ -91,7 +91,7 @@ describe('addactivity command', () => {
 
     expect(createdActivity).toMatchObject({
       name: 'StarCraft 2',
-      emoji: '123',
+      emoji: VALID_EMOJI,
       roleId: 'role_id_mock_StarCraft 2',
     })
   })
