@@ -11,6 +11,7 @@ import ConnectChannelPlugin from './plugins/connect-channel-plugin'
 import AddGamesPlugin from './plugins/add-games-plugin'
 import WelcomePlugin from './plugins/welcome-plugin'
 import RemoveActivityPlugin from './plugins/remove-activity-plugin'
+import { getVersion } from './utils/get-version'
 
 const log = logger('index')
 
@@ -65,8 +66,12 @@ async function run(): Promise<void> {
 
   await discordClient.login(config.discordApiToken)
 
+  const authorId = '158576177009786880'
+  const author = await discordClient.users.resolve(authorId)
+  await author?.send(`Bot version ${getVersion()} successfully deployed!`)
+
   log.debug('Bot client id:', discordClient.user?.id)
-  log.debug('Bot version', discordClient.user?.id)
+  log.debug('Bot version:', getVersion())
   log.debug('Discord client logged in')
 }
 
