@@ -66,9 +66,11 @@ async function run(): Promise<void> {
 
   await discordClient.login(config.discordApiToken)
 
-  const authorId = '158576177009786880'
-  const author = await discordClient.users.resolve(authorId)
-  await author?.send(`Bot version ${getVersion()} successfully deployed!`)
+  if (process.env.NODE_ENV === 'production') {
+    const authorId = '158576177009786880'
+    const author = await discordClient.users.fetch(authorId)
+    await author?.send(`Bot version ${getVersion()} successfully deployed!`)
+  }
 
   log.debug('Bot client id:', discordClient.user?.id)
   log.debug('Bot version:', getVersion())
