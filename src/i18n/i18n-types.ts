@@ -249,6 +249,12 @@ type RootTranslation = {
 				cancelled: string
 			}
 		}
+		version: {
+			/**
+			 * Displays current bot version and git commit SHA
+			 */
+			description: string
+		}
 	}
 	elements: {
 		buttons: {
@@ -498,6 +504,12 @@ export type TranslationFunctions = {
 				 */
 				cancelled: () => LocalizedString
 			}
+		}
+		version: {
+			/**
+			 * Displays current bot version and git commit SHA
+			 */
+			description: () => LocalizedString
 		}
 	}
 	elements: {

@@ -86,6 +86,9 @@ const ru: Translation = {
         cancelled: 'Отменено.',
       },
     },
+    version: {
+      description: 'Отображает текущую версию бота и SHA коммита в гите.',
+    },
   },
   elements: {
     buttons: {
