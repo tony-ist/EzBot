@@ -265,9 +265,19 @@ type RootTranslation = {
 			 */
 			noStats: string
 			/**
-			 * This week users spent time in the channels:
+			 * __This week users spent time in the channels:__
 			 */
 			thisWeek: string
+			/**
+			 * **Channel: {channelName}**
+			 * @param {string} channelName
+			 */
+			channel: RequiredParams<'channelName'>
+			/**
+			 * Time spent: {timeString}
+			 * @param {string} timeString
+			 */
+			timeSpent: RequiredParams<'timeString'>
 		}
 	}
 	elements: {
@@ -535,9 +545,17 @@ export type TranslationFunctions = {
 			 */
 			noStats: () => LocalizedString
 			/**
-			 * This week users spent time in the channels:
+			 * __This week users spent time in the channels:__
 			 */
 			thisWeek: () => LocalizedString
+			/**
+			 * **Channel: {channelName}**
+			 */
+			channel: (arg: { channelName: string }) => LocalizedString
+			/**
+			 * Time spent: {timeString}
+			 */
+			timeSpent: (arg: { timeString: string }) => LocalizedString
 		}
 	}
 	elements: {

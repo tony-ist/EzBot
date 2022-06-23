@@ -90,9 +90,11 @@ const ru: Translation = {
       description: 'Отображает текущую версию бота и SHA коммита в гите.',
     },
     stats: {
-      description: 'Displays different server statistics.',
+      description: 'Отображает различную статистику сервера.',
       noStats: 'Пока что нет статистики. Вперед играть в игры!',
-      thisWeek: 'На этой неделе пользователи провели времени в каналах:',
+      thisWeek: '__На этой неделе пользователи провели времени в каналах:__',
+      channel: '**Канал: {channelName}**',
+      timeSpent: 'Времени в нем проведено: {timeString}',
     },
   },
   elements: {

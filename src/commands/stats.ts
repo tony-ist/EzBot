@@ -38,8 +38,9 @@ export const statsCommand: Command<typeof COMMAND_NAME> = {
       }
 
       const channelName = channel.name
-      messageParts.push(`**Channel: ${channelName}**`)
-      messageParts.push(`Time spent: ${formatMs(stat.timeMilliseconds)}`)
+      const timeString = formatMs(stat.timeMilliseconds)
+      messageParts.push(I18n.commands.stats.channel({ channelName }))
+      messageParts.push(I18n.commands.stats.timeSpent({ timeString }))
     }
 
     if (messageParts.length === 1) {

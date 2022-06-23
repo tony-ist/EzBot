@@ -98,7 +98,9 @@ const en: BaseTranslation = {
     stats: {
       description: 'Displays different server statistics.',
       noStats: 'No statistics yet. Go play some games!',
-      thisWeek: 'This week users spent time in the channels:',
+      thisWeek: '__This week users spent time in the channels:__',
+      channel: '**Channel: {channelName:string}**',
+      timeSpent: 'Time spent: {timeString:string}',
     },
   },
   elements: {
