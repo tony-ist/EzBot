@@ -10,6 +10,7 @@ import { showactivitiesCommand } from './showactivities'
 import { addgamesCommand } from './addgames'
 import { removeactivityCommand } from './removeactivity'
 import { versionCommand } from './version'
+import { statsCommand } from './stats'
 
 type AllCommands = typeof pingCommand
   | typeof helpCommand
@@ -21,6 +22,7 @@ type AllCommands = typeof pingCommand
   | typeof addgamesCommand
   | typeof removeactivityCommand
   | typeof versionCommand
+  | typeof statsCommand
 type AllCommandNames = AllCommands['name']
 
 export const commandList = [
@@ -34,6 +36,7 @@ export const commandList = [
   addgamesCommand,
   removeactivityCommand,
   versionCommand,
+  statsCommand,
 ]
 
 export const commandStore = new Collection<AllCommandNames, Command<AllCommandNames>>()

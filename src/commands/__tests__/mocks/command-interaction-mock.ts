@@ -1,3 +1,5 @@
+import { NullMap } from '../../../utils/null-map'
+
 class RolesManager {
   create = jest.fn(async ({ name }: {name: string, reason: string}) => {
     return {
@@ -8,24 +10,6 @@ class RolesManager {
 
 class GuildManager {
   roles = new RolesManager()
-}
-
-class NullMap<K, V> {
-  map = new Map<K, V>()
-
-  set(key: K, value: V) {
-    this.map.set(key, value)
-  }
-
-  get(key: K) {
-    const value = this.map.get(key)
-
-    if (value === undefined) {
-      return null
-    } else {
-      return value
-    }
-  }
 }
 
 export class CommandInteractionMock {

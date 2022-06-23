@@ -6,7 +6,7 @@ import { ActivityModel } from '../../models/activity'
 import { Collection } from 'discord.js'
 import { RoleMock } from '../../__tests__/mocks/role-mock'
 
-describe('role-plugin', () => {
+describe('RolePlugin', () => {
   let dbInstance: MongoMemoryServer
   let mongooseInstance: Mongoose
   beforeAll(async () => {

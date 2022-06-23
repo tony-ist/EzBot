@@ -18,7 +18,7 @@ describe('extractEmojiId', () => {
 
   it.each([
     ['<:dummy:123>', '123'],
-    ['<:SC2:234>', '123'],
+    ['<:SC2:234>', '234'],
   ])('should extract emoji id for %s', (input, output) => {
     expect(extractEmojiId(input)).toBe(output)
   })

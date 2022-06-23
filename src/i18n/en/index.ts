@@ -95,6 +95,11 @@ const en: BaseTranslation = {
     version: {
       description: 'Displays current bot version and git commit SHA',
     },
+    stats: {
+      description: 'Displays different server statistics.',
+      noStats: 'No statistics yet. Go play some games!',
+      thisWeek: 'This week users spent time in the channels:',
+    },
   },
   elements: {
     buttons: {
