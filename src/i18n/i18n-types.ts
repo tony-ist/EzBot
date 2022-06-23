@@ -255,6 +255,20 @@ type RootTranslation = {
 			 */
 			description: string
 		}
+		stats: {
+			/**
+			 * Displays different server statistics.
+			 */
+			description: string
+			/**
+			 * No statistics yet. Go play some games!
+			 */
+			noStats: string
+			/**
+			 * This week users spent time in the channels:
+			 */
+			thisWeek: string
+		}
 	}
 	elements: {
 		buttons: {
@@ -510,6 +524,20 @@ export type TranslationFunctions = {
 			 * Displays current bot version and git commit SHA
 			 */
 			description: () => LocalizedString
+		}
+		stats: {
+			/**
+			 * Displays different server statistics.
+			 */
+			description: () => LocalizedString
+			/**
+			 * No statistics yet. Go play some games!
+			 */
+			noStats: () => LocalizedString
+			/**
+			 * This week users spent time in the channels:
+			 */
+			thisWeek: () => LocalizedString
 		}
 	}
 	elements: {

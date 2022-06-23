@@ -89,6 +89,11 @@ const ru: Translation = {
     version: {
       description: 'Отображает текущую версию бота и SHA коммита в гите.',
     },
+    stats: {
+      description: 'Displays different server statistics.',
+      noStats: 'Пока что нет статистики. Вперед играть в игры!',
+      thisWeek: 'На этой неделе пользователи провели времени в каналах:',
+    },
   },
   elements: {
     buttons: {
