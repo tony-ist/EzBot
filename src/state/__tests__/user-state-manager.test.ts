@@ -3,7 +3,7 @@ import { MongoMemoryServer } from 'mongodb-memory-server'
 import mongoose, { Mongoose } from 'mongoose'
 import { UserStateModel } from '../../models/user-state'
 
-describe('user-state-manager', () => {
+describe('UserStateManager', () => {
   let dbInstance: MongoMemoryServer
   let mongooseInstance: Mongoose
   beforeAll(async () => {

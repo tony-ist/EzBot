@@ -6,9 +6,8 @@ export interface Activity {
    */
   name: string
   /**
-   * Emoji symbol or emoji id that is used for dashboard. Discord or unicode emoji can be specified.
-   * For discord emoji you should extract id from emoji string <:red_alert:123000>
-   * Example value: 123000, ☭, 😄
+   * Emoji symbol or custom emoji that is used for dashboard. Discord or unicode emoji can be specified.
+   * Example value: <:SC2:123000>, ☭, 😄
    * @See https://discordjs.guide/popular-topics/reactions.html#custom-emojis
    */
   emoji: string
