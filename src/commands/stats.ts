@@ -42,7 +42,7 @@ export const statsCommand: Command<typeof COMMAND_NAME> = {
       messageParts.push(`Time spent: ${formatMs(stat.timeMilliseconds)}`)
     }
 
-    if (messageParts.length === 0) {
+    if (messageParts.length === 1) {
       await commandInteraction.reply(I18n.commands.stats.noStats())
     } else {
       await commandInteraction.reply(messageParts.join('\n'))
