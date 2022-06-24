@@ -1,7 +1,7 @@
 import Discord, { GuildMember, MessageReaction, Presence, User, VoiceState } from 'discord.js'
 import logger from '../logger'
 
-type ListenerFunction = (...args: any[]) => Promise<void>
+type ListenerFunction<T extends any[]> = (...args: T) => Promise<void>
 
 const log = logger('plugins/listener')
 
@@ -24,7 +24,7 @@ export default interface ListenerPlugin {
   onVoiceStateUpdate?: (oldState: VoiceState, newState: VoiceState) => Promise<void>
 }
 
-export function wrapErrorHandling(f: ListenerFunction): ListenerFunction {
+export function wrapErrorHandling<T extends any[]>(f: ListenerFunction<T>): ListenerFunction<T> {
   return async (...args) => {
     try {
       await f(...args)

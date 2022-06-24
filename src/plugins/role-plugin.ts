@@ -1,13 +1,25 @@
 import ListenerPlugin from './listener-plugin'
-import { GuildMember, MessageReaction, Role, User } from 'discord.js'
+import { GuildMember, MessageReaction, PartialMessageReaction, PartialUser, Role, User } from 'discord.js'
 import logger from '../logger'
 import { ActivityModel } from '../models/activity'
 import { ReactionMessageModel } from '../models/reaction-message'
 
 const log = logger('plugins/role')
 
+function isMessageReaction(object: any): object is MessageReaction {
+  return object.count !== null
+}
+
+function isUser(object: any): object is User {
+  return object.username !== null
+}
+
 export default class RolePlugin implements ListenerPlugin {
-  async onMessageReactionAdd(reaction: MessageReaction, user: User): Promise<void> {
+  async onMessageReactionAdd(reaction: MessageReaction | PartialMessageReaction, user: User | PartialUser): Promise<void> {
+    if (!isMessageReaction(reaction) || !isUser(user)) {
+      return
+    }
+
     if (!await this.isReactionOnReactionMessage(reaction)) {
       return
     }
@@ -19,8 +31,8 @@ export default class RolePlugin implements ListenerPlugin {
     log.debug(`Added role "${role.name}" to user "${user.username}"`)
   }
 
-  async onMessageReactionRemove(reaction: MessageReaction, user: User): Promise<void> {
-    if (!await this.isReactionOnReactionMessage(reaction)) {
+  async onMessageReactionRemove(reaction: MessageReaction | PartialMessageReaction, user: User | PartialUser): Promise<void> {
+    if (!isMessageReaction(reaction) || !isUser(user)) {
       return
     }
 

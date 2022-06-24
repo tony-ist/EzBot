@@ -6,11 +6,12 @@ import logger from '../logger'
 const log = logger('plugins/wrong-channel')
 
 export default class WrongChannelPlugin implements ListenerPlugin {
-  async onPresenceUpdate(oldPresence: Presence, newPresence: Presence): Promise<void> {
+  async onPresenceUpdate(oldPresence: Presence | null, newPresence: Presence): Promise<void> {
     const member = newPresence.member
     const guild = newPresence.guild
     const voiceChannel = member?.voice.channel
     const botUserId = newPresence.client.user?.id
+    // TODO: Handle cases with multiple activities
     const newDiscordActivity = newPresence.activities[0]
 
     // TODO#presenceChange: extract these ifs to some place

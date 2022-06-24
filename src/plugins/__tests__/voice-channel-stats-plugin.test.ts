@@ -105,7 +105,7 @@ describe('VoiceChannelStatsPlugin', () => {
         // eslint-disable-next-line @typescript-eslint/dot-notation
         plugin['userJoinedChannelTimestamps'].set('user', LAST_HOUR)
         await userSwitchesChannels()
-        expect(updateStatsMock).toBeCalledWith(oldState.channelId, NOW.getTime() - LAST_HOUR.getTime())
+        expect(updateStatsMock).toBeCalledWith(oldState.channelId, NOW.getTime() - LAST_HOUR.getTime(), NOW)
       })
 
       it('should not call updateStats if joinedAt is null', async () => {
@@ -149,7 +149,7 @@ describe('VoiceChannelStatsPlugin', () => {
         // eslint-disable-next-line @typescript-eslint/dot-notation
         plugin['userJoinedChannelTimestamps'].set('user', LAST_HOUR)
         await userLeavesChannel()
-        expect(updateStatsMock).toBeCalledWith(oldState.channelId, NOW.getTime() - LAST_HOUR.getTime())
+        expect(updateStatsMock).toBeCalledWith(oldState.channelId, NOW.getTime() - LAST_HOUR.getTime(), NOW)
       })
 
       it('should not call updateStats if joinedAt is null', async () => {

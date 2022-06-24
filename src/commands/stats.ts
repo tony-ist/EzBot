@@ -2,12 +2,9 @@ import { SlashCommandBuilder } from '@discordjs/builders'
 import { CommandInteraction } from 'discord.js'
 import { I18n } from '../i18n'
 import { Command } from '../types'
-import { VoiceChannelStatsModel } from '../models/voice-channel-stats'
-import { formatMs, getMonday } from '../utils/date'
-import logger from '../logger'
+import { statsFormatter } from '../features/formatters/stats-formatter'
 
 const COMMAND_NAME = 'stats'
-const log = logger(`commands/${COMMAND_NAME}`)
 
 export const statsCommand: Command<typeof COMMAND_NAME> = {
   name: COMMAND_NAME,
@@ -25,28 +22,7 @@ export const statsCommand: Command<typeof COMMAND_NAME> = {
       throw new Error('commandInteraction.guild is null')
     }
 
-    const messageParts: string[] = [I18n.commands.stats.thisWeek()]
-    const thisMonday = getMonday(new Date())
-    const voiceChannelStats = await VoiceChannelStatsModel.find({ week: thisMonday })
-
-    for (const stat of voiceChannelStats) {
-      const channel = await guild.channels.fetch(stat.voiceChannelId)
-
-      if (channel === null) {
-        log.info(`Trying to display stats for non-existing channel with id "${stat.voiceChannelId}".`)
-        continue
-      }
-
-      const channelName = channel.name
-      const timeString = formatMs(stat.timeMilliseconds)
-      messageParts.push(I18n.commands.stats.channel({ channelName }))
-      messageParts.push(I18n.commands.stats.timeSpent({ timeString }))
-    }
-
-    if (messageParts.length === 1) {
-      await commandInteraction.reply(I18n.commands.stats.noStats())
-    } else {
-      await commandInteraction.reply(messageParts.join('\n'))
-    }
+    const message = await statsFormatter(guild)
+    await commandInteraction.reply(message)
   },
 }
