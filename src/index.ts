@@ -13,6 +13,7 @@ import WelcomePlugin from './plugins/welcome-plugin'
 import RemoveActivityPlugin from './plugins/remove-activity-plugin'
 import { getVersion } from './utils/get-version'
 import VoiceChannelStatsPlugin from './plugins/voice-channel-stats-plugin'
+import GameStatsPlugin from './plugins/game-stats-plugin'
 
 const log = logger('index')
 
@@ -67,6 +68,9 @@ async function run(): Promise<void> {
 
   const voiceChannelStatsPlugin = new VoiceChannelStatsPlugin()
   discordClient.on('voiceStateUpdate', wrapErrorHandling(voiceChannelStatsPlugin.onVoiceStateUpdate.bind(voiceChannelStatsPlugin)))
+
+  const gameStatsPlugin = new GameStatsPlugin()
+  discordClient.on('presenceUpdate', wrapErrorHandling(gameStatsPlugin.onPresenceUpdate.bind(gameStatsPlugin)))
 
   await discordClient.login(config.discordApiToken)
 

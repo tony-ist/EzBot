@@ -261,23 +261,40 @@ type RootTranslation = {
 			 */
 			description: string
 			/**
-			 * No statistics yet. Go play some games!
-			 */
-			noStats: string
-			/**
-			 * __This week users spent time in the channels:__
-			 */
-			thisWeek: string
-			/**
-			 * **Channel: {channelName}**
-			 * @param {string} channelName
-			 */
-			channel: RequiredParams<'channelName'>
-			/**
 			 * Time spent: {timeString}
 			 * @param {string} timeString
 			 */
 			timeSpent: RequiredParams<'timeString'>
+			game: {
+				/**
+				 * No statistics for games yet. Go play some games!
+				 */
+				noStats: string
+				/**
+				 * __This week users spent time in games:__
+				 */
+				thisWeek: string
+				/**
+				 * **Game: {presenceName}**
+				 * @param {string} presenceName
+				 */
+				presenceName: RequiredParams<'presenceName'>
+			}
+			voiceChannel: {
+				/**
+				 * No statistics for voice channels yet. Invite friends to a voice channel!
+				 */
+				noStats: string
+				/**
+				 * __This week users spent time in the channels:__
+				 */
+				thisWeek: string
+				/**
+				 * **Channel: {channelName}**
+				 * @param {string} channelName
+				 */
+				channel: RequiredParams<'channelName'>
+			}
 		}
 	}
 	elements: {
@@ -541,21 +558,37 @@ export type TranslationFunctions = {
 			 */
 			description: () => LocalizedString
 			/**
-			 * No statistics yet. Go play some games!
-			 */
-			noStats: () => LocalizedString
-			/**
-			 * __This week users spent time in the channels:__
-			 */
-			thisWeek: () => LocalizedString
-			/**
-			 * **Channel: {channelName}**
-			 */
-			channel: (arg: { channelName: string }) => LocalizedString
-			/**
 			 * Time spent: {timeString}
 			 */
 			timeSpent: (arg: { timeString: string }) => LocalizedString
+			game: {
+				/**
+				 * No statistics for games yet. Go play some games!
+				 */
+				noStats: () => LocalizedString
+				/**
+				 * __This week users spent time in games:__
+				 */
+				thisWeek: () => LocalizedString
+				/**
+				 * **Game: {presenceName}**
+				 */
+				presenceName: (arg: { presenceName: string }) => LocalizedString
+			}
+			voiceChannel: {
+				/**
+				 * No statistics for voice channels yet. Invite friends to a voice channel!
+				 */
+				noStats: () => LocalizedString
+				/**
+				 * __This week users spent time in the channels:__
+				 */
+				thisWeek: () => LocalizedString
+				/**
+				 * **Channel: {channelName}**
+				 */
+				channel: (arg: { channelName: string }) => LocalizedString
+			}
 		}
 	}
 	elements: {

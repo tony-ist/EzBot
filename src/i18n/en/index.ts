@@ -97,10 +97,17 @@ const en: BaseTranslation = {
     },
     stats: {
       description: 'Displays different server statistics.',
-      noStats: 'No statistics yet. Go play some games!',
-      thisWeek: '__This week users spent time in the channels:__',
-      channel: '**Channel: {channelName:string}**',
       timeSpent: 'Time spent: {timeString:string}',
+      game: {
+        noStats: 'No statistics for games yet. Go play some games!',
+        thisWeek: '__This week users spent time in games:__',
+        presenceName: '**Game: {presenceName:string}**',
+      },
+      voiceChannel: {
+        noStats: 'No statistics for voice channels yet. Invite friends to a voice channel!',
+        thisWeek: '__This week users spent time in the channels:__',
+        channel: '**Channel: {channelName:string}**',
+      },
     },
   },
   elements: {

@@ -5,7 +5,7 @@ import { NullMap } from '../utils/null-map'
 import { VoiceChannelStatsModel } from '../models/voice-channel-stats'
 import { getMonday } from '../utils/date'
 
-const log = logger('plugins/stats')
+const log = logger('plugins/vc-stats')
 
 export default class VoiceChannelStatsPlugin implements ListenerPlugin {
   // Key is user id, value is timestamp when user joined the channel
@@ -59,8 +59,8 @@ export default class VoiceChannelStatsPlugin implements ListenerPlugin {
       }
 
       const timeMilliseconds = now.getTime() - joinedAt.getTime()
-      log.debug(`Time user spent in channel "${oldState.channel?.name}" in milliseconds: ${timeMilliseconds}`)
-      await VoiceChannelStatsPlugin.updateStats(oldState.channelId, timeMilliseconds)
+      log.debug(`Time user "${userName}" spent in channel "${oldState.channel?.name}" in milliseconds: ${timeMilliseconds}`)
+      await VoiceChannelStatsPlugin.updateStats(oldState.channelId, timeMilliseconds, now)
     } else if (newState.channelId !== null) {
       this.userJoinedChannelTimestamps.set(userId, now)
     }
