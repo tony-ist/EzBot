@@ -5,7 +5,7 @@ import { GameStatsModel } from '../../models/game-stats'
 export async function gameStatsFormatter() {
   const messageParts: string[] = [I18n.commands.stats.game.thisWeek()]
   const thisMonday = getMonday(new Date())
-  const gameStats = await GameStatsModel.find({ week: thisMonday })
+  const gameStats = await GameStatsModel.find({ week: thisMonday }).sort({ timeMilliseconds: 'desc' })
 
   for (const stat of gameStats) {
     const timeString = formatMs(stat.timeMilliseconds)

@@ -9,7 +9,7 @@ const log = logger('features/voice-channel-stats-formatter')
 export async function voiceChannelStatsFormatter(guild: Guild) {
   const messageParts: string[] = [I18n.commands.stats.voiceChannel.thisWeek()]
   const thisMonday = getMonday(new Date())
-  const voiceChannelStats = await VoiceChannelStatsModel.find({ week: thisMonday })
+  const voiceChannelStats = await VoiceChannelStatsModel.find({ week: thisMonday }).sort({ timeMilliseconds: 'desc' })
 
   for (const stat of voiceChannelStats) {
     const channel = await guild.channels.fetch(stat.voiceChannelId)
