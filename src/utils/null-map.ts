@@ -1,5 +1,9 @@
+/**
+ * Behaves just as usual Map<K, V>, but when the element is not found it returns null instead of undefined.
+ */
+// TODO: Rewrite using "extends Map<K, V>"
 export class NullMap<K, V> {
-  private readonly map = new Map<K, V>()
+  private readonly map: Map<K, V>
 
   constructor(array?: Array<[K, V]>) {
     this.map = new Map(array)
@@ -10,16 +14,10 @@ export class NullMap<K, V> {
   }
 
   get(key: K) {
-    const value = this.map.get(key)
-
-    if (value === undefined) {
-      return null
-    } else {
-      return value
-    }
+    return this.map.get(key) ?? null
   }
 
   delete(key: K) {
-    this.map.delete(key)
+    return this.map.delete(key)
   }
 }

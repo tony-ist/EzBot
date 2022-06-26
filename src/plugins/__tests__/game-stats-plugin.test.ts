@@ -10,6 +10,7 @@ const LAST_HOUR = new Date(2022, 5, 23, 0, 2, 3, 4)
 const NOW = new Date(2022, 5, 23, 1, 2, 3, 4)
 const MONDAY = new Date(2022, 5, 20)
 
+/* eslint-disable @typescript-eslint/dot-notation */
 describe('GameStatsPlugin', () => {
   let dbInstance: MongoMemoryServer
   let mongooseInstance: Mongoose
@@ -78,32 +79,37 @@ describe('GameStatsPlugin', () => {
         jest.clearAllMocks()
       })
 
-      // TODO: Handle multiple activities
-      it('should do nothing on multiple activities', async () => {
-        oldPresence.activities = [new ActivityMock(), new ActivityMock()]
+      it('should clear userStartedPlayingGameTimestamps on multiple activities in diff', async () => {
+        const activity1 = new ActivityMock()
+        activity1.name = 'activityName1'
+        const activity2 = new ActivityMock()
+        activity2.name = 'activityName2'
+        oldPresence.activities = [activity1, activity2]
+        plugin['userStartedPlayingGameTimestamps'].set(userId, activity1.name, LAST_HOUR)
+        plugin['userStartedPlayingGameTimestamps'].set(userId, activity2.name, LAST_HOUR)
         await plugin.onPresenceUpdate(oldPresence as any, newPresence as any, NOW)
-        expect(updateStatsMock).toBeCalledTimes(0)
-        // eslint-disable-next-line @typescript-eslint/dot-notation
-        expect(plugin['userStartedPlayingGameTimestamps']['map'].size).toBe(0)
+        expect(plugin['userStartedPlayingGameTimestamps'].entriesArray()).toStrictEqual([])
       })
 
-      it('should update userStartedPlayingGameTimestamps', async () => {
+      it('should clear userStartedPlayingGameTimestamps on single activity in diff', async () => {
+        const activity1 = new ActivityMock()
+        activity1.name = 'activityName1'
+        const activity2 = new ActivityMock()
+        activity2.name = 'activityName2'
+        oldPresence.activities = [activity1, activity2]
+        newPresence.activities = [activity1]
+        plugin['userStartedPlayingGameTimestamps'].set(userId, activity1.name, LAST_HOUR)
+        plugin['userStartedPlayingGameTimestamps'].set(userId, activity2.name, LAST_HOUR)
+        await plugin.onPresenceUpdate(oldPresence as any, newPresence as any, NOW)
+        expect(plugin['userStartedPlayingGameTimestamps'].entriesArray())
+          .toStrictEqual([[userId, activity1.name, LAST_HOUR]])
+      })
+
+      it('should call updateStats 1 time if there is one old activity', async () => {
         const activity = new ActivityMock()
         activity.name = 'activityName'
         oldPresence.activities = [activity]
-        // eslint-disable-next-line @typescript-eslint/dot-notation
-        plugin['userStartedPlayingGameTimestamps'].set(userId, LAST_HOUR)
-        await plugin.onPresenceUpdate(oldPresence as any, newPresence as any, NOW)
-        // eslint-disable-next-line @typescript-eslint/dot-notation
-        expect(plugin['userStartedPlayingGameTimestamps']['map'].size).toBe(0)
-      })
-
-      it('should call updateStats 1 time', async () => {
-        const activity = new ActivityMock()
-        activity.name = 'activityName'
-        oldPresence.activities = [activity]
-        // eslint-disable-next-line @typescript-eslint/dot-notation
-        plugin['userStartedPlayingGameTimestamps'].set(userId, LAST_HOUR)
+        plugin['userStartedPlayingGameTimestamps'].set(userId, activity.name, LAST_HOUR)
         await plugin.onPresenceUpdate(oldPresence as any, newPresence as any, NOW)
         expect(updateStatsMock).toBeCalledWith(activity.name, NOW.getTime() - LAST_HOUR.getTime(), NOW)
       })
@@ -135,33 +141,120 @@ describe('GameStatsPlugin', () => {
         jest.clearAllMocks()
       })
 
-      // TODO: Handle multiple activities
-      it('should do nothing on multiple activities', async () => {
-        newPresence.activities = [new ActivityMock(), new ActivityMock()]
+      it('should update userStartedPlayingGameTimestamps on multiple activities in diff', async () => {
+        const activity1 = new ActivityMock()
+        activity1.name = 'activityName1'
+        const activity2 = new ActivityMock()
+        activity2.name = 'activityName2'
+        newPresence.activities = [activity1, activity2]
         await plugin.onPresenceUpdate(oldPresence as any, newPresence as any, NOW)
         expect(updateStatsMock).toBeCalledTimes(0)
-        // eslint-disable-next-line @typescript-eslint/dot-notation
-        expect(plugin['userStartedPlayingGameTimestamps']['map'].size).toBe(0)
+        expect(plugin['userStartedPlayingGameTimestamps'].entriesArray())
+          .toStrictEqual([[userId, activity1.name, NOW], [userId, activity2.name, NOW]])
       })
 
-      it('should update userStartedPlayingGameTimestamps', async () => {
-        const activity = new ActivityMock()
-        activity.name = 'activityName'
-        newPresence.activities = [activity]
-        // eslint-disable-next-line @typescript-eslint/dot-notation
-        plugin['userStartedPlayingGameTimestamps'].set(userId, LAST_HOUR)
+      it('should update userStartedPlayingGameTimestamps on single activity in diff', async () => {
+        const activity1 = new ActivityMock()
+        activity1.name = 'activityName1'
+        const activity2 = new ActivityMock()
+        activity2.name = 'activityName2'
+        oldPresence.activities = [activity1]
+        newPresence.activities = [activity1, activity2]
         await plugin.onPresenceUpdate(oldPresence as any, newPresence as any, NOW)
-        // eslint-disable-next-line @typescript-eslint/dot-notation
-        const timestamps = Array.from(plugin['userStartedPlayingGameTimestamps']['map'])
-        expect(timestamps).toStrictEqual([[userId, NOW]])
+        expect(plugin['userStartedPlayingGameTimestamps'].entriesArray())
+          .toStrictEqual([[userId, activity2.name, NOW]])
       })
 
       it('should not call updateStats', async () => {
         const activity = new ActivityMock()
         activity.name = 'activityName'
         newPresence.activities = [activity]
-        // eslint-disable-next-line @typescript-eslint/dot-notation
-        plugin['userStartedPlayingGameTimestamps'].set(userId, LAST_HOUR)
+        plugin['userStartedPlayingGameTimestamps'].set(userId, activity.name, LAST_HOUR)
+        await plugin.onPresenceUpdate(oldPresence as any, newPresence as any, NOW)
+        expect(updateStatsMock).toBeCalledTimes(0)
+      })
+    })
+
+    describe('user switches game', () => {
+      let updateStatsMock: jest.SpyInstance
+      let oldPresence: PresenceMock
+      let newPresence: PresenceMock
+      let plugin: GameStatsPlugin
+      const userId = 'userId'
+
+      beforeEach(async () => {
+        updateStatsMock = jest.spyOn(GameStatsPlugin, 'updateStats')
+        oldPresence = new PresenceMock()
+        oldPresence.userId = userId
+        newPresence = new PresenceMock()
+        newPresence.userId = userId
+        plugin = new GameStatsPlugin()
+      })
+
+      afterEach(() => {
+        jest.clearAllMocks()
+      })
+
+      describe('single activity in diff', () => {
+        describe('activities have 2 elements', () => {
+          const activity1 = new ActivityMock()
+          const activity2 = new ActivityMock()
+          const activity3 = new ActivityMock()
+
+          beforeEach(() => {
+            activity1.name = 'activityName1'
+            activity2.name = 'activityName2'
+            activity3.name = 'activityName3'
+            oldPresence.activities = [activity1, activity2]
+            newPresence.activities = [activity1, activity3]
+            plugin['userStartedPlayingGameTimestamps'].set(userId, activity1.name, LAST_HOUR)
+            plugin['userStartedPlayingGameTimestamps'].set(userId, activity2.name, LAST_HOUR)
+          })
+
+          it('should update userStartedPlayingGameTimestamps', async () => {
+            await plugin.onPresenceUpdate(oldPresence as any, newPresence as any, NOW)
+            expect(plugin['userStartedPlayingGameTimestamps'].entriesArray())
+              .toStrictEqual([[userId, activity1.name, LAST_HOUR], [userId, activity3.name, NOW]])
+          })
+
+          it('should call updateStats 1 time', async () => {
+            await plugin.onPresenceUpdate(oldPresence as any, newPresence as any, NOW)
+            expect(updateStatsMock).toBeCalledWith(activity2.name, NOW.getTime() - LAST_HOUR.getTime(), NOW)
+          })
+        })
+
+        describe('activities have 1 element', () => {
+          const activity1 = new ActivityMock()
+          const activity2 = new ActivityMock()
+
+          beforeEach(() => {
+            activity1.name = 'activityName1'
+            activity2.name = 'activityName2'
+            oldPresence.activities = [activity1]
+            newPresence.activities = [activity2]
+            plugin['userStartedPlayingGameTimestamps'].set(userId, activity1.name, LAST_HOUR)
+          })
+
+          it('should update userStartedPlayingGameTimestamps on single activity in diff when activities have 1 element', async () => {
+            await plugin.onPresenceUpdate(oldPresence as any, newPresence as any, NOW)
+            expect(plugin['userStartedPlayingGameTimestamps'].entriesArray())
+              .toStrictEqual([[userId, activity2.name, NOW]])
+          })
+
+          it('should call updateStats 1 time on single activity in diff when activities have 1 element', async () => {
+            await plugin.onPresenceUpdate(oldPresence as any, newPresence as any, NOW)
+            expect(updateStatsMock).toBeCalledWith(activity1.name, NOW.getTime() - LAST_HOUR.getTime(), NOW)
+          })
+        })
+      })
+
+      it('should not call updateStats if startedPlaying is null', async () => {
+        const activity1 = new ActivityMock()
+        activity1.name = 'activityName1'
+        const activity2 = new ActivityMock()
+        activity2.name = 'activityName2'
+        oldPresence.activities = [activity1]
+        newPresence.activities = [activity2]
         await plugin.onPresenceUpdate(oldPresence as any, newPresence as any, NOW)
         expect(updateStatsMock).toBeCalledTimes(0)
       })
