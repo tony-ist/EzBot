@@ -1,18 +1,18 @@
 import ListenerPlugin from './listener-plugin'
 import { Activity, Presence } from 'discord.js'
 import logger from '../logger'
-import { NullMap } from '../utils/null-map'
 import { getMonday } from '../utils/date'
 import { GameStatsModel } from '../models/game-stats'
+import { StringPairMap } from '../utils/string-pair-map'
 
 const log = logger('plugins/game-stats')
 
 export default class GameStatsPlugin implements ListenerPlugin {
-  // Key is user id, value is timestamp when user started playing the game
+  // First key is user id, second key is game name, value is timestamp when user started playing the game
   private readonly userStartedPlayingGameTimestamps
 
-  constructor(timestamps?: Array<[string, Date]>) {
-    this.userStartedPlayingGameTimestamps = new NullMap<string, Date>(timestamps)
+  constructor() {
+    this.userStartedPlayingGameTimestamps = new StringPairMap<Date>()
   }
 
   static async updateStats(presenceName: string, timeMilliseconds: number, now: Date = new Date()) {
@@ -34,6 +34,21 @@ export default class GameStatsPlugin implements ListenerPlugin {
     return oldActivities.length === 0 && newActivities.length > 0
   }
 
+  async userLeftGame(userId: string, userName: string, oldActivity: Activity, now: Date) {
+    log.debug(`User "${userName}" left game "${oldActivity.name}" with game id "${oldActivity.id}"`)
+    const startedPlaying = this.userStartedPlayingGameTimestamps.get(userId, oldActivity.name)
+    this.userStartedPlayingGameTimestamps.delete(userId, oldActivity.name)
+
+    if (startedPlaying === null) {
+      log.info(`No info on when user "${userName}" started playing the game "${oldActivity.name}" found. Skipping...`)
+      return
+    }
+
+    const timeMilliseconds = now.getTime() - startedPlaying.getTime()
+    log.debug(`Time user "${userName}" spent in the game "${oldActivity.name}" in milliseconds: ${timeMilliseconds}`)
+    await GameStatsPlugin.updateStats(oldActivity.name, timeMilliseconds, now)
+  }
+
   async onPresenceUpdate(oldPresence: Presence | null, newPresence: Presence, now: Date = new Date()): Promise<void> {
     const oldActivities = oldPresence === null ? [] : oldPresence.activities
     const newActivities = newPresence.activities
@@ -42,48 +57,29 @@ export default class GameStatsPlugin implements ListenerPlugin {
       log.debug(`FYI oldActivities or newActivities for user "${oldPresence?.user?.username}" has more than 1 element.`)
       log.debug('oldActivities:', oldActivities)
       log.debug('newActivities:', newActivities)
-
-      // TODO: Handle multiple activities
-      return
     }
 
-    const oldGameName = oldActivities[0]?.name
-    const newGameName = newActivities[0]?.name
+    // Filter out activities with the same name from both arrays
+    const relevantOldActivities = oldActivities
+      .filter(activity => newActivities.find(a => a.name === activity.name) === undefined)
+    const relevantNewActivities = newActivities
+      .filter(activity => oldActivities.find(a => a.name === activity.name) === undefined)
+
     const userId = newPresence.userId
-    const userName = newPresence.user?.username
 
-    if (oldGameName === newGameName) {
-      log.debug(`For user "${newPresence.user?.username}" old game is "${oldGameName}". It is the same as the new game. Skipping...`)
-      return
+    if (newPresence.user === null) {
+      throw new Error('newPresence.user is null')
     }
 
-    if (GameStatsPlugin.isUserSwitchedGame(oldActivities, newActivities)) {
-      log.debug(`User "${newPresence.user?.username}" switched game from game "${oldActivities[0].name}" with game id "${oldActivities[0].id}" to game "${newActivities[0].name}" with game id "${oldActivities[0].id}"`)
-    } else if (GameStatsPlugin.isUserLeftGame(oldActivities, newActivities)) {
-      log.debug(`User "${newPresence.user?.username}" left game "${oldActivities[0].name}" with game id "${oldActivities[0].id}"`)
-    } else if (GameStatsPlugin.isUserJoinedGame(oldActivities, newActivities)) {
-      log.debug(`User "${newPresence.user?.username}" joined game "${newActivities[0].name}" with game id "${newActivities[0].id}"`)
+    const userName = newPresence.user.username
+
+    for (const oldActivity of relevantOldActivities) {
+      await this.userLeftGame(userId, userName, oldActivity, now)
     }
 
-    if (oldActivities.length > 0) {
-      const startedPlaying = this.userStartedPlayingGameTimestamps.get(userId)
-
-      if (newActivities.length === 0) {
-        this.userStartedPlayingGameTimestamps.delete(userId)
-      } else {
-        this.userStartedPlayingGameTimestamps.set(userId, now)
-      }
-
-      if (startedPlaying === null) {
-        log.info(`No info on when user "${userName}" started playing the game "${oldGameName}" found. Skipping...`)
-        return
-      }
-
-      const timeMilliseconds = now.getTime() - startedPlaying.getTime()
-      log.debug(`Time user "${userName}" spent in the game "${oldGameName}" in milliseconds: ${timeMilliseconds}`)
-      await GameStatsPlugin.updateStats(oldGameName, timeMilliseconds, now)
-    } else if (newActivities.length > 0) {
-      this.userStartedPlayingGameTimestamps.set(userId, now)
+    for (const newActivity of relevantNewActivities) {
+      log.debug(`User "${userName}" joined game "${newActivity.name}" with game id "${newActivity.id}"`)
+      this.userStartedPlayingGameTimestamps.set(userId, newActivity.name, now)
     }
   }
 }

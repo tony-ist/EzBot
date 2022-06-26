@@ -25,4 +25,10 @@ describe('NullMap', () => {
     const nullMap = new NullMap(array)
     expect(nullMap.get('2')).toStrictEqual(array[1][1])
   })
+
+  it('should not handle array key', () => {
+    const array: Array<[[string, string], Date]> = [[['1', '11'], new Date(2022)], [['2', '22'], new Date(2023)]]
+    const nullMap = new NullMap(array)
+    expect(nullMap.get(['2', '22'])).toBeNull()
+  })
 })
