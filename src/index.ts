@@ -14,6 +14,7 @@ import RemoveActivityPlugin from './plugins/remove-activity-plugin'
 import { getVersion } from './utils/get-version'
 import VoiceChannelStatsPlugin from './plugins/voice-channel-stats-plugin'
 import GameStatsPlugin from './plugins/game-stats-plugin'
+import { scheduleWeeklyStats } from './components/scheduler'
 
 const log = logger('index')
 
@@ -73,6 +74,8 @@ async function run(): Promise<void> {
   discordClient.on('presenceUpdate', wrapErrorHandling(gameStatsPlugin.onPresenceUpdate.bind(gameStatsPlugin)))
 
   await discordClient.login(config.discordApiToken)
+
+  scheduleWeeklyStats(discordClient)
 
   if (process.env.NODE_ENV === 'production') {
     const authorId = '158576177009786880'
