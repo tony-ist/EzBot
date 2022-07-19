@@ -4,10 +4,9 @@ import { voiceChannelStatsFormatter } from './voice-channel-stats-formatter'
 
 export async function statsFormatter(guild: Guild) {
   const messageParts = [
-    await voiceChannelStatsFormatter(guild),
-    '\n',
     await gameStatsFormatter(),
+    await voiceChannelStatsFormatter(guild),
   ]
 
-  return messageParts.join('\n')
+  return messageParts.join('\n\n')
 }

@@ -29,6 +29,7 @@ export const summonCommand: Command<typeof COMMAND_NAME> = {
       throw new Error(`Guild is ${guild}`)
     }
 
+    // TODO: Use voiceStates.resolve instead
     const voiceState = guild.voiceStates.cache.get(userId)
     const voiceChannel = voiceState?.channel
     const presences = guild.presences.cache

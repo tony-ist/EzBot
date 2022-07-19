@@ -1,4 +1,5 @@
 import type { Translation } from '../i18n-types'
+import { MAX_DISPLAYED_GAME_STATS, MAX_DISPLAYED_VC_STATS } from '../../constants'
 
 const ru: Translation = {
   commands: {
@@ -94,12 +95,12 @@ const ru: Translation = {
       timeSpent: 'Времени проведено: {timeString}',
       game: {
         noStats: 'Пока что нет статистики по играм. Вперед играть в игры!',
-        thisWeek: '__На этой неделе пользователи провели времени в играх:__',
+        thisWeek: `__Топ ${MAX_DISPLAYED_GAME_STATS} игр на этой неделе:__`,
         presenceName: '**Игра: {presenceName}**',
       },
       voiceChannel: {
         noStats: 'Пока что нет статистики по голосовым каналам. Пригласи друзей в голосовой канал!',
-        thisWeek: '__На этой неделе пользователи провели времени в каналах:__',
+        thisWeek: `__Топ ${MAX_DISPLAYED_VC_STATS} каналов на этой неделе:__`,
         channel: '**Канал: {channelName}**',
       },
     },
