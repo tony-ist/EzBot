@@ -1,0 +1,2 @@
+export const MAX_DISPLAYED_GAME_STATS = 10
+export const MAX_DISPLAYED_VC_STATS = 10

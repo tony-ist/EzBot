@@ -3,6 +3,7 @@ import { formatMs, getMonday } from '../../utils/date'
 import { VoiceChannelStatsModel } from '../../models/voice-channel-stats'
 import { Guild } from 'discord.js'
 import logger from '../../logger'
+import { MAX_DISPLAYED_VC_STATS } from '../../constants'
 
 const log = logger('features/voice-channel-stats-formatter')
 
@@ -10,8 +11,9 @@ export async function voiceChannelStatsFormatter(guild: Guild) {
   const messageParts: string[] = [I18n.commands.stats.voiceChannel.thisWeek()]
   const thisMonday = getMonday(new Date())
   const voiceChannelStats = await VoiceChannelStatsModel.find({ week: thisMonday }).sort({ timeMilliseconds: 'desc' })
+  const voiceChannelStatsToDisplay = voiceChannelStats.slice(0, MAX_DISPLAYED_VC_STATS)
 
-  for (const stat of voiceChannelStats) {
+  for (const stat of voiceChannelStatsToDisplay) {
     const channel = await guild.channels.fetch(stat.voiceChannelId)
 
     if (channel === null) {
